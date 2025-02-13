@@ -3,20 +3,17 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace chatgroup_server.Models
 {
-    public class GroupMessages
+    public class GroupMembers
     {
         [Key]
-        public int GroupedMessageId { get; set; }
-        public int SenderId { get; set; }
+        public int Id { get; set; }
         public int GroupId {  get; set; }
-        public string? Content {  get; set; }
-        public string MessageType { get; set; } = "Text";
+        public int UserId {  get; set; }
         public DateTime CreateAt { get; set; }=DateTime.Now;
         public int Status { get; set; } = 1;
-        [ForeignKey(nameof(SenderId))]
-        public User? User { get; set; }
-        [ForeignKey(nameof(GroupId))] 
+        [ForeignKey(nameof(GroupId))]
         public Group? Group { get; set; }
-        
+        [ForeignKey(nameof(UserId))]
+        public User? User { get; set; }
     }
 }
