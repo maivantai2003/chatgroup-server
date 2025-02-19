@@ -9,12 +9,12 @@ namespace chatgroup_server.Models
         public int GroupDetailId {  get; set; }
         public int UserId { get; set; }
         public int GroupId { get; set; }
-        public string? Role { get; set; }
-        public string? Status {  get; set; }
+        public string? Role { get; set; } = "MemBer";
+        public int Status { get; set; } = 1;
         [ForeignKey(nameof(UserId))]
-        public User? User { get; set; }
+        public User? user { get; set; }
         [ForeignKey(nameof(GroupId))]
-        public Group? Group { get; set; }
+        public Group? group { get; set; }
 
     }
 }

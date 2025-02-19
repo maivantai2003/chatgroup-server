@@ -14,5 +14,6 @@ namespace chatgroup_server.Models
         public string? Avatar {  get; set; }
         public string? CoverPhoto {  get; set; }
         public int Status { get; set; } = 1;
+        public ICollection<Friends>? friends { get; set; }
     }
 }

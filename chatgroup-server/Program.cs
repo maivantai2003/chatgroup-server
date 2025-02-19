@@ -1,4 +1,5 @@
 using chatgroup_server.Data;
+using chatgroup_server.Hubs;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -28,9 +29,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.MapHub<myHub>("/app-hub");
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
 
 app.MapControllers();

@@ -12,8 +12,8 @@ namespace chatgroup_server.Models
         public DateTime CreateAt { get; set; }=DateTime.Now;
         public int Status { get; set; } = 1;
         [ForeignKey(nameof(GroupId))]
-        public Group? Group { get; set; }
+        public Group? group { get; set; }
         [ForeignKey(nameof(UserId))]
-        public User? User { get; set; }
+        public User? user { get; set; }
     }
 }

@@ -12,5 +12,6 @@ namespace chatgroup_server.Models
         public string? Content {  get; set; }
         public DateTime CreateAt {  get; set; }=DateTime.Now;
         public int Status { get; set; } = 1;
+        public ICollection<User>? users { get; set; }
     }
 }
