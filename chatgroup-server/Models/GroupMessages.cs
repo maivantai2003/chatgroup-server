@@ -14,9 +14,11 @@ namespace chatgroup_server.Models
         public DateTime CreateAt { get; set; }=DateTime.Now;
         public int Status { get; set; } = 1;
         [ForeignKey(nameof(SenderId))]
-        public User? User { get; set; }
+        public User? Sender { get; set; }
         [ForeignKey(nameof(GroupId))] 
         public Group? Group { get; set; }
-        
+        public virtual ICollection<GroupMessageFile> ?groupMessageFiles { get; set; }
+        public virtual ICollection<GroupMessageReaction>? groupMessageReactions { get; set; }
+        public virtual ICollection<GroupMessageStatus>? groupMessageStatuses { get; set; }
     }
 }

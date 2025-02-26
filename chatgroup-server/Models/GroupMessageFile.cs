@@ -11,8 +11,8 @@ namespace chatgroup_server.Models
         public int GroupedMessageId {  get; set; }
         public int Status { get; set; } = 1;
         [ForeignKey(nameof(FileId))]
-        public Files? Files { get; set; }
+        public virtual Files? File { get; set; }
         [ForeignKey(nameof(GroupedMessageId))]
-        public GroupMessages? groupMessages { get; set; }
+        public virtual GroupMessages? groupMessage { get; set; }
     }
 }

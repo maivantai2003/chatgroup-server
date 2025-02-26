@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace chatgroup_server.Models
 {
@@ -12,6 +13,12 @@ namespace chatgroup_server.Models
         public string? Content {  get; set; }
         public DateTime CreateAt {  get; set; }=DateTime.Now;
         public int Status { get; set; } = 1;
-        public ICollection<User>? users { get; set; }
+        [ForeignKey(nameof(SenderId))]
+        public virtual User? Sender { get; set; }
+        [ForeignKey(nameof(ReceiverId))]
+        public virtual User? Receiver {  get; set; }
+        public virtual ICollection<UserMessageReaction>? userMessageReactions { get; set; }
+        public virtual ICollection<UserMessageStatus>? userMessageStatuses { get; set; }
+        public virtual ICollection<UserMessageFile>? userMessageFiles { get; set; }
     }
 }

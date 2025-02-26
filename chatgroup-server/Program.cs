@@ -1,5 +1,6 @@
 using chatgroup_server.Data;
 using chatgroup_server.Hubs;
+using chatgroup_server.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -14,6 +15,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSignalR();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(options => { options.UseSqlServer(builder.Configuration.GetConnectionString("Connection")); });
+builder.Services.AddApplication();
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = configuration["RedisCacheUrl"];

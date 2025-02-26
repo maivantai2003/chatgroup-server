@@ -11,9 +11,9 @@ namespace chatgroup_server.Models
         public int FriendId {  get; set; }
         public int Status { get; set; } = 0;
         [ForeignKey(nameof(UserId))]
-        public User? user { get; set; }
+        public virtual User? User { get; set; }
         [ForeignKey(nameof(FriendId))]
-        public User? friend { get; set; }
+        public virtual User? Friend { get; set; }
         public DateTime CreateAt { get; set; }=DateTime.Now;
     }
 }

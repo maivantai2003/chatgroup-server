@@ -12,9 +12,9 @@ namespace chatgroup_server.Models
         public string? Role { get; set; } = "MemBer";
         public int Status { get; set; } = 1;
         [ForeignKey(nameof(UserId))]
-        public User? user { get; set; }
+        public virtual User? User { get; set; }
         [ForeignKey(nameof(GroupId))]
-        public Group? group { get; set; }
+        public virtual Group? Group { get; set; }
 
     }
 }

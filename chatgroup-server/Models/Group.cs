@@ -9,6 +9,6 @@ namespace chatgroup_server.Models
         public string ?GroupName {  get; set; }
         public string ?Avatar {  get; set; }
         public int Status { get; set; } = 1;
-        public ICollection<GroupDetail>? groupDetail { get; set; }
+        public virtual ICollection<GroupDetail>? groupDetail { get; set; }
     }
 }

@@ -14,9 +14,9 @@ namespace chatgroup_server.Models
         public DateTime? ReceivedAt { get; set; }
         public DateTime? ReadAt { get; set; }
         [ForeignKey(nameof(UserMessageId))]
-        public UserMessages? Message { get; set; }
+        public virtual UserMessages? Message { get; set; }
 
         [ForeignKey(nameof(ReceiverId))]
-        public User? Receiver { get; set; }
+        public virtual User? Receiver { get; set; }
     }
 }
