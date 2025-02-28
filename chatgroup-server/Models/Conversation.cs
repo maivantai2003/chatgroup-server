@@ -10,7 +10,7 @@ namespace chatgroup_server.Models
         public int UserId {  get; set; }
         public DateTime LastMessage { get; set; }=DateTime.Now;
         public string ?Content { get; set; }
-        public Group? group { get; set; }
-        public User? user { get; set; }
+        public Group? Group { get; set; }
+        public User? User { get; set; }
     }
 }

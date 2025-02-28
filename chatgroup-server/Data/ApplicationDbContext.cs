@@ -19,6 +19,7 @@ namespace chatgroup_server.Data
         public DbSet<GroupMessageReaction> GroupMessageReactions { get; set; }
         public DbSet<GroupMessageStatus> GroupMessageStatuses { get; set; }
         public DbSet<UserMessageStatus> UserMessageStatuses { get; set; }
+        public DbSet<UserRefreshToken> UserRefreshTokens {  get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Friends>().HasOne(f => f.User).WithMany(u => u.Friends).HasForeignKey(f=>f.UserId).OnDelete(DeleteBehavior.NoAction);

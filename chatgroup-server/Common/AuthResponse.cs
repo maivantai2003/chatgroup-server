@@ -8,5 +8,8 @@
         public string Reason { get; set; }
         public string? DeviceName { get; set; }
         public DateTime LoginTime { get; set; }=DateTime.Now;
+        public string osName { get; set; }
+        public string Browser { get; set; }
+        public string ipAddress { get; set; }
     }
 }

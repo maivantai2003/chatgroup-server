@@ -1,4 +1,5 @@
-﻿using chatgroup_server.Interfaces;
+﻿using chatgroup_server.Common;
+using chatgroup_server.Interfaces;
 using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
@@ -15,18 +16,18 @@ namespace chatgroup_server.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<bool> AddUserAsync(User user)
+        public async Task<ApiResponse<User>> AddUserAsync(User user)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
                 await _userRepository.AddUserAsync(user);
                 await _unitOfWork.CommitAsync();
-                return true;
+                return ApiResponse<User>.SuccessResponse("Đăng Ký Thành Công",user);
             }
             catch (Exception ex) {
                 await _unitOfWork.RollbackAsync();
-                throw;
+                return ApiResponse<User>.ErrorResponse("Đăng Ký Thất Bại",new List<string> { ex.Message });
             }
         }
 

@@ -31,5 +31,7 @@ namespace chatgroup_server.Models
         //Message Status
         public virtual ICollection<UserMessageStatus>? userMessageStatuses { get; set; }
         public virtual ICollection<GroupMessageStatus>? groupMessageStatuses { get; set; }
+        //RefreshToken
+        public virtual ICollection<UserRefreshToken>? userRefreshTokens { get; set; }
     }
 }

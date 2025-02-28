@@ -6,5 +6,7 @@ namespace chatgroup_server.Common
     {
         [Required]
         public string? PhoneNumber { get; set; }
+        [Required]
+        public string? UserName {  get; set; }
     }
 }

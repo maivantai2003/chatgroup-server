@@ -9,7 +9,9 @@ namespace chatgroup_server.Extensions
     public static class ServiceExtention
     {
         public static IServiceCollection AddApplication(this IServiceCollection services) {
+            services.AddSingleton<RedisService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IFriendRepository, FriendRepository>();
@@ -22,6 +24,8 @@ namespace chatgroup_server.Extensions
             services.AddScoped<IUserMessageService, UserMessageService>();
             services.AddScoped<IGroupMessageRepository, GroupMessageRepository>();
             services.AddScoped<IGroupMessageService, GroupMessageService>();
+            services.AddScoped<IFileRepository, FileRepository>();
+            services.AddScoped<IFileService, FileService>();
             return services;
         }
     }
