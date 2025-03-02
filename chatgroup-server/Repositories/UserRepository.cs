@@ -26,9 +26,9 @@ namespace chatgroup_server.Repositories
             return await _context.Users.AsNoTracking().ToListAsync();   
         }
 
-        public async Task<User?> GetUserByIdAsync(int userId)
+        public async Task<User?> GetUserByIdAsync(string numberPhone)
         {
-            return await _context.Users.FindAsync(userId);
+            return await _context.Users.AsNoTracking().FirstOrDefaultAsync(x=>x.PhoneNumber.Equals(numberPhone));
         }
 
         public void UpdateUser(User user)

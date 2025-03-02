@@ -1,4 +1,5 @@
 ﻿using chatgroup_server.Data;
+using chatgroup_server.Dtos;
 using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Models;
 using Microsoft.EntityFrameworkCore;
@@ -21,11 +22,27 @@ namespace chatgroup_server.Repositories
                 .FirstOrDefaultAsync(g => g.GroupId == groupId);
         }
 
-        public async Task<IEnumerable<Group>> GetAllGroupsAsync()
+        public async Task<IEnumerable<GroupUserDto>> GetAllGroupsAsync(int userId)
         {
-            return await _context.Groups
-                .Include(g => g.groupDetail)
-                .ToListAsync();
+            return await _context.GroupDetails.Where(x => x.UserId == userId && x.Status==1).AsNoTracking().Include(x => x.Group).ThenInclude(x=>x.groupDetail).ThenInclude(x=>x.User).Select(
+                x => new GroupUserDto()
+                {
+                    GroupId = x.Group.GroupId,
+                    GroupName=x.Group.GroupName ?? "None",
+                    Status = x.Group.Status,
+                    Avatar=x.Group.Avatar,
+                    groupDetailUsers=x.Group.groupDetail.Select(
+                        m=>new GroupDetailUserDto()
+                        {
+                            GroupDetailId = m.GroupDetailId,
+                            UserId = m.UserId,  
+                            AvatarUrl=m.User.Avatar,
+                            Role=m.Role,
+                            UserName=m.User.UserName,
+                            Status=m.Status,
+                        }).ToList(),
+                    UserNumber = x.Group.groupDetail.Count()
+                }).ToListAsync();
         }
 
         public async Task AddGroupAsync(Group group)

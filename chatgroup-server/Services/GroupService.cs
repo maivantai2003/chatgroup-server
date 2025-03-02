@@ -2,6 +2,8 @@
 using chatgroup_server.Interfaces;
 using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
+using chatgroup_server.Dtos;
+using chatgroup_server.Common;
 
 namespace chatgroup_server.Services
 {
@@ -21,23 +23,36 @@ namespace chatgroup_server.Services
             return await _groupRepository.GetGroupByIdAsync(groupId);
         }
 
-        public async Task<IEnumerable<Group>> GetAllGroupsAsync()
+        public async Task<ApiResponse<IEnumerable<GroupUserDto>>> GetAllGroupsAsync(int userId)
         {
-            return await _groupRepository.GetAllGroupsAsync();
+            try
+            {
+                var result=await _groupRepository.GetAllGroupsAsync(userId);
+                return ApiResponse<IEnumerable<GroupUserDto>>.SuccessResponse("Danh sách nhóm",result);
+            }
+            catch (Exception ex) {
+                return ApiResponse<IEnumerable<GroupUserDto>>.ErrorResponse("Error", new List<string>()
+                {
+                    ex.Message  
+                });
+            }
         }
-        public async Task<bool> AddGroupAsync(Group group)
+        public async Task<ApiResponse<Group>> AddGroupAsync(Group group)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
                 await _groupRepository.AddGroupAsync(group);
                 await _unitOfWork.CommitAsync();
-                return true;
+                return ApiResponse<Group>.SuccessResponse("Tạo nhóm thành công",group);
             }
-            catch
+            catch(Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                return false;
+                return ApiResponse<Group>.ErrorResponse("Tạo nhóm không thành công", new List<string>()
+                {
+                    ex.Message  
+                });
             }
         }
 

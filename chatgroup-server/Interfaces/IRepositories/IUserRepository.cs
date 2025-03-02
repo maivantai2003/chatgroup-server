@@ -4,7 +4,7 @@ namespace chatgroup_server.Interfaces.IRepositories
 {
     public interface IUserRepository
     {
-        Task<User?> GetUserByIdAsync(int userId);
+        Task<User?> GetUserByIdAsync(string numberPhone);
         Task<IEnumerable<User>> GetAllUsersAsync();
         Task AddUserAsync(User user);
         void UpdateUser(User user);

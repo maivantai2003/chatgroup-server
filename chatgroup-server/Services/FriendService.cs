@@ -1,4 +1,6 @@
-﻿using chatgroup_server.Interfaces;
+﻿using chatgroup_server.Common;
+using chatgroup_server.Dtos;
+using chatgroup_server.Interfaces;
 using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
@@ -19,37 +21,57 @@ namespace chatgroup_server.Services
             return await _friendsRepository.GetFriendshipAsync(userId, friendId);
         }
 
-        public async Task<IEnumerable<Friends>> GetFriendsByUserIdAsync(int userId)
+        public async Task<ApiResponse<IEnumerable<FriendRequest>>> GetFriendsByUserIdAsync(int userId)
         {
-            return await _friendsRepository.GetFriendsByUserIdAsync(userId);
+            try
+            {
+                var result=await _friendsRepository.GetFriendsByUserIdAsync(userId);
+                if (result != null)
+                {
+                    return ApiResponse<IEnumerable<FriendRequest>>.SuccessResponse("Danh sách bạn bè",result);
+                }
+                return ApiResponse<IEnumerable<FriendRequest>>.SuccessResponse("Danh sách bạn bè trống", result);
+            }
+            catch (Exception ex) {
+                return ApiResponse<IEnumerable<FriendRequest>>.ErrorResponse("Danh sách bạn bè", new List<string>
+                {
+                    ex.Message
+                });
+            }
         }
-        public async Task<bool> AddFriendAsync(Friends friend)
+        public async Task<ApiResponse<Friends>> AddFriendAsync(Friends friend)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
                 await _friendsRepository.AddFriendAsync(friend);
                 await _unitOfWork.CommitAsync();
-                return true;    
+                return ApiResponse<Friends>.SuccessResponse("Gửi kết bạn thành công",friend);    
             }
             catch (Exception ex) {
                 await _unitOfWork.RollbackAsync();
-                return false;
+                return ApiResponse<Friends>.ErrorResponse("Gửi kết bạn không thành công", new List<string>
+                {
+                    ex.Message
+                });
             }
         }
-        public async Task<bool> UpdateFriendStatusAsync(Friends friend)
+        public async Task<ApiResponse<Friends>> UpdateFriendStatusAsync(Friends friend)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
                 _friendsRepository.UpdateFriend(friend);
                 await _unitOfWork.CommitAsync();
-                return true;
+                return ApiResponse<Friends>.SuccessResponse("Cập nhật thành công", friend);
             }
-            catch
+            catch(Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                return false;
+                return ApiResponse<Friends>.ErrorResponse("Cập nhật không thành công", new List<string>()
+                {
+                    ex.Message
+                });
             }
         }
         public async Task<bool> DeleteFriendAsync(int friendId)
@@ -69,6 +91,21 @@ namespace chatgroup_server.Services
             {
                 await _unitOfWork.RollbackAsync();
                 return false;
+            }
+        }
+
+        public async Task<ApiResponse<IEnumerable<FriendRequest>>> GetFriendRequest(int friendId)
+        {
+            try
+            {
+                var result=await _friendsRepository.GetFriendRequest(friendId);
+                return ApiResponse<IEnumerable<FriendRequest>>.SuccessResponse("Danh sách yêu cầu kết bạn", result);
+            }
+            catch (Exception ex) { 
+                return ApiResponse<IEnumerable<FriendRequest>>.ErrorResponse("Danh sách yêu cầu kết bạn", new List<string>()
+                {
+                    ex.Message
+                });
             }
         }
     }

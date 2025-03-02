@@ -36,14 +36,35 @@ namespace chatgroup_server.Services
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        public async Task<ApiResponse<IEnumerable<User>>> GetAllUsersAsync()
         {
-            return await _userRepository.GetAllUsersAsync();
+            try
+            {
+                var result=await _userRepository.GetAllUsersAsync();
+                return ApiResponse<IEnumerable<User>>.SuccessResponse("Danh sách bạn có thể biết",result);
+            }
+            catch (Exception ex) {
+                return ApiResponse<IEnumerable<User>>.ErrorResponse("Danh sách trống", new List<string>()
+                {
+                    ex.Message
+                });
+            }
+            //return await _userRepository.GetAllUsersAsync();
         }
 
-        public Task<User?> GetUserByIdAsync(int userId)
+        public async Task<ApiResponse<User?>> GetUserByIdAsync(string numberPhone)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var result=await _userRepository.GetUserByIdAsync(numberPhone);
+                return ApiResponse<User?>.SuccessResponse("Tìm thấy người dùng",result);
+            }catch(Exception ex)
+            {
+                return ApiResponse<User?>.ErrorResponse("Không tìm thấy người dùng", new List<string>
+                {
+                    ex.Message
+                });
+            }
         }
 
         public Task<bool> UpdateUserAsync(User user)

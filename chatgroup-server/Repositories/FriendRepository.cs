@@ -1,4 +1,5 @@
 ﻿using chatgroup_server.Data;
+using chatgroup_server.Dtos;
 using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Models;
 using Microsoft.EntityFrameworkCore;
@@ -21,12 +22,18 @@ namespace chatgroup_server.Repositories
                                           (f.UserId == friendId && f.FriendId == userId));
         }
 
-        public async Task<IEnumerable<Friends>> GetFriendsByUserIdAsync(int userId)
+        public async Task<IEnumerable<FriendRequest>> GetFriendsByUserIdAsync(int userId)
         {
-            return await _context.Friends
-                .Include(f => f.User)
-                .Where(f => f.UserId == userId && f.Status == 1)
-                .ToListAsync();
+            return await _context.Friends.Include(f=>f.User).AsNoTracking().Where(f => (f.UserId == userId || f.FriendId == userId) && f.Status == 1)
+                .Select(f => new FriendRequest()
+                {
+                    Id = f.Id,
+                    FriendId = f.UserId == userId ? f.FriendId : f.UserId,
+                    UserId = userId,
+                    UserName = f.UserId == userId ? f.Friend!.UserName : f.User!.UserName,
+                    Avatar = f.UserId == userId ? f.Friend!.Avatar : f.User!.Avatar,
+                    Status = f.Status
+                }).ToListAsync();
         }
         public async Task AddFriendAsync(Friends friend)
         {
@@ -41,6 +48,20 @@ namespace chatgroup_server.Repositories
         public void DeleteFriend(Friends friend)
         {
             _context.Friends.Remove(friend);
+        }
+
+        public async Task<IEnumerable<FriendRequest>> GetFriendRequest(int friendId)
+        {
+            return await _context.Friends.Include(x => x.User).AsNoTracking().Where(x => x.FriendId == friendId && x.Status==0).Select(
+                x=>new FriendRequest()
+                {
+                    Id = x.Id,
+                    UserId = x.UserId,
+                    FriendId = x.FriendId,
+                    UserName=x.User.UserName ?? "None",
+                    Avatar = x.User.Avatar,
+                    Status =x.Status
+                }).ToListAsync();
         }
     }
 }

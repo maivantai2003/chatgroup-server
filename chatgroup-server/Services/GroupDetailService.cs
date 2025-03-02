@@ -2,6 +2,7 @@
 using chatgroup_server.Interfaces;
 using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
+using chatgroup_server.Common;
 
 namespace chatgroup_server.Services
 {
@@ -31,19 +32,23 @@ namespace chatgroup_server.Services
             return await _groupDetailRepository.GetGroupDetailsByUserIdAsync(userId);
         }
 
-        public async Task<bool> AddGroupDetailAsync(GroupDetail groupDetail)
+        public async Task<ApiResponse<GroupDetail>> AddGroupDetailAsync(GroupDetail groupDetail)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
                 await _groupDetailRepository.AddGroupDetailAsync(groupDetail);
                 await _unitOfWork.CommitAsync();
-                return true;
+                return ApiResponse<GroupDetail>.SuccessResponse("Thêm thành viên thành công", groupDetail);
+                
             }
-            catch
+            catch(Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                return false;
+                return ApiResponse<GroupDetail>.ErrorResponse("Thêm thành viên không thành công", new List<string>()
+                {
+                    ex.Message
+                });
             }
         }
 
