@@ -1,4 +1,5 @@
 ﻿using chatgroup_server.Interfaces.IServices;
+using chatgroup_server.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,9 +14,9 @@ namespace chatgroup_server.Controllers
             _userService = userService;
         }
         [HttpGet("[action]")]
-        public async Task<IActionResult> GetAllUser()
+        public async Task<IActionResult> GetAllUser(int userId)
         {
-            var response=await _userService.GetAllUsersAsync();
+            var response=await _userService.GetAllUsersAsync(userId);
             if (!response.Success) { 
                 return Ok(response.Errors);
             }

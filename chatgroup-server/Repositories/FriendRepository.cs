@@ -32,6 +32,12 @@ namespace chatgroup_server.Repositories
                     UserId = userId,
                     UserName = f.UserId == userId ? f.Friend!.UserName : f.User!.UserName,
                     Avatar = f.UserId == userId ? f.Friend!.Avatar : f.User!.Avatar,
+                    CoverPhoto = f.UserId == userId ? f.Friend!.CoverPhoto : f.User!.CoverPhoto,
+                    Bio = f.UserId == userId ? f.Friend!.Bio : f.User!.Bio,
+                    Birthday = f.UserId == userId ? f.Friend!.Birthday : f.User!.Birthday,
+                    Sex = f.UserId == userId ? f.Friend!.Sex : f.User!.Sex,
+                    PhoneNumber = f.UserId == userId ? f.Friend!.PhoneNumber : f.User!.PhoneNumber,
+                    //Address = f.UserId == userId ? f.Friend!.Address : f.User!.Address,
                     Status = f.Status
                 }).ToListAsync();
         }
@@ -62,6 +68,20 @@ namespace chatgroup_server.Repositories
                     Avatar = x.User.Avatar,
                     Status =x.Status
                 }).ToListAsync();
+        }
+
+        public async Task<FriendRequest> GetFriend(int Id)
+        {
+            var result = await _context.Friends.Include(x => x.User).AsNoTracking().FirstOrDefaultAsync(x => x.Id == Id);
+            return new FriendRequest()
+            {
+                Id = result.Id,
+                FriendId = result.FriendId,
+                UserId = result.UserId,
+                Avatar = result.User?.Avatar ?? string.Empty,
+                UserName = result.User?.UserName ?? string.Empty,
+                Status = result.Status
+            };
         }
     }
 }

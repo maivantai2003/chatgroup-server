@@ -1,4 +1,5 @@
 ﻿using chatgroup_server.Data;
+using chatgroup_server.Dtos;
 using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Models;
 using Microsoft.EntityFrameworkCore;
@@ -21,10 +22,25 @@ namespace chatgroup_server.Repositories
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        public async Task<IEnumerable<UserDto>> GetAllUsersAsync(int userId)
         {
-            return await _context.Users.AsNoTracking().ToListAsync();   
+            var usersWithFriendStatus = _context.Friends
+                .Where(f => f.Status == 0 || f.Status == 1)
+                .Select(f => f.UserId)
+                .Union(_context.Friends.Where(f => f.Status == 0 || f.Status == 1).Select(f => f.FriendId));
+
+            return await _context.Users
+                .AsNoTracking()
+                .Where(u => u.Status == 1 && u.UserId != userId && !usersWithFriendStatus.Contains(u.UserId))
+                .Select(u => new UserDto
+                {
+                    UserId = u.UserId,
+                    UserName = u.UserName,
+                    Avatar = u.Avatar
+                })
+                .ToListAsync();
         }
+
 
         public async Task<User?> GetUserByIdAsync(string numberPhone)
         {

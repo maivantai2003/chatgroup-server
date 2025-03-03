@@ -15,12 +15,12 @@ namespace chatgroup_server.Controllers
             _groupDetailService = groupDetailService;   
         }
         [HttpPost("[action]")]
-        public async Task<IActionResult> CreateGroupDetail(GroupDetailUserDto groupDetailDto)
+        public async Task<IActionResult> CreateGroupDetail(GroupDetailDto groupDetailDto)
         {
             var groupDetail = new GroupDetail()
             {
                 UserId = groupDetailDto.UserId,
-                GroupId = groupDetailDto.GroupDetailId,
+                GroupId = groupDetailDto.GroupId,
                 Role = groupDetailDto.Role,
             };
             var response = await _groupDetailService.AddGroupDetailAsync(groupDetail);

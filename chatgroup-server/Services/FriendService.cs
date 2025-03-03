@@ -39,18 +39,19 @@ namespace chatgroup_server.Services
                 });
             }
         }
-        public async Task<ApiResponse<Friends>> AddFriendAsync(Friends friend)
+        public async Task<ApiResponse<FriendRequest>> AddFriendAsync(Friends friend)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
                 await _friendsRepository.AddFriendAsync(friend);
                 await _unitOfWork.CommitAsync();
-                return ApiResponse<Friends>.SuccessResponse("Gửi kết bạn thành công",friend);    
+                var result=await _friendsRepository.GetFriend(friend.Id);
+                return ApiResponse<FriendRequest>.SuccessResponse("Gửi kết bạn thành công",result);    
             }
             catch (Exception ex) {
                 await _unitOfWork.RollbackAsync();
-                return ApiResponse<Friends>.ErrorResponse("Gửi kết bạn không thành công", new List<string>
+                return ApiResponse<FriendRequest>.ErrorResponse("Gửi kết bạn không thành công", new List<string>
                 {
                     ex.Message
                 });

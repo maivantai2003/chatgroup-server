@@ -1,4 +1,5 @@
 ﻿using chatgroup_server.Common;
+using chatgroup_server.Dtos;
 using chatgroup_server.Interfaces;
 using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Interfaces.IServices;
@@ -36,15 +37,15 @@ namespace chatgroup_server.Services
             throw new NotImplementedException();
         }
 
-        public async Task<ApiResponse<IEnumerable<User>>> GetAllUsersAsync()
+        public async Task<ApiResponse<IEnumerable<UserDto>>> GetAllUsersAsync(int userId)
         {
             try
             {
-                var result=await _userRepository.GetAllUsersAsync();
-                return ApiResponse<IEnumerable<User>>.SuccessResponse("Danh sách bạn có thể biết",result);
+                var result=await _userRepository.GetAllUsersAsync(userId);
+                return ApiResponse<IEnumerable<UserDto>>.SuccessResponse("Danh sách bạn có thể biết",result);
             }
             catch (Exception ex) {
-                return ApiResponse<IEnumerable<User>>.ErrorResponse("Danh sách trống", new List<string>()
+                return ApiResponse<IEnumerable<UserDto>>.ErrorResponse("Danh sách trống", new List<string>()
                 {
                     ex.Message
                 });
