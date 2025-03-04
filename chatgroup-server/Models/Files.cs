@@ -13,5 +13,6 @@ namespace chatgroup_server.Models
         public int TrangThai { get; set; } = 1;
         public virtual ICollection<GroupMessageFile>? groupMessageFiles { get; set; }
         public virtual ICollection<UserMessageFile>? userMessageFiles { get; set; }
+        public virtual ICollection<CloudMessageFile>? cloudMessageFiles { get; set; }
     }
 }

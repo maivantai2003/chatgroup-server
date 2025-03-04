@@ -1,9 +1,11 @@
 ﻿using chatgroup_server.Common;
 using chatgroup_server.Data;
+using chatgroup_server.Dtos;
 using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using StackExchange.Redis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -19,6 +21,9 @@ namespace chatgroup_server.Services
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly RedisService _redisService;
+        private static string avatar;
+        private static string userName;
+        private UserInfor UserInfor;
         public JwtService(ApplicationDbContext context,IConfiguration configuration,IHttpContextAccessor httpContextAccessor, RedisService redisService) {
             _context = context;
             _configuration = configuration;
@@ -75,6 +80,19 @@ namespace chatgroup_server.Services
             {
                 return await Task.FromResult<AuthResponse>(null);
             }
+            avatar = user.Avatar;
+            userName = user.UserName;
+            UserInfor = new UserInfor()
+            {
+                UserId = user.UserId,
+                UserName = user.UserName,
+                Avatar = user.Avatar,
+                Sex = user.Sex,
+                Bio = user.Bio,
+                Birthday = user.Birthday,
+                PhoneNumber=user.PhoneNumber,
+                CoverPhoto=user.CoverPhoto
+            };
             string tokenString = GenerateToken(user.PhoneNumber, user.UserId.ToString());
             string refreshToken = GenerateRefreshToken();
             //await _redisServices.SetCacheAysnc($"accessToken:user-{user.UserId}", tokenString);
@@ -106,7 +124,10 @@ namespace chatgroup_server.Services
                 Subject = new System.Security.Claims.ClaimsIdentity(new Claim[]
                 {
                     new Claim("userId",Id),
-                    new Claim(ClaimTypes.NameIdentifier,phoneNumber)
+                    new Claim(ClaimTypes.NameIdentifier,phoneNumber),
+                    new Claim("avatar",avatar),
+                    new Claim("userName",userName),
+                    new Claim("userInfor",JsonConvert.SerializeObject(UserInfor))
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(30),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes),

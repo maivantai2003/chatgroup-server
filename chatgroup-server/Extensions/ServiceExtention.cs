@@ -1,6 +1,7 @@
 ﻿using chatgroup_server.Interfaces;
 using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Interfaces.IServices;
+using chatgroup_server.Models;
 using chatgroup_server.Repositories;
 using chatgroup_server.Services;
 
@@ -26,6 +27,9 @@ namespace chatgroup_server.Extensions
             services.AddScoped<IGroupMessageService, GroupMessageService>();
             services.AddScoped<IFileRepository, FileRepository>();
             services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IConversationRepository, ConversationRepository>();
+            services.AddScoped<IConversationService, ConversationService>();
+
             return services;
         }
     }

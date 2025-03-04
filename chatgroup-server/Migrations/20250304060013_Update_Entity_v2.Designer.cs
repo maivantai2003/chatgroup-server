@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using chatgroup_server.Data;
 
@@ -11,9 +12,11 @@ using chatgroup_server.Data;
 namespace chatgroup_server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250304060013_Update_Entity_v2")]
+    partial class Update_Entity_v2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,59 +24,6 @@ namespace chatgroup_server.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("chatgroup_server.Models.CloudMessage", b =>
-                {
-                    b.Property<int>("CloudMessageId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CloudMessageId"));
-
-                    b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreateAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CloudMessageId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("CloudMessages");
-                });
-
-            modelBuilder.Entity("chatgroup_server.Models.CloudMessageFile", b =>
-                {
-                    b.Property<int>("CloudMessageFileId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CloudMessageFileId"));
-
-                    b.Property<int>("ClouMessageId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FileId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("CloudMessageFileId");
-
-                    b.HasIndex("ClouMessageId");
-
-                    b.HasIndex("FileId");
-
-                    b.ToTable("CloudMessageFiles");
-                });
 
             modelBuilder.Entity("chatgroup_server.Models.Conversation", b =>
                 {
@@ -83,16 +33,10 @@ namespace chatgroup_server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ConversationId"));
 
-                    b.Property<string>("Avatar")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ConversationName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("Id")
+                    b.Property<int?>("GroupId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("LastMessage")
@@ -104,10 +48,9 @@ namespace chatgroup_server.Migrations
                     b.Property<int?>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserSend")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("ConversationId");
+
+                    b.HasIndex("GroupId");
 
                     b.HasIndex("UserId");
 
@@ -564,41 +507,17 @@ namespace chatgroup_server.Migrations
                     b.ToTable("UserRefreshTokens");
                 });
 
-            modelBuilder.Entity("chatgroup_server.Models.CloudMessage", b =>
-                {
-                    b.HasOne("chatgroup_server.Models.User", "User")
-                        .WithMany("CloudMessages")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("chatgroup_server.Models.CloudMessageFile", b =>
-                {
-                    b.HasOne("chatgroup_server.Models.CloudMessage", "CloudMessage")
-                        .WithMany("CloudMessageFiles")
-                        .HasForeignKey("ClouMessageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("chatgroup_server.Models.Files", "Files")
-                        .WithMany("cloudMessageFiles")
-                        .HasForeignKey("FileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CloudMessage");
-
-                    b.Navigation("Files");
-                });
-
             modelBuilder.Entity("chatgroup_server.Models.Conversation", b =>
                 {
+                    b.HasOne("chatgroup_server.Models.Group", "Group")
+                        .WithMany("GroupConversations")
+                        .HasForeignKey("GroupId");
+
                     b.HasOne("chatgroup_server.Models.User", "User")
                         .WithMany("UserConversations")
                         .HasForeignKey("UserId");
+
+                    b.Navigation("Group");
 
                     b.Navigation("User");
                 });
@@ -804,15 +723,8 @@ namespace chatgroup_server.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("chatgroup_server.Models.CloudMessage", b =>
-                {
-                    b.Navigation("CloudMessageFiles");
-                });
-
             modelBuilder.Entity("chatgroup_server.Models.Files", b =>
                 {
-                    b.Navigation("cloudMessageFiles");
-
                     b.Navigation("groupMessageFiles");
 
                     b.Navigation("userMessageFiles");
@@ -820,6 +732,8 @@ namespace chatgroup_server.Migrations
 
             modelBuilder.Entity("chatgroup_server.Models.Group", b =>
                 {
+                    b.Navigation("GroupConversations");
+
                     b.Navigation("groupDetail");
                 });
 
@@ -834,8 +748,6 @@ namespace chatgroup_server.Migrations
 
             modelBuilder.Entity("chatgroup_server.Models.User", b =>
                 {
-                    b.Navigation("CloudMessages");
-
                     b.Navigation("Friends");
 
                     b.Navigation("Receivers");

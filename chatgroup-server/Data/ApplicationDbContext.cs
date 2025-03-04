@@ -21,6 +21,8 @@ namespace chatgroup_server.Data
         public DbSet<UserMessageStatus> UserMessageStatuses { get; set; }
         public DbSet<UserRefreshToken> UserRefreshTokens {  get; set; }
         public DbSet<Conversation> Conversations { get; set; }
+        public DbSet<CloudMessage> CloudMessages { get; set; }
+        public DbSet<CloudMessageFile> CloudMessageFiles { get; set; }  
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Friends>().HasOne(f => f.User).WithMany(u => u.Friends).HasForeignKey(f=>f.UserId).OnDelete(DeleteBehavior.NoAction);

@@ -56,8 +56,6 @@ namespace chatgroup_server.Repositories
                 })
                 .ToListAsync();
         }
-
-
         public async Task<User?> GetUserByIdAsync(string numberPhone)
         {
             return await _context.Users.AsNoTracking().FirstOrDefaultAsync(x=>x.PhoneNumber.Equals(numberPhone));
@@ -65,7 +63,24 @@ namespace chatgroup_server.Repositories
 
         public void UpdateUser(User user)
         {
-            throw new NotImplementedException();
+            _context.Users.Update(user);
         }
+
+        public async Task<UserInfor?> GetUserById(int userId)
+        {
+            var result=await _context.Users.FindAsync(userId);
+            return new UserInfor()
+            {
+                UserId=userId,
+                UserName=result.UserName,
+                Bio=result.Bio,
+                Avatar=result.Avatar,
+                Birthday=result.Birthday,
+                CoverPhoto=result.CoverPhoto,
+                PhoneNumber = result.PhoneNumber,
+                Sex = result.Sex
+            };
+        }
+
     }
 }

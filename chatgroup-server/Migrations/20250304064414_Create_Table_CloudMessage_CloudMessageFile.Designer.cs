@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using chatgroup_server.Data;
 
@@ -11,9 +12,11 @@ using chatgroup_server.Data;
 namespace chatgroup_server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250304064414_Create_Table_CloudMessage_CloudMessageFile")]
+    partial class Create_Table_CloudMessage_CloudMessageFile
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -83,16 +86,10 @@ namespace chatgroup_server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ConversationId"));
 
-                    b.Property<string>("Avatar")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ConversationName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("Id")
+                    b.Property<int?>("GroupId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("LastMessage")
@@ -104,10 +101,9 @@ namespace chatgroup_server.Migrations
                     b.Property<int?>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserSend")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("ConversationId");
+
+                    b.HasIndex("GroupId");
 
                     b.HasIndex("UserId");
 
@@ -596,9 +592,15 @@ namespace chatgroup_server.Migrations
 
             modelBuilder.Entity("chatgroup_server.Models.Conversation", b =>
                 {
+                    b.HasOne("chatgroup_server.Models.Group", "Group")
+                        .WithMany("GroupConversations")
+                        .HasForeignKey("GroupId");
+
                     b.HasOne("chatgroup_server.Models.User", "User")
                         .WithMany("UserConversations")
                         .HasForeignKey("UserId");
+
+                    b.Navigation("Group");
 
                     b.Navigation("User");
                 });
@@ -820,6 +822,8 @@ namespace chatgroup_server.Migrations
 
             modelBuilder.Entity("chatgroup_server.Models.Group", b =>
                 {
+                    b.Navigation("GroupConversations");
+
                     b.Navigation("groupDetail");
                 });
 

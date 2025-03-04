@@ -1,7 +1,9 @@
-﻿using chatgroup_server.Interfaces.IServices;
+﻿using chatgroup_server.Dtos;
+using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace chatgroup_server.Controllers
 {
@@ -32,7 +34,37 @@ namespace chatgroup_server.Controllers
             }
             return Ok(respone.Data);
         }
-
+        [HttpGet("[action]")]
+        public async Task<IActionResult> GetUser(int userId)
+        {
+            var response=await _userService.GetUserById(userId);
+            if (!response.Success) {
+                return Ok(response.Errors);
+            }
+            return Ok(response.Data);   
+        }
+        [HttpPut("[action]/{id}")]
+        public async Task<IActionResult> UpdateUser(int id,[FromBody]UserUpdateDto userUpdateDto)
+        {
+            var user=new User()
+            {
+                UserId = userUpdateDto.UserId,
+                UserName = userUpdateDto.UserName,
+                Avatar=userUpdateDto.Avatar,
+                Bio=userUpdateDto.Bio,
+                CoverPhoto=userUpdateDto.CoverPhoto,
+                Status=userUpdateDto.Status,
+                Birthday=userUpdateDto.Birthday,
+                PhoneNumber=userUpdateDto.PhoneNumber,
+                Sex=userUpdateDto.Sex,  
+            };
+            var response = await _userService.UpdateUserAsync(user);
+            if (!response.Success)
+            {
+                return Ok(response.Errors);
+            }
+            return Ok(response.Data);
+        }
 
     }
 }

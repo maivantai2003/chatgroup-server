@@ -1,10 +1,11 @@
-﻿using chatgroup_server.Models;
+﻿using chatgroup_server.Dtos;
+using chatgroup_server.Models;
 
 namespace chatgroup_server.Interfaces.IRepositories
 {
     public interface IUserMessageRepository
     {
-        Task<UserMessages?> GetUserMessageByIdAsync(int messageId);
+        Task<IEnumerable<UserMessageDto>> GetAllUserMessageByIdAsync(int senderId, int receiverId);
         Task<IEnumerable<UserMessages>> GetMessagesBySenderIdAsync(int senderId);
         Task<IEnumerable<UserMessages>> GetMessagesByReceiverIdAsync(int receiverId);
         Task AddUserMessageAsync(UserMessages userMessage);

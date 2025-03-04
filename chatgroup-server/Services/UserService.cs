@@ -53,6 +53,22 @@ namespace chatgroup_server.Services
             //return await _userRepository.GetAllUsersAsync();
         }
 
+        public async Task<ApiResponse<UserInfor?>> GetUserById(int userId)
+        {
+            try
+            {
+                var result = await _userRepository.GetUserById(userId);
+                return ApiResponse<UserInfor?>.SuccessResponse("Tìm thấy người dùng", result);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<UserInfor?>.ErrorResponse("Không tìm thấy người dùng", new List<string>
+                {
+                    ex.Message
+                });
+            }
+        }
+
         public async Task<ApiResponse<User?>> GetUserByIdAsync(string numberPhone)
         {
             try
@@ -68,9 +84,23 @@ namespace chatgroup_server.Services
             }
         }
 
-        public Task<bool> UpdateUserAsync(User user)
+        public async Task<ApiResponse<User>> UpdateUserAsync(User user)
         {
-            throw new NotImplementedException();
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                _userRepository.UpdateUser(user);
+                await _unitOfWork.CommitAsync();
+                return ApiResponse<User>.SuccessResponse("Cập nhật người dùng thành công", user);
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                return ApiResponse<User>.ErrorResponse("Cập nhật người dùng không thành công", new List<string>
+                {
+                    ex.Message
+                });
+            }
         }
     }
 }
