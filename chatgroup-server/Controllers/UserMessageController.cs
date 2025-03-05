@@ -14,6 +14,7 @@ namespace chatgroup_server.Controllers
         public UserMessageController(IUserMessageService userMessageService) {
             _userMessageService = userMessageService;
         }
+        [HttpPost("[action]")]
         public async Task<IActionResult> CreateUserMessage(SendUserMessageDto userMessageDto)
         {
             var UserMessage = new UserMessages()
@@ -26,8 +27,9 @@ namespace chatgroup_server.Controllers
             var response=await _userMessageService.AddUserMessageAsync(UserMessage);
             if (!response.Success)
             {
-
+                return Ok(response.Errors);
             }
+            return Ok(response.Data);
         }
     }
 }

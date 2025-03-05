@@ -29,7 +29,16 @@ namespace chatgroup_server.Extensions
             services.AddScoped<IFileService, FileService>();
             services.AddScoped<IConversationRepository, ConversationRepository>();
             services.AddScoped<IConversationService, ConversationService>();
-
+            services.AddScoped<IUserMessageFileRepository, UserMessageFileRepository>();
+            services.AddScoped<IUserMessageFileService, UserMessageFileService>();
+            services.AddScoped<IUserMessageReactionRepository, UserMessageReactionRepository>();
+            services.AddScoped<IUserMessageReactionService, UserMessageReactionService>();
+            services.AddScoped<IUserMessageStatusRepository, UserMessageStatusRepository>();
+            services.AddScoped<IUserMessageStatusService, UserMessageStatusService>();
+            services.AddScoped<ICloudMessageRepository, CloudMessageRepository>();
+            services.AddScoped<ICloudMessageService, CloudMessageService>();
+            services.AddScoped<ICloudMessageFileRepository, CloudMessageFileRepository>();
+            services.AddScoped<ICloudMessageFileService, CloudMessageFileService>();
             return services;
         }
     }
