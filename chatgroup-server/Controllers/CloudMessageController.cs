@@ -1,5 +1,6 @@
 ﻿using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
+using chatgroup_server.Dtos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +17,7 @@ namespace chatgroup_server.Controllers
             _messageService = messageService;
         }
 
-        [HttpGet("[action]")]
+        [HttpGet("[action]/{userId}")]
         public async Task<IActionResult> GetMessagesByUserId(int userId)
         {
             var response = await _messageService.GetMessagesByUserIdAsync(userId);
@@ -31,9 +32,15 @@ namespace chatgroup_server.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> AddMessage([FromBody] CloudMessage message)
+        public async Task<IActionResult> AddCloudMessage([FromBody] CloudMessageDto cloudMessageDto)
         {
-            var response = await _messageService.AddMessageAsync(message);
+            var cloudMessage = new CloudMessage()
+            {
+                UserId = cloudMessageDto.UserId,
+                Content = cloudMessageDto.Content,
+                Type = cloudMessageDto.Type,
+            };
+            var response = await _messageService.AddMessageAsync(cloudMessage);
             return response.Success ? Ok(response.Data) : BadRequest(response.Errors);
         }
 

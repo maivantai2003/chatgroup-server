@@ -37,7 +37,7 @@ namespace chatgroup_server.Repositories
 
         public async Task<IEnumerable<Conversation>> GetAllConversation(int userId)
         {
-            return await _context.Conversations.Where(x => x.UserId == userId).ToListAsync();
+            return await _context.Conversations.AsNoTracking().Where(x => x.UserId == userId).OrderByDescending(x=>x.LastMessage).ToListAsync();
         }
     }
 }

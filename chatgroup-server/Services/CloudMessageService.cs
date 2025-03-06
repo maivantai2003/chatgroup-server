@@ -3,6 +3,7 @@ using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Interfaces;
 using chatgroup_server.Models;
+using chatgroup_server.Dtos;
 
 namespace chatgroup_server.Services
 {
@@ -17,16 +18,16 @@ namespace chatgroup_server.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<ApiResponse<IEnumerable<CloudMessage>>> GetMessagesByUserIdAsync(int userId)
+        public async Task<ApiResponse<IEnumerable<CloudMessageResponseDto>>> GetMessagesByUserIdAsync(int userId)
         {
             try
             {
                 var messages = await _messageRepository.GetMessagesByUserIdAsync(userId);
-                return ApiResponse<IEnumerable<CloudMessage>>.SuccessResponse("Danh sách tin nhắn", messages);
+                return ApiResponse<IEnumerable<CloudMessageResponseDto>>.SuccessResponse("Danh sách tin nhắn", messages);
             }
             catch (Exception ex)
             {
-                return ApiResponse<IEnumerable<CloudMessage>>.ErrorResponse("Lỗi khi lấy danh sách tin nhắn", new List<string> { ex.Message });
+                return ApiResponse<IEnumerable<CloudMessageResponseDto>>.ErrorResponse("Lỗi khi lấy danh sách tin nhắn", new List<string> { ex.Message });
             }
         }
 
