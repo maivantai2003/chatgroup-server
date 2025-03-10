@@ -55,11 +55,21 @@ namespace chatgroup_server.Extensions
                         //    }
                         //}
                     },
-                    OnAuthenticationFailed = context =>
+                    OnMessageReceived = context =>
                     {
-                        Console.WriteLine($"Authentication failed: {context.Exception.Message}");
+                        var accessToken = context.Request.Query["access_token"];
+                        var path = context.HttpContext.Request.Path;
+                        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/app-hub"))
+                        {
+                            context.Token = accessToken;
+                        }
                         return Task.CompletedTask;
-                    }
+                    },
+                    //OnAuthenticationFailed = context =>
+                    //{
+                    //    Console.WriteLine($"Authentication failed: {context.Exception.Message}");
+                    //    return Task.CompletedTask;
+                    //}
                 };
             });
             services.AddHttpContextAccessor();

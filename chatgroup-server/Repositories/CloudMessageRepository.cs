@@ -16,57 +16,33 @@ namespace chatgroup_server.Repositories
 
         public async Task<IEnumerable<CloudMessageResponseDto>> GetMessagesByUserIdAsync(int userId)
         {
-            //return await _context.CloudMessages
-            //    .Include(m => m.User)
-            //    .Include(m => m.CloudMessageFiles).ThenInclude(m=>m.Files)
-            //    .Where(m => m.UserId == userId)
-            //    .OrderByDescending(m => m.CreateAt).
-            //    Select(x=>new CloudMessageResponseDto()
-            //    {
-            //        CloudMessageId=x.CloudMessageId,
-            //        UserId = userId,
-            //        CreateAt=x.CreateAt,
-            //        Type = x.Type,
-            //        UserName=x.User.UserName,
-            //        AvatarUrl=x.User.Avatar,
-            //        CloudMessageFile=x.CloudMessageFiles.Select(f => new FileDto()
-            //        {
-            //            TenFile=f.Files.TenFile,
-            //            DuongDan=f.Files.DuongDan,
-            //            KichThuocFile=f.Files.KichThuocFile,
-            //            LoaiFile=f.Files.LoaiFile,  
-            //        }).ToList()
-            //    })
-            //    .ToListAsync();
-            return await _context.CloudMessages
-        .Where(m => m.UserId == userId)
-        .OrderByDescending(m => m.CreateAt)
-        //.Skip((page - 1) * pageSize)
-        //.Take(pageSize)
-        .Select(x => new CloudMessageResponseDto()
-        {
-            CloudMessageId = x.CloudMessageId,
-            UserId = userId,
-            CreateAt = x.CreateAt,
-            Type = x.Type,
-            UserName = x.User != null ? x.User.UserName : "Unknown",
-            AvatarUrl = x.User != null ? x.User.Avatar : null,
-            CloudMessageFile = x.CloudMessageFiles.Select(f => new FileDto()
-            {
-                TenFile = f.Files != null ? f.Files.TenFile : "No File",
-                DuongDan = f.Files != null ? f.Files.DuongDan : null,
-                LoaiFile = f.Files != null ? f.Files.LoaiFile : null,
-                KichThuocFile = f.Files != null ? f.Files.KichThuocFile : null,
-            }).ToList()
-        }).ToListAsync();
+            return await _context.CloudMessages.AsNoTracking()
+                .Where(m => m.UserId == userId)
+                //.OrderByDescending(m => m.CreateAt)
+                //.Skip((page - 1) * pageSize)
+                //.Take(pageSize)
+                .Select(x => new CloudMessageResponseDto()
+                {
+                    CloudMessageId = x.CloudMessageId,
+                    UserId = userId,
+                    CreateAt = x.CreateAt,
+                    Type = x.Type,
+                    Content = x.Content,    
+                    UserName = x.User != null ? x.User.UserName : "Unknown",
+                    AvatarUrl = x.User != null ? x.User.Avatar : null,
+                    CloudMessageFile = x.CloudMessageFiles.Select(f => new FileDto()
+                    {
+                        TenFile = f.Files != null ? f.Files.TenFile : "No File",
+                        DuongDan = f.Files != null ? f.Files.DuongDan : null,
+                        LoaiFile = f.Files != null ? f.Files.LoaiFile : null,
+                        KichThuocFile = f.Files != null ? f.Files.KichThuocFile : null,
+                    }).ToList()
+                }).ToListAsync();
         }
 
         public async Task<CloudMessage?> GetMessageByIdAsync(int id)
         {
-            return await _context.CloudMessages
-                .Include(m => m.User)
-                .Include(m => m.CloudMessageFiles)
-                .FirstOrDefaultAsync(m => m.CloudMessageId == id);
+            return await _context.CloudMessages.FindAsync(id);
         }
 
         public async Task AddMessageAsync(CloudMessage message)
@@ -82,6 +58,26 @@ namespace chatgroup_server.Repositories
         public void DeleteMessage(CloudMessage message)
         {
             _context.CloudMessages.Remove(message);
+        }
+
+        public async Task<CloudMessageResponseDto?> GetCloudMessageByIdAsync(int id)
+        {
+            return await _context.CloudMessages.AsNoTracking().Where(x => x.CloudMessageId == id).Select(
+                x => new CloudMessageResponseDto(){
+                    CloudMessageId = x.CloudMessageId,
+                    UserId = x.UserId,  
+                    CreateAt=x.CreateAt,
+                    Type = x.Type,
+                    Content = x.Content,   
+                    UserName=x.User!=null?x.User.UserName:"Unknown",
+                    AvatarUrl=x.User!=null?x.User.UserName:null,
+                    CloudMessageFile=x.CloudMessageFiles.Select(f=>new FileDto()
+                    {
+                        TenFile = f.Files != null ? f.Files.TenFile : "No File",
+                        DuongDan = f.Files != null ? f.Files.DuongDan : null,
+                        LoaiFile = f.Files != null ? f.Files.LoaiFile : null,
+                        KichThuocFile = f.Files != null ? f.Files.KichThuocFile : null,
+                    }).ToList()}).FirstOrDefaultAsync();
         }
     }
 }

@@ -25,9 +25,15 @@ namespace chatgroup_server.Repositories
             return await _context.Conversations.FindAsync(id);
         }
 
-        public void Update(Conversation conversation)
+        public async Task Update(Conversation conversation)
         {
-            _context.Conversations.Update(conversation);
+            await _context.Conversations.Where(x => x.UserId==conversation.UserId && x.Id==conversation.Id && x.Type==conversation.Type).
+                 ExecuteUpdateAsync(setters => 
+                 setters.
+                 SetProperty(x => x.LastMessage, DateTime.Now).
+                 SetProperty(x=>x.Content,conversation.Content).
+                 SetProperty(x=>x.UserSend,conversation.UserSend)
+                 );
         }
 
         public void Delete(Conversation conversation)

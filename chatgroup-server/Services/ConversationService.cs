@@ -56,7 +56,7 @@ namespace chatgroup_server.Services
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                _conversationRepository.Update(conversation);
+                await _conversationRepository.Update(conversation);
                 await _unitOfWork.CommitAsync();
                 return ApiResponse<Conversation>.SuccessResponse("Cập nhật thành công", conversation);
             }

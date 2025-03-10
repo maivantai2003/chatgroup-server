@@ -14,7 +14,7 @@
             Data = data;
             Errors = errors;
         }
-        public static ApiResponse<T> SuccessResponse(string message, T data)
+        public static ApiResponse<T> SuccessResponse(string message, T? data)
         {
             return new ApiResponse<T>(true, message, data);
         }

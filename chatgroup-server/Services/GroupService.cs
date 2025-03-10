@@ -18,9 +18,20 @@ namespace chatgroup_server.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Group?> GetGroupByIdAsync(int groupId)
+        public async Task<ApiResponse<GroupUserDto?>> GetGroupByIdAsync(int groupId)
         {
-            return await _groupRepository.GetGroupByIdAsync(groupId);
+            try
+            {
+                var result = await _groupRepository.GetGroupByIdAsync(groupId);
+                return ApiResponse<GroupUserDto?>.SuccessResponse("Danh sách thành viên nhóm", result);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<GroupUserDto?>.ErrorResponse("Error", new List<string>()
+                {
+                    ex.Message
+                });
+            }
         }
 
         public async Task<ApiResponse<IEnumerable<GroupUserDto>>> GetAllGroupsAsync(int userId)
@@ -80,7 +91,7 @@ namespace chatgroup_server.Services
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                _groupRepository.DeleteGroup(group);
+                //_groupRepository.DeleteGroup(group);
                 await _unitOfWork.CommitAsync();
                 return true;
             }

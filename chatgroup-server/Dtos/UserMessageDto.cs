@@ -12,7 +12,7 @@
         public string MessageType { get; set; }
         public string? Content { get; set; }
         public DateTime CreateAt { get; set; }
-        public int Status { get; set; }
+        public int Status { get; set; } = 1;
         public List<UserMessageStatusDto>? MessageStatuses { get; set; }
         public List<UserMessageReactionDto>? Reactions { get; set; }
         public List<UserMessageFileDto>? Files { get; set; }

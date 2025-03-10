@@ -35,6 +35,17 @@ namespace chatgroup_server.Controllers
             }
             return Ok(response.Errors);
         }
+        [HttpDelete("[action]/{id}")]
+        public async Task<IActionResult> DeleteFile(int id)
+        {
+            var response=await _fileService.DeleteFileAsync(id);
+            if (response.Success)
+            {
+                return Ok(response.Data);
+            }
+            return Ok(response.Errors);
+        }
+
         [HttpPost("[action]")]
         public async Task<IActionResult> Upload(IFormFile file)
         {
@@ -45,8 +56,6 @@ namespace chatgroup_server.Controllers
             ));
 
             var uploadResult = new RawUploadResult();
-
-            // Kiểm tra xem file có phải là ảnh không
             var allowedImageExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
             var extension = Path.GetExtension(file.FileName).ToLower();
 

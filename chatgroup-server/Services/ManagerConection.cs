@@ -3,33 +3,47 @@ using System.Collections.Concurrent;
 
 namespace chatgroup_server.Services
 {
-    public class ManagerConection:IManagerConection
+    public class ManagerConection : IManagerConection
     {
-        private readonly ConcurrentDictionary<string, List<string>> _userConnections = new();
+        private static ConcurrentDictionary<string, HashSet<string>> _userConnections = new();
+
         public void AddUserConnection(string userId, string connectionId)
         {
-            if (!_userConnections.ContainsKey(userId))
-            {
-                _userConnections[userId] = new List<string>();
-            }
-            _userConnections[userId].Add(connectionId);
+            _userConnections.AddOrUpdate(
+                userId,
+                new HashSet<string> { connectionId },
+                (_, existingConnections) =>
+                {
+                    existingConnections.Add(connectionId);
+                    return existingConnections;
+                });
         }
 
         public List<string> GetUserConections(string userId)
         {
-            return _userConnections.ContainsKey(userId) ? _userConnections[userId] : new List<string>();
+            return _userConnections.TryGetValue(userId, out var connections) ? connections.ToList() : new List<string>();
+        }
+
+        //public List<string> GetUserConnections(string userId)
+        //{
+        //    return _userConnections.TryGetValue(userId, out var connections) ? connections.ToList() : new List<string>();
+        //}
+
+        public int GetUserOnline()
+        {
+            return _userConnections.Count;
         }
 
         public void RemoveUserConnection(string connectionId)
         {
-            foreach (var userConnections in _userConnections)
+            foreach (var user in _userConnections.Keys)
             {
-                if (userConnections.Value.Contains(connectionId))
+                if (_userConnections.TryGetValue(user, out var connections) && connections.Contains(connectionId))
                 {
-                    userConnections.Value.Remove(connectionId);
-                    if (!userConnections.Value.Any())
+                    connections.Remove(connectionId);
+                    if (connections.Count == 0)
                     {
-                        _userConnections.TryRemove(userConnections.Key, out _);
+                        _userConnections.TryRemove(user, out _);
                     }
                     break;
                 }

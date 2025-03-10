@@ -17,10 +17,10 @@ namespace chatgroup_server.Controllers
             _messageService = messageService;
         }
 
-        [HttpGet("[action]/{userId}")]
-        public async Task<IActionResult> GetMessagesByUserId(int userId)
+        [HttpGet("[action]/{id}")]
+        public async Task<IActionResult> GetCloudMessagesById(int id)
         {
-            var response = await _messageService.GetMessagesByUserIdAsync(userId);
+            var response = await _messageService.GetMessagesByUserIdAsync(id);
             return response.Success ? Ok(response.Data) : BadRequest(response.Errors);
         }
 

@@ -10,10 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 ConfigurationManager configuration = builder.Configuration;
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSignalR();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(options => { options.UseSqlServer(builder.Configuration.GetConnectionString("Connection")); });
 builder.Services.AddApplication();
@@ -68,10 +68,9 @@ app.UseHttpsRedirection();
 app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod()
                             .SetIsOriginAllowed(origin => true)
                             .AllowCredentials());
-app.MapHub<myHub>("/app-hub");
 app.UseAuthentication();
 app.UseAuthorization();
-
+//app.UseWebSockets();
+app.MapHub<myHub>("/app-hub");
 app.MapControllers();
-
 app.Run();

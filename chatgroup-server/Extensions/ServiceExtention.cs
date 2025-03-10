@@ -10,6 +10,7 @@ namespace chatgroup_server.Extensions
     public static class ServiceExtention
     {
         public static IServiceCollection AddApplication(this IServiceCollection services) {
+            services.AddSingleton<IManagerConection,ManagerConection>();
             services.AddSingleton<RedisService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IJwtService, JwtService>();

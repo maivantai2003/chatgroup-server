@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using chatgroup_server.Data;
 
@@ -11,9 +12,11 @@ using chatgroup_server.Data;
 namespace chatgroup_server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250308064245_Update_FK_CloudMessageFile")]
+    partial class Update_FK_CloudMessageFile
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -339,9 +342,6 @@ namespace chatgroup_server.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ReplyToMessageId")
-                        .HasColumnType("int");
-
                     b.Property<int>("SenderId")
                         .HasColumnType("int");
 
@@ -351,8 +351,6 @@ namespace chatgroup_server.Migrations
                     b.HasKey("GroupedMessageId");
 
                     b.HasIndex("GroupId");
-
-                    b.HasIndex("ReplyToMessageId");
 
                     b.HasIndex("SenderId");
 
@@ -515,9 +513,6 @@ namespace chatgroup_server.Migrations
                     b.Property<int>("ReceiverId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ReplyToMessageId")
-                        .HasColumnType("int");
-
                     b.Property<int>("SenderId")
                         .HasColumnType("int");
 
@@ -527,8 +522,6 @@ namespace chatgroup_server.Migrations
                     b.HasKey("UserMessageId");
 
                     b.HasIndex("ReceiverId");
-
-                    b.HasIndex("ReplyToMessageId");
 
                     b.HasIndex("SenderId");
 
@@ -716,10 +709,6 @@ namespace chatgroup_server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("chatgroup_server.Models.GroupMessages", "ReplyToMessage")
-                        .WithMany("Replies")
-                        .HasForeignKey("ReplyToMessageId");
-
                     b.HasOne("chatgroup_server.Models.User", "Sender")
                         .WithMany("SentGroupMessages")
                         .HasForeignKey("SenderId")
@@ -727,8 +716,6 @@ namespace chatgroup_server.Migrations
                         .IsRequired();
 
                     b.Navigation("Group");
-
-                    b.Navigation("ReplyToMessage");
 
                     b.Navigation("Sender");
                 });
@@ -798,10 +785,6 @@ namespace chatgroup_server.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("chatgroup_server.Models.UserMessages", "ReplyToMessage")
-                        .WithMany("Replies")
-                        .HasForeignKey("ReplyToMessageId");
-
                     b.HasOne("chatgroup_server.Models.User", "Sender")
                         .WithMany("Senders")
                         .HasForeignKey("SenderId")
@@ -809,8 +792,6 @@ namespace chatgroup_server.Migrations
                         .IsRequired();
 
                     b.Navigation("Receiver");
-
-                    b.Navigation("ReplyToMessage");
 
                     b.Navigation("Sender");
                 });
@@ -847,8 +828,6 @@ namespace chatgroup_server.Migrations
 
             modelBuilder.Entity("chatgroup_server.Models.GroupMessages", b =>
                 {
-                    b.Navigation("Replies");
-
                     b.Navigation("groupMessageFiles");
 
                     b.Navigation("groupMessageReactions");
@@ -885,8 +864,6 @@ namespace chatgroup_server.Migrations
 
             modelBuilder.Entity("chatgroup_server.Models.UserMessages", b =>
                 {
-                    b.Navigation("Replies");
-
                     b.Navigation("userMessageFiles");
 
                     b.Navigation("userMessageReactions");

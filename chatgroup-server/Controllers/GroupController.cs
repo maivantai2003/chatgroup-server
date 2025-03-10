@@ -39,5 +39,15 @@ namespace chatgroup_server.Controllers
             }
             return Ok(response.Data);
         }
+        [HttpGet("[action]/{id}")]
+        public async Task<IActionResult> GetGroupById(int id) { 
+            var response=await _groupService.GetGroupByIdAsync(id);
+            if (!response.Success)
+            {
+                return Ok(response.Errors);
+            }
+            return Ok(response.Data);
+        }
+
     }
 }

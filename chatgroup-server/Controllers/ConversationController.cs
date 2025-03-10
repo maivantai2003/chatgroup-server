@@ -52,18 +52,16 @@ namespace chatgroup_server.Controllers
             }
             return Ok(respone.Data);
         }
-        [HttpPut("[action]/{id}")]
-        public async Task<IActionResult> UpdateConversation(int id,[FromBody]ConversationDto conversationDto)
+        [HttpPut("[action]")]
+        public async Task<IActionResult> UpdateConversation([FromBody]ConversationUpdateDto conversationUpdateDto)
         {
             var conversation = new Conversation()
             {
-                Avatar = conversationDto.Avatar,
-                Content = conversationDto.Content,
-                ConversationName = conversationDto.ConversationName,
-                UserSend = conversationDto.UserSend,
-                Type = conversationDto.Type,
-                Id = conversationDto.Id,
-                UserId = conversationDto.UserId,
+               UserId=conversationUpdateDto.UserId,
+               Id=conversationUpdateDto.Id,
+               Type= conversationUpdateDto.Type,    
+               UserSend=conversationUpdateDto.UserSend,
+               Content= conversationUpdateDto.Content,  
             };
             var respone = await _conversationService.UpdateConversationAsync(conversation);
             if (!respone.Success)

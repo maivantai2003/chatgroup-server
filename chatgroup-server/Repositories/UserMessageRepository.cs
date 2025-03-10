@@ -48,7 +48,7 @@ namespace chatgroup_server.Repositories
 
         public async Task<IEnumerable<UserMessageDto>> GetAllUserMessageByIdAsync(int senderId, int receiverId)
         {
-            return await _context.UserMessages
+            return await _context.UserMessages.AsNoTracking()
          .Where(um =>
              (um.SenderId == senderId && um.ReceiverId == receiverId) ||
              (um.SenderId == receiverId && um.ReceiverId == senderId))

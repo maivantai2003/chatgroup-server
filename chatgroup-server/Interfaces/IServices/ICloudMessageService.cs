@@ -8,7 +8,7 @@ namespace chatgroup_server.Interfaces.IServices
     {
         Task<ApiResponse<IEnumerable<CloudMessageResponseDto>>> GetMessagesByUserIdAsync(int userId);
         Task<ApiResponse<CloudMessage>> GetMessageByIdAsync(int id);
-        Task<ApiResponse<CloudMessage>> AddMessageAsync(CloudMessage message);
+        Task<ApiResponse<CloudMessageResponseDto>> AddMessageAsync(CloudMessage message);
         Task<ApiResponse<CloudMessage>> UpdateMessageAsync(CloudMessage message);
         Task<bool> DeleteMessageAsync(int id);
     }

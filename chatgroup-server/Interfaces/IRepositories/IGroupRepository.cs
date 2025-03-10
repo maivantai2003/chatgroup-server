@@ -4,7 +4,7 @@ namespace chatgroup_server.Interfaces.IRepositories
 {
     public interface IGroupRepository
     {
-        Task<Group?> GetGroupByIdAsync(int groupId);
+        Task<GroupUserDto?> GetGroupByIdAsync(int groupId);
         Task<IEnumerable<GroupUserDto>> GetAllGroupsAsync(int userId);
         Task AddGroupAsync(Group group);
         void UpdateGroup(Group group);

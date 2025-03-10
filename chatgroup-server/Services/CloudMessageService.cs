@@ -48,19 +48,20 @@ namespace chatgroup_server.Services
             }
         }
 
-        public async Task<ApiResponse<CloudMessage>> AddMessageAsync(CloudMessage message)
+        public async Task<ApiResponse<CloudMessageResponseDto>> AddMessageAsync(CloudMessage message)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
                 await _messageRepository.AddMessageAsync(message);
                 await _unitOfWork.CommitAsync();
-                return ApiResponse<CloudMessage>.SuccessResponse("Gửi tin nhắn thành công", message);
+                var cloudMessage = await _messageRepository.GetCloudMessageByIdAsync(message.CloudMessageId);
+                return ApiResponse<CloudMessageResponseDto>.SuccessResponse("Gửi tin nhắn thành công", cloudMessage);
             }
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                return ApiResponse<CloudMessage>.ErrorResponse("Gửi tin nhắn thất bại", new List<string> { ex.Message });
+                return ApiResponse<CloudMessageResponseDto>.ErrorResponse("Gửi tin nhắn thất bại", new List<string> { ex.Message });
             }
         }
 

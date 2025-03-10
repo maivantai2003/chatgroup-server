@@ -15,16 +15,31 @@ namespace chatgroup_server.Repositories
             _context = context;
         }
 
-        public async Task<Group?> GetGroupByIdAsync(int groupId)
+        public async Task<GroupUserDto?> GetGroupByIdAsync(int groupId)
         {
-            return await _context.Groups
-                .Include(g => g.groupDetail)
-                .FirstOrDefaultAsync(g => g.GroupId == groupId);
+            return  await _context.Groups.AsNoTracking().Where(x=>x.GroupId==groupId && x.Status==1).Select(x=>new GroupUserDto()
+            {
+                GroupId = x.GroupId,
+                GroupName = x.GroupName ?? "None",
+                Status = x.Status,
+                Avatar = x.Avatar,
+                groupDetailUsers = x.groupDetail.Select(
+                        m => new GroupDetailUserDto()
+                        {
+                            GroupDetailId = m.GroupDetailId,
+                            UserId = m.UserId,
+                            AvatarUrl = m.User.Avatar,
+                            Role = m.Role,
+                            UserName = m.User.UserName,
+                            Status = m.Status,
+                        }).ToList(),
+                UserNumber = x.groupDetail.Count()
+            }).FirstOrDefaultAsync(); 
         }
 
         public async Task<IEnumerable<GroupUserDto>> GetAllGroupsAsync(int userId)
         {
-            return await _context.GroupDetails.Where(x => x.UserId == userId && x.Status==1).AsNoTracking().Include(x => x.Group).ThenInclude(x=>x.groupDetail).ThenInclude(x=>x.User).Select(
+            return await _context.GroupDetails.AsNoTracking().Where(x => x.UserId == userId && x.Status==1).Select(
                 x => new GroupUserDto()
                 {
                     GroupId = x.Group.GroupId,
