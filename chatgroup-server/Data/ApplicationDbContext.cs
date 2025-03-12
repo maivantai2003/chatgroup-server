@@ -52,6 +52,38 @@ namespace chatgroup_server.Data
                 .WithMany(u => u.groupMessageStatuses)
                 .HasForeignKey(gms => gms.ReceiverId)
                 .OnDelete(DeleteBehavior.NoAction);
+            //
+            modelBuilder.Entity<UserMessages>()
+            .HasIndex(um => um.SenderId)
+            .HasDatabaseName("IX_UserMessages_SenderId");
+
+            modelBuilder.Entity<UserMessages>()
+                .HasIndex(um => um.ReceiverId)
+                .HasDatabaseName("IX_UserMessages_ReceiverId");
+
+            modelBuilder.Entity<UserMessages>()
+                .HasIndex(um => um.CreateAt)
+                .HasDatabaseName("IX_UserMessages_CreateAt");
+
+            modelBuilder.Entity<UserMessages>()
+                .HasIndex(um => um.ReplyToMessageId)
+                .HasDatabaseName("IX_UserMessages_ReplyToMessageId");
+            //
+            modelBuilder.Entity<GroupMessages>()
+                 .HasIndex(gm => gm.SenderId)
+                 .HasDatabaseName("IX_GroupMessages_SenderId");
+
+            modelBuilder.Entity<GroupMessages>()
+                .HasIndex(gm => gm.GroupId)
+                .HasDatabaseName("IX_GroupMessages_GroupId");
+
+            modelBuilder.Entity<GroupMessages>()
+                .HasIndex(gm => gm.CreateAt)
+                .HasDatabaseName("IX_GroupMessages_CreateAt");
+
+            modelBuilder.Entity<GroupMessages>()
+                .HasIndex(gm => gm.ReplyToMessageId)
+                .HasDatabaseName("IX_GroupMessages_ReplyToMessageId");
             base.OnModelCreating(modelBuilder);
         }
     } 

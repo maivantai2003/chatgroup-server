@@ -28,20 +28,27 @@ namespace chatgroup_server.Services
             return await _userMessageRepository.GetMessagesByReceiverIdAsync(receiverId);
         }
 
-        public async Task<ApiResponse<UserMessages>> AddUserMessageAsync(UserMessages userMessage)
+        public async Task<ApiResponse<UserMessageResponseDto>> AddUserMessageAsync(UserMessages userMessage)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
                 await _userMessageRepository.AddUserMessageAsync(userMessage);
                 await _unitOfWork.CommitAsync();
-                return ApiResponse<UserMessages>.SuccessResponse("Nhắn tin thành công", userMessage);
+                var result=await _userMessageRepository.GetUserMessageById(userMessage.UserMessageId);
+                if (result == null) {
+                    return ApiResponse<UserMessageResponseDto>.ErrorResponse("Nhắn tin không thành công", new List<string>()
+                    {
+                        "Không tìm thấy tin nhắn"
+                    });
+                }
+                return ApiResponse<UserMessageResponseDto>.SuccessResponse("Nhắn tin thành công", result);
             }
             catch (Exception ex)
             {
                 {
                     await _unitOfWork.RollbackAsync();
-                    return ApiResponse<UserMessages>.ErrorResponse("Nhắn tin không thành công", new List<string>()
+                    return ApiResponse<UserMessageResponseDto>.ErrorResponse("Nhắn tin không thành công", new List<string>()
                 {
                     ex.Message
                 });
@@ -85,15 +92,15 @@ namespace chatgroup_server.Services
             throw new NotImplementedException();
         }
 
-        public async Task<ApiResponse<IEnumerable<UserMessageDto>>> GetAllUserMessageByIdAsync(int senderId, int receiverId)
+        public async Task<ApiResponse<IEnumerable<UserMessageResponseDto>>> GetAllUserMessageByIdAsync(int senderId, int receiverId)
         {
             try
             {
                 var result = await _userMessageRepository.GetAllUserMessageByIdAsync(senderId, receiverId);
-                return ApiResponse<IEnumerable<UserMessageDto>>.SuccessResponse("Lấy danh sách tin nhắn thành công", result);
+                return ApiResponse<IEnumerable<UserMessageResponseDto>>.SuccessResponse("Lấy danh sách tin nhắn thành công", result);
             }
             catch (Exception ex) {
-                return ApiResponse<IEnumerable<UserMessageDto>>.ErrorResponse("Lấy danh sách tin nhắn không thành công", new List<string>()
+                return ApiResponse<IEnumerable<UserMessageResponseDto>>.ErrorResponse("Lấy danh sách tin nhắn không thành công", new List<string>()
                 {
                     ex.Message,
                 });

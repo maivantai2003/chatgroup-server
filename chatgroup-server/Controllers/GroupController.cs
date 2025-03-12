@@ -48,6 +48,23 @@ namespace chatgroup_server.Controllers
             }
             return Ok(response.Data);
         }
+        [HttpPut("[action]")]
+        public async Task<IActionResult> UpdateGroup(GroupUpdateDto groupUpdateDto)
+        {
+            var group = new Group()
+            {
+                GroupId = groupUpdateDto.GroupId,
+                GroupName = groupUpdateDto.GroupName,
+                Avatar = groupUpdateDto.Avatar,
+                Status = groupUpdateDto.Status,
+            };
+            var response = await _groupService.UpdateGroupAsync(group);
+            if (!response.Success)
+            {
+                return Ok(response.Errors);
+            }
+            return Ok(response.Data);
+        }
 
     }
 }

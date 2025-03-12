@@ -3,6 +3,7 @@ using chatgroup_server.Interfaces;
 using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
 using chatgroup_server.Common;
+using chatgroup_server.Dtos;
 
 namespace chatgroup_server.Services
 {
@@ -99,6 +100,25 @@ namespace chatgroup_server.Services
             catch (Exception ex)
             {
                 return ApiResponse<IEnumerable<Conversation>>.ErrorResponse("Lấy danh sách không thành công", new List<string>()
+                {
+                    ex.Message
+                });
+            }
+        }
+
+        public async Task<ApiResponse<ConversationUpdateInfor>> UpdateInForConversation(ConversationUpdateInfor conversation)
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                await _conversationRepository.UpdateInForConversation(conversation);
+                await _unitOfWork.CommitAsync();
+                return ApiResponse<ConversationUpdateInfor>.SuccessResponse("Cập thông tin thành công", conversation);
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                return ApiResponse<ConversationUpdateInfor>.ErrorResponse("Cập nhật thông tin không thành công", new List<string>
                 {
                     ex.Message
                 });

@@ -1,11 +1,12 @@
 ﻿using chatgroup_server.Data;
+using chatgroup_server.Dtos;
 using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace chatgroup_server.Repositories
 {
-    public class GroupMessageRepository:IGroupMessageRepository
+    public class GroupMessageRepository : IGroupMessageRepository
     {
         private readonly ApplicationDbContext _context;
 
@@ -22,15 +23,25 @@ namespace chatgroup_server.Repositories
                                  .ToListAsync();
         }
 
-        public async Task<GroupMessages?> GetMessageByIdAsync(int id)
+        public async Task<GroupMessageResponseDto?> GetGroupMessageByIdAsync(int id)
         {
-            return await _context.GroupMessages
-                                 .Include(gm => gm.Sender)
-                                 .Include(gm => gm.Group)
-                                 .FirstOrDefaultAsync(gm => gm.GroupedMessageId == id);
+            return await _context.GroupMessages.AsNoTracking().Where(x => x.GroupedMessageId == id).Select(
+                x => new GroupMessageResponseDto()
+                {
+                    GroupedMessageId = x.GroupedMessageId,
+                    SenderId = x.SenderId,
+                    SenderName = x.Sender.UserName,
+                    SenderAvatar = x.Sender.Avatar,
+                    GroupId = x.GroupId,
+                    ReplyToMessageId = x.ReplyToMessageId,
+                    Content = x.Content,
+                    MessageType = x.MessageType,
+                    CreateAt = x.CreateAt,
+                    Status = x.Status,
+                }).FirstOrDefaultAsync();
         }
 
-        public async Task AddMessageAsync(GroupMessages message)
+        public async Task AddGroupMessageAsync(GroupMessages message)
         {
             await _context.GroupMessages.AddAsync(message);
         }

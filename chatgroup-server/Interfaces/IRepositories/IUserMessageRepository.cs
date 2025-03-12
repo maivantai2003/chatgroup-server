@@ -5,9 +5,10 @@ namespace chatgroup_server.Interfaces.IRepositories
 {
     public interface IUserMessageRepository
     {
-        Task<IEnumerable<UserMessageDto>> GetAllUserMessageByIdAsync(int senderId, int receiverId);
+        Task<IEnumerable<UserMessageResponseDto>> GetAllUserMessageByIdAsync(int senderId, int receiverId);
         Task<IEnumerable<UserMessages>> GetMessagesBySenderIdAsync(int senderId);
         Task<IEnumerable<UserMessages>> GetMessagesByReceiverIdAsync(int receiverId);
+        Task<UserMessageResponseDto> GetUserMessageById(int userMessageId);
         Task AddUserMessageAsync(UserMessages userMessage);
         void UpdateUserMessage(UserMessages userMessage);
         void DeleteUserMessage(UserMessages userMessage);

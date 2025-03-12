@@ -27,7 +27,7 @@ namespace chatgroup_server.Repositories
                     UserId = userId,
                     CreateAt = x.CreateAt,
                     Type = x.Type,
-                    Content = x.Content,    
+                    Content = x.Content,
                     UserName = x.User != null ? x.User.UserName : "Unknown",
                     AvatarUrl = x.User != null ? x.User.Avatar : null,
                     CloudMessageFile = x.CloudMessageFiles.Select(f => new FileDto()
@@ -63,21 +63,23 @@ namespace chatgroup_server.Repositories
         public async Task<CloudMessageResponseDto?> GetCloudMessageByIdAsync(int id)
         {
             return await _context.CloudMessages.AsNoTracking().Where(x => x.CloudMessageId == id).Select(
-                x => new CloudMessageResponseDto(){
+                x => new CloudMessageResponseDto()
+                {
                     CloudMessageId = x.CloudMessageId,
-                    UserId = x.UserId,  
-                    CreateAt=x.CreateAt,
+                    UserId = x.UserId,
+                    CreateAt = x.CreateAt,
                     Type = x.Type,
-                    Content = x.Content,   
-                    UserName=x.User!=null?x.User.UserName:"Unknown",
-                    AvatarUrl=x.User!=null?x.User.UserName:null,
-                    CloudMessageFile=x.CloudMessageFiles.Select(f=>new FileDto()
+                    Content = x.Content,
+                    UserName = x.User != null ? x.User.UserName : "Unknown",
+                    AvatarUrl = x.User != null ? x.User.UserName : null,
+                    CloudMessageFile = x.CloudMessageFiles.Select(f => new FileDto()
                     {
                         TenFile = f.Files != null ? f.Files.TenFile : "No File",
                         DuongDan = f.Files != null ? f.Files.DuongDan : null,
                         LoaiFile = f.Files != null ? f.Files.LoaiFile : null,
                         KichThuocFile = f.Files != null ? f.Files.KichThuocFile : null,
-                    }).ToList()}).FirstOrDefaultAsync();
+                    }).ToList()
+                }).FirstOrDefaultAsync();
         }
     }
 }

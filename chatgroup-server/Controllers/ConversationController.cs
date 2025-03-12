@@ -70,5 +70,15 @@ namespace chatgroup_server.Controllers
             }
             return Ok(respone.Data);
         }
+        [HttpPut("[action]")]
+        public async Task<IActionResult> UpdateConversationInfor(ConversationUpdateInfor conversation)
+        {
+            var result=await _conversationService.UpdateInForConversation(conversation);
+            if (result.Success)
+            {
+                return Ok(result.Data);
+            }
+            return Ok(result.Errors);
+        }
     }
 }

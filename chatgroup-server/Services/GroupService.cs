@@ -67,19 +67,19 @@ namespace chatgroup_server.Services
             }
         }
 
-        public async Task<bool> UpdateGroupAsync(Group group)
+        public async Task<ApiResponse<Group>> UpdateGroupAsync(Group group)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                _groupRepository.UpdateGroup(group);
+                await _groupRepository.UpdateGroup(group);
                 await _unitOfWork.CommitAsync();
-                return true;
+                return ApiResponse<Group>.SuccessResponse("Cập nhật nhóm thành công",group);
             }
             catch
             {
                 await _unitOfWork.RollbackAsync();
-                return false;
+                return ApiResponse<Group>.SuccessResponse("Cập nhật nhóm không thành công", group);
             }
         }
 

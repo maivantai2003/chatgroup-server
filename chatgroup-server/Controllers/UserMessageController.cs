@@ -11,20 +11,22 @@ namespace chatgroup_server.Controllers
     public class UserMessageController : ControllerBase
     {
         private readonly IUserMessageService _userMessageService;
-        public UserMessageController(IUserMessageService userMessageService) {
+        public UserMessageController(IUserMessageService userMessageService)
+        {
             _userMessageService = userMessageService;
         }
         [HttpPost("[action]")]
-        public async Task<IActionResult> CreateUserMessage(SendUserMessageDto userMessageDto)
+        public async Task<IActionResult> CreateUserMessage(UserMessageDto userMessageDto)
         {
             var UserMessage = new UserMessages()
             {
                 Content = userMessageDto.Content,
-                SenderId = userMessageDto.SenderId, 
+                SenderId = userMessageDto.SenderId,
                 ReceiverId = userMessageDto.ReceiverId,
-                MessageType = userMessageDto.MessageType,   
+                MessageType = userMessageDto.MessageType,
+                ReplyToMessageId = userMessageDto.ReplyToMessageId,
             };
-            var response=await _userMessageService.AddUserMessageAsync(UserMessage);
+            var response = await _userMessageService.AddUserMessageAsync(UserMessage);
             if (!response.Success)
             {
                 return Ok(response.Errors);

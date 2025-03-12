@@ -64,10 +64,11 @@ namespace chatgroup_server.Repositories
         {
             await _context.Groups.AddAsync(group);
         }
-
-        public void UpdateGroup(Group group)
+        public async Task UpdateGroup(Group group)
         {
-            _context.Groups.Update(group);
+            await _context.Groups.Where(x => x.GroupId == group.GroupId).
+                ExecuteUpdateAsync(setters=>setters.SetProperty(x=>x.GroupName,group.GroupName)
+                .SetProperty(x=>x.Avatar,group.Avatar).SetProperty(x=>x.Status,group.Status));
         }
 
         public void DeleteGroup(Group group)

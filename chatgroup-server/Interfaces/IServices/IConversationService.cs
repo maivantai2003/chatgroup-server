@@ -1,4 +1,5 @@
 ﻿using chatgroup_server.Common;
+using chatgroup_server.Dtos;
 using chatgroup_server.Models;
 
 namespace chatgroup_server.Interfaces.IServices
@@ -10,5 +11,6 @@ namespace chatgroup_server.Interfaces.IServices
         Task<ApiResponse<Conversation>> UpdateConversationAsync(Conversation conversation);
         Task<ApiResponse<IEnumerable<Conversation>>> GetAllConversation(int userId);
         Task<bool> DeleteConversationAsync(int id);
+        Task<ApiResponse<ConversationUpdateInfor>> UpdateInForConversation(ConversationUpdateInfor conversation);
     }
 }

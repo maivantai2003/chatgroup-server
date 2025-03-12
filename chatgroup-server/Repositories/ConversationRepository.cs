@@ -1,4 +1,5 @@
 ﻿using chatgroup_server.Data;
+using chatgroup_server.Dtos;
 using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Models;
 using Microsoft.EntityFrameworkCore;
@@ -27,12 +28,12 @@ namespace chatgroup_server.Repositories
 
         public async Task Update(Conversation conversation)
         {
-            await _context.Conversations.Where(x => x.UserId==conversation.UserId && x.Id==conversation.Id && x.Type==conversation.Type).
-                 ExecuteUpdateAsync(setters => 
+            await _context.Conversations.Where(x => x.UserId == conversation.UserId && x.Id == conversation.Id && x.Type == conversation.Type).
+                 ExecuteUpdateAsync(setters =>
                  setters.
                  SetProperty(x => x.LastMessage, DateTime.Now).
-                 SetProperty(x=>x.Content,conversation.Content).
-                 SetProperty(x=>x.UserSend,conversation.UserSend)
+                 SetProperty(x => x.Content, conversation.Content).
+                 SetProperty(x => x.UserSend, conversation.UserSend)
                  );
         }
 
@@ -43,7 +44,13 @@ namespace chatgroup_server.Repositories
 
         public async Task<IEnumerable<Conversation>> GetAllConversation(int userId)
         {
-            return await _context.Conversations.AsNoTracking().Where(x => x.UserId == userId).OrderByDescending(x=>x.LastMessage).ToListAsync();
+            return await _context.Conversations.AsNoTracking().Where(x => x.UserId == userId).OrderByDescending(x => x.LastMessage).ToListAsync();
+        }
+
+        public async Task UpdateInForConversation(ConversationUpdateInfor conversation)
+        {
+            await _context.Conversations.Where(x => x.Id == conversation.Id && x.Type == conversation.Type)
+                .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.Avatar, conversation.Avatar).SetProperty(x => x.ConversationName, conversation.ConversationName));
         }
     }
 }

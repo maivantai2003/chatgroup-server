@@ -1,4 +1,6 @@
-﻿using chatgroup_server.Interfaces;
+﻿using chatgroup_server.Common;
+using chatgroup_server.Dtos;
+using chatgroup_server.Interfaces;
 using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
@@ -23,13 +25,15 @@ namespace chatgroup_server.Services
 
         public async Task<GroupMessages?> GetMessageByIdAsync(int id)
         {
-            return await _groupMessageRepository.GetMessageByIdAsync(id);
+            //return await _groupMessageRepository.GetGroupMessageByIdAsync(id);
+            throw new NotImplementedException();
         }
 
         public async Task<bool> SendMessageAsync(GroupMessages message)
         {
-            await _groupMessageRepository.AddMessageAsync(message);
-            return await _unitOfWork.SaveChangesAsync() > 0;
+            //await _groupMessageRepository.AddMessageAsync(message);
+            //return await _unitOfWork.SaveChangesAsync() > 0;
+            throw new NotImplementedException();
         }
 
         public async Task<bool> UpdateMessageAsync(GroupMessages message)
@@ -40,11 +44,30 @@ namespace chatgroup_server.Services
 
         public async Task<bool> DeleteMessageAsync(int id)
         {
-            var message = await _groupMessageRepository.GetMessageByIdAsync(id);
-            if (message == null) return false;
+            //var message = await _groupMessageRepository.GetMessageByIdAsync(id);
+            //if (message == null) return false;
 
-            _groupMessageRepository.DeleteMessage(message);
-            return await _unitOfWork.SaveChangesAsync() > 0;
+            //_groupMessageRepository.DeleteMessage(message);
+            //return await _unitOfWork.SaveChangesAsync() > 0;
+            throw new NotImplementedException();
+        }
+        public async Task<ApiResponse<GroupMessageResponseDto>> AddGroupMessage(GroupMessages groupMessage)
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                await _groupMessageRepository.AddGroupMessageAsync(groupMessage);
+                await _unitOfWork.CommitAsync();
+                var result = await _groupMessageRepository.GetGroupMessageByIdAsync(groupMessage.GroupedMessageId);
+                return ApiResponse<GroupMessageResponseDto>.SuccessResponse("Nhắn tin thành công", result);
+            }
+            catch (Exception ex) {
+                await _unitOfWork.RollbackAsync();
+                return ApiResponse<GroupMessageResponseDto>.ErrorResponse("Nhắn tin thành công", new List<string>()
+                {
+                    ex.Message
+                });
+            }
         }
     }
 }
