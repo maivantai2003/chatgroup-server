@@ -33,5 +33,14 @@ namespace chatgroup_server.Controllers
             }
             return Ok(response.Data);
         }
+        [HttpGet("[action]")]
+        public async Task<IActionResult> GetAllUserMessage(int senderId,int receiverId)
+        {
+            var response=await _userMessageService.GetAllUserMessageByIdAsync(senderId,receiverId);
+            if (response.Success) {
+                return Ok(response.Data); 
+            }
+            return Ok(response.Errors); 
+        }
     }
 }

@@ -55,5 +55,23 @@ namespace chatgroup_server.Repositories
         {
             _context.GroupMessages.Remove(message);
         }
+
+        public async Task<IEnumerable<GroupMessageResponseDto?>> GetAllGroupMessageById(int groupId)
+        {
+            return await _context.GroupMessages.AsNoTracking().Where(x => x.GroupId == groupId)
+                 .Select(x => new GroupMessageResponseDto()
+                 {
+                     GroupedMessageId = x.GroupedMessageId,
+                     SenderId = x.SenderId,
+                     SenderName = x.Sender.UserName,
+                     SenderAvatar = x.Sender.Avatar,
+                     GroupId = x.GroupId,
+                     ReplyToMessageId = x.ReplyToMessageId,
+                     Content = x.Content,
+                     MessageType = x.MessageType,
+                     CreateAt = x.CreateAt,
+                     Status = x.Status,
+                 }).ToListAsync();
+        }
     }
 }

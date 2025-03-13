@@ -3,6 +3,8 @@ using chatgroup_server.Interfaces.IServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using chatgroup_server.Models;
+using chatgroup_server.Services;
+using MimeKit;
 namespace chatgroup_server.Controllers
 {
     [Route("api/[controller]")]
@@ -30,6 +32,16 @@ namespace chatgroup_server.Controllers
                 return Ok(response.Data);
             }
             return BadRequest(response.Data);
+        }
+        [HttpGet("[action]")]
+        public async Task<IActionResult> GetAllGroupMessage(int id)
+        {
+            var response = await _groupMessageService.GetAllGroupMessageById(id);
+            if (response.Success)
+            {
+                return Ok(response.Data);
+            }
+            return Ok(response.Errors);
         }
     }
 }

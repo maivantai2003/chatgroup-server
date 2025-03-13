@@ -69,5 +69,20 @@ namespace chatgroup_server.Services
                 });
             }
         }
+
+        public async Task<ApiResponse<IEnumerable<GroupMessageResponseDto>>> GetAllGroupMessageById(int groupId)
+        {
+            try
+            {
+                var result=await _groupMessageRepository.GetAllGroupMessageById(groupId);
+                return ApiResponse<IEnumerable<GroupMessageResponseDto>>.SuccessResponse("Lấy danh sách tin nhắn nhóm thành công", result);
+            }
+            catch (Exception ex) {
+                return ApiResponse<IEnumerable<GroupMessageResponseDto>>.ErrorResponse("Lấy danh sách tin nhắn nhóm thành công", new List<string>()
+                {
+                    ex.Message
+                });
+            }
+        }
     }
 }

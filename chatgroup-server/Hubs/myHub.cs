@@ -19,11 +19,12 @@ namespace chatgroup_server.Hubs
             {
                 _connection.AddUserConnection(userId, Context.ConnectionId);
             }
-            //return base.OnConnectedAsync();
+            await base.OnConnectedAsync();
         }
         public async Task AcceptFriend(string userId)
         {
             var connections=_connection.GetUserConections(userId);
+            if (connections == null || !connections.Any()) return;
             foreach (var connectionId in connections)
             {
                 await Clients.Client(connectionId).SendAsync("ReceiveAcceptFriend");
@@ -37,12 +38,30 @@ namespace chatgroup_server.Hubs
                 await Clients.Client(connectionId).SendAsync("MemberToGroup");
             }
         }
+        public async Task JoinGroup(string groupId)
+        {
+            if (string.IsNullOrEmpty(groupId)) return;
+            await Groups.AddToGroupAsync(Context.ConnectionId, groupId);
+        }
+        public async Task SendGroupMesage(string groupId)
+        {
+
+            await Clients.Group(groupId).SendAsync("ReceiveGroupMessage");
+        }
+        public async Task SendUserMessage(string userId)
+        {
+            var connections = _connection.GetUserConections(userId);
+            foreach (var connectionId in connections)
+            {
+                await Clients.Client(connectionId).SendAsync("ReceiveUserMessage");
+            }
+        }
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             _connection.RemoveUserConnection(Context.ConnectionId);
             Console.WriteLine($"🔴 User disconnected: {Context.ConnectionId}");
 
-            //return base.OnDisconnectedAsync(exception);
+            await base.OnDisconnectedAsync(exception);
         }
     }
 }
