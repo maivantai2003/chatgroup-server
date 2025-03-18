@@ -9,6 +9,7 @@ namespace chatgroup_server.Interfaces.IRepositories
         Task<Conversation?> GetByIdAsync(int id);
         Task<IEnumerable<Conversation>> GetAllConversation(int userId);
         Task UpdateInForConversation(ConversationUpdateInfor conversation);    
+        Task UpdateConversationGroup(ConversationUpdateGroupDto conversationGroup);
         Task Update(Conversation conversation);
         void Delete(Conversation conversation);
     }

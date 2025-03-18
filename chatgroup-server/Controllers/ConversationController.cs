@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using chatgroup_server.Dtos;
 using chatgroup_server.Models;
+using Microsoft.AspNetCore.Authorization;
 namespace chatgroup_server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize]
     public class ConversationController : ControllerBase
     {
         private readonly IConversationService _conversationService;
@@ -79,6 +81,15 @@ namespace chatgroup_server.Controllers
                 return Ok(result.Data);
             }
             return Ok(result.Errors);
+        }
+        [HttpPut("[action]")]
+        public async Task<IActionResult> UpdateConversationGroup(ConversationUpdateGroupDto conversationUpdateGroupDto)
+        {
+            var response=await _conversationService.UpdateConversationGroup(conversationUpdateGroupDto);
+            if (response.Success) {
+                return Ok(response.Data);
+            }
+            return Ok(response.Errors);
         }
     }
 }

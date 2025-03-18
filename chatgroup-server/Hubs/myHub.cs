@@ -1,9 +1,16 @@
-﻿using chatgroup_server.Interfaces.IServices;
+﻿using chatgroup_server.Dtos;
+using chatgroup_server.Interfaces.IServices;
+using chatgroup_server.Models;
 using chatgroup_server.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.VisualBasic;
+using Newtonsoft.Json;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace chatgroup_server.Hubs
 {
+    //[Authorize]
     public class myHub : Hub
     {
         private readonly IManagerConection _connection;
@@ -18,6 +25,7 @@ namespace chatgroup_server.Hubs
             if (!string.IsNullOrEmpty(userId))
             {
                 _connection.AddUserConnection(userId, Context.ConnectionId);
+                await Clients.All.SendAsync("CheckConnection", _connection.GetAllConnectedUsers());
             }
             await base.OnConnectedAsync();
         }
@@ -42,18 +50,46 @@ namespace chatgroup_server.Hubs
         {
             if (string.IsNullOrEmpty(groupId)) return;
             await Groups.AddToGroupAsync(Context.ConnectionId, groupId);
+            await Clients.Group(groupId).SendAsync("UserJoin", Context.User?.Claims.FirstOrDefault(c => c.Type == "userId")?.Value+","+groupId);
         }
-        public async Task SendGroupMesage(string groupId)
+        public async Task SendGroupMessage(string groupId,string userId,GroupMessageResponseDto groupMessage,ConversationUpdateGroupDto conversation)
         {
 
-            await Clients.Group(groupId).SendAsync("ReceiveGroupMessage");
+            await Clients.Group(groupId).SendAsync("ReceiveGroupMessage",userId,groupMessage);
+            var connections= _connection.GetUserConections(userId);
+            foreach (var connectionId in connections)
+            {
+                await Clients.Client(connectionId).SendAsync("UpdateConversationGroup", conversation);
+            }
         }
-        public async Task SendUserMessage(string userId)
+        public async Task SendUserMessage(string userId,UserMessageResponseDto userMessage,Conversation conversation)
         {
             var connections = _connection.GetUserConections(userId);
             foreach (var connectionId in connections)
             {
-                await Clients.Client(connectionId).SendAsync("ReceiveUserMessage");
+                await Clients.Client(connectionId).SendAsync("ReceiveUserMessage", userMessage);
+                await Clients.Client(connectionId).SendAsync("UpdateConversationUser", conversation);
+                await Clients.Client(connectionId).SendAsync("CheckUser",_connection.GetAllConnectedUsers());
+            }
+            
+        }
+        public async Task HoverSendUserMessage(string userId, string message) {
+            var connections = _connection.GetUserConections(userId);
+            foreach (var connectionId in connections)
+            {
+                await Clients.Client(connectionId).SendAsync("ReceiveHoverUserMessage",message);
+            }
+        }
+        public async Task HoverSendGroupMessage(string groupId,string userId, string message)
+        {
+            await Clients.Group(groupId).SendAsync("ReceiveHoverGroupMessage", userId,message);
+        }
+        public async Task AwaitProgressSendFile(string userId,double progress)
+        {
+            var connections=_connection.GetUserConections(userId);
+            foreach (var connectionId in connections)
+            {
+                await Clients.Client(connectionId).SendAsync("ProgressSendFile", progress);
             }
         }
         public override async Task OnDisconnectedAsync(Exception? exception)

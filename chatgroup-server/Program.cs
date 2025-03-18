@@ -70,7 +70,7 @@ app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod()
                             .AllowCredentials());
 app.UseAuthentication();
 app.UseAuthorization();
-//app.UseWebSockets();
+app.UseWebSockets();
 app.MapHub<myHub>("/app-hub");
 app.MapControllers();
 app.Run();

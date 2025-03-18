@@ -3,6 +3,7 @@ using chatgroup_server.Dtos;
 using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 
 namespace chatgroup_server.Repositories
 {
@@ -51,6 +52,14 @@ namespace chatgroup_server.Repositories
         {
             await _context.Conversations.Where(x => x.Id == conversation.Id && x.Type == conversation.Type)
                 .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.Avatar, conversation.Avatar).SetProperty(x => x.ConversationName, conversation.ConversationName));
+        }
+
+        public async Task UpdateConversationGroup(ConversationUpdateGroupDto conversationGroup)
+        {
+            await _context.Conversations.Where(x => x.Id == conversationGroup.Id && x.Type == conversationGroup.Type)
+               .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.UserSend, conversationGroup.UserSend)
+               .SetProperty(x => x.LastMessage, DateTime.Now)
+               .SetProperty(x=>x.Content,conversationGroup.Content));
         }
     }
 }

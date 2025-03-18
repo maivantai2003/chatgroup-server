@@ -124,5 +124,22 @@ namespace chatgroup_server.Services
                 });
             }
         }
+
+        public async Task<ApiResponse<ConversationUpdateGroupDto>> UpdateConversationGroup(ConversationUpdateGroupDto group)
+        {
+            await _unitOfWork.BeginTransactionAsync();  
+            try
+            {
+                await _conversationRepository.UpdateConversationGroup(group);
+                await _unitOfWork.CommitAsync();
+                return ApiResponse<ConversationUpdateGroupDto>.SuccessResponse("Cập nhật thành công", group);
+            }
+            catch (Exception ex) { 
+                await _unitOfWork.RollbackAsync();
+                return ApiResponse<ConversationUpdateGroupDto>.ErrorResponse("Cập nhật thất bại", new List<string> {
+                    ex.Message
+                });
+            }
+        }
     }
 }

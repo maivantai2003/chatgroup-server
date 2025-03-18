@@ -28,7 +28,10 @@ namespace chatgroup_server.Services
         //{
         //    return _userConnections.TryGetValue(userId, out var connections) ? connections.ToList() : new List<string>();
         //}
-
+        public List<string> GetAllConnectedUsers()
+        {
+            return _userConnections.Keys.ToList();
+        }
         public int GetUserOnline()
         {
             return _userConnections.Count;
@@ -36,14 +39,14 @@ namespace chatgroup_server.Services
 
         public void RemoveUserConnection(string connectionId)
         {
-            foreach (var user in _userConnections.Keys)
+            foreach (var kvp in _userConnections)
             {
-                if (_userConnections.TryGetValue(user, out var connections) && connections.Contains(connectionId))
+                if (kvp.Value.Contains(connectionId))
                 {
-                    connections.Remove(connectionId);
-                    if (connections.Count == 0)
+                    kvp.Value.Remove(connectionId);
+                    if (kvp.Value.Count == 0) 
                     {
-                        _userConnections.TryRemove(user, out _);
+                        _userConnections.TryRemove(kvp.Key, out _);
                     }
                     break;
                 }

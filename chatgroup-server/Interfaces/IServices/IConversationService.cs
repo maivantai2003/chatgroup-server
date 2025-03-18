@@ -10,6 +10,7 @@ namespace chatgroup_server.Interfaces.IServices
         Task<ApiResponse<Conversation?>> GetConversationByIdAsync(int id);
         Task<ApiResponse<Conversation>> UpdateConversationAsync(Conversation conversation);
         Task<ApiResponse<IEnumerable<Conversation>>> GetAllConversation(int userId);
+        Task<ApiResponse<ConversationUpdateGroupDto>> UpdateConversationGroup(ConversationUpdateGroupDto group);    
         Task<bool> DeleteConversationAsync(int id);
         Task<ApiResponse<ConversationUpdateInfor>> UpdateInForConversation(ConversationUpdateInfor conversation);
     }

@@ -6,5 +6,6 @@
         void RemoveUserConnection(string connectionId);
         List<string> GetUserConections(string userId);
         int GetUserOnline();
+        List<string> GetAllConnectedUsers();
     }
 }
