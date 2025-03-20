@@ -29,21 +29,21 @@ namespace chatgroup_server.Hubs
             }
             await base.OnConnectedAsync();
         }
-        public async Task AcceptFriend(string userId)
+        public async Task AcceptFriend(string userId,Conversation conversation)
         {
             var connections=_connection.GetUserConections(userId);
             if (connections == null || !connections.Any()) return;
             foreach (var connectionId in connections)
             {
-                await Clients.Client(connectionId).SendAsync("ReceiveAcceptFriend");
+                await Clients.Client(connectionId).SendAsync("ReceiveAcceptFriend",conversation);
             }
         }
-        public async Task AddMemberToGroup(string userId)
+        public async Task AddMemberToGroup(string userId,Conversation conversation)
         {
             var connections = _connection.GetUserConections(userId);
             foreach (var connectionId in connections)
             {
-                await Clients.Client(connectionId).SendAsync("MemberToGroup");
+                await Clients.Client(connectionId).SendAsync("MemberToGroup",conversation);
             }
         }
         public async Task JoinGroup(string groupId)
@@ -52,11 +52,14 @@ namespace chatgroup_server.Hubs
             await Groups.AddToGroupAsync(Context.ConnectionId, groupId);
             await Clients.Group(groupId).SendAsync("UserJoin", Context.User?.Claims.FirstOrDefault(c => c.Type == "userId")?.Value+","+groupId);
         }
-        public async Task SendGroupMessage(string groupId,string userId,GroupMessageResponseDto groupMessage,ConversationUpdateGroupDto conversation)
+        public async Task SendGroupMessage(string groupId,string userId,GroupMessageResponseDto groupMessage)
         {
 
             await Clients.Group(groupId).SendAsync("ReceiveGroupMessage",userId,groupMessage);
-            var connections= _connection.GetUserConections(userId);
+        }
+        public async Task SendConversationGroup(string userId, ConversationUpdateTimeDto conversation)
+        {
+            var connections = _connection.GetUserConections(userId);
             foreach (var connectionId in connections)
             {
                 await Clients.Client(connectionId).SendAsync("UpdateConversationGroup", conversation);
@@ -72,6 +75,17 @@ namespace chatgroup_server.Hubs
                 await Clients.Client(connectionId).SendAsync("CheckUser",_connection.GetAllConnectedUsers());
             }
             
+        }
+        public async Task SendCloudMessage(string userId, CloudMessageResponseDto cloudMessage, Conversation conversation)
+        {
+            var connections = _connection.GetUserConections(userId);
+            foreach (var connectionId in connections)
+            {
+                await Clients.Client(connectionId).SendAsync("ReceiveCloudMessage", cloudMessage);
+                await Clients.Client(connectionId).SendAsync("UpdateConversationCloud", conversation);
+                await Clients.Client(connectionId).SendAsync("CheckUser", _connection.GetAllConnectedUsers());
+            }
+
         }
         public async Task HoverSendUserMessage(string userId, string message) {
             var connections = _connection.GetUserConections(userId);
@@ -90,6 +104,22 @@ namespace chatgroup_server.Hubs
             foreach (var connectionId in connections)
             {
                 await Clients.Client(connectionId).SendAsync("ProgressSendFile", progress);
+            }
+        }
+        public async Task LoadRequestFriend(string userId)
+        {
+            var connections = _connection.GetUserConections(userId);
+            foreach (var connectionId in connections)
+            {
+                await Clients.Client(connectionId).SendAsync("RequestFriend",userId);
+            }
+        }
+        public async Task SendRequestFriend(string userId)
+        {
+            var connections = _connection.GetUserConections(userId);
+            foreach (var connectionId in connections)
+            {
+                await Clients.Client(connectionId).SendAsync("RequestFriend", userId);
             }
         }
         public override async Task OnDisconnectedAsync(Exception? exception)

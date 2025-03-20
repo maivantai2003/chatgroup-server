@@ -30,12 +30,13 @@ namespace chatgroup_server.Repositories
                     Content = x.Content,
                     UserName = x.User != null ? x.User.UserName : "Unknown",
                     AvatarUrl = x.User != null ? x.User.Avatar : null,
-                    CloudMessageFile = x.CloudMessageFiles.Select(f => new FileDto()
+                    Files = x.CloudMessageFiles.Select(f => new CloudMessageFileDto()
                     {
-                        TenFile = f.Files != null ? f.Files.TenFile : "No File",
-                        DuongDan = f.Files != null ? f.Files.DuongDan : null,
-                        LoaiFile = f.Files != null ? f.Files.LoaiFile : null,
-                        KichThuocFile = f.Files != null ? f.Files.KichThuocFile : null,
+                        FileId=f.FileId,
+                        FileName = f.Files != null ? f.Files.TenFile : "No File",
+                        FileUrl = f.Files != null ? f.Files.DuongDan : null,
+                        TypeFile = f.Files != null ? f.Files.LoaiFile : null,
+                        SizeFile = f.Files != null ? f.Files.KichThuocFile : null,
                     }).ToList()
                 }).ToListAsync();
         }
@@ -72,12 +73,13 @@ namespace chatgroup_server.Repositories
                     Content = x.Content,
                     UserName = x.User != null ? x.User.UserName : "Unknown",
                     AvatarUrl = x.User != null ? x.User.UserName : null,
-                    CloudMessageFile = x.CloudMessageFiles.Select(f => new FileDto()
+                    Files = x.CloudMessageFiles.Select(f => new CloudMessageFileDto()
                     {
-                        TenFile = f.Files != null ? f.Files.TenFile : "No File",
-                        DuongDan = f.Files != null ? f.Files.DuongDan : null,
-                        LoaiFile = f.Files != null ? f.Files.LoaiFile : null,
-                        KichThuocFile = f.Files != null ? f.Files.KichThuocFile : null,
+                        FileId = f.FileId,
+                        FileName = f.Files != null ? f.Files.TenFile : "No File",
+                        FileUrl = f.Files != null ? f.Files.DuongDan : null,
+                        TypeFile = f.Files != null ? f.Files.LoaiFile : null,
+                        SizeFile = f.Files != null ? f.Files.KichThuocFile : null,
                     }).ToList()
                 }).FirstOrDefaultAsync();
         }

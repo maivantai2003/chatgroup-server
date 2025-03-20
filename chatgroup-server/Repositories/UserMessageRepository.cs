@@ -63,6 +63,14 @@ namespace chatgroup_server.Repositories
                     Content=x.Content,
                     CreateAt=x.CreateAt,
                     Status=x.Status,
+                    Files=x.userMessageFiles.Select(f=>new UserMessageFileDto()
+                    {
+                        FileId=f.File.MaFile,
+                        FileName=f.File.TenFile,
+                        TypeFile=f.File.LoaiFile,
+                        FileUrl=f.File.DuongDan,
+                        SizeFile=f.File.KichThuocFile
+                    }).ToList()
                 }).ToListAsync();
          //   return await _context.UserMessages.AsNoTracking()
          //.Where(um =>

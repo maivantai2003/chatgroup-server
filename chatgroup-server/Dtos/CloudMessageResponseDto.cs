@@ -9,6 +9,6 @@
         public string? Type { get; set; }
         public string UserName {  get; set; }
         public string AvatarUrl { get; set; }   
-        public IEnumerable<FileDto>? CloudMessageFile { get; set; }
+        public IEnumerable<CloudMessageFileDto>? Files { get; set; }
     }
 }

@@ -17,6 +17,6 @@
         //public UserMessageReplyDto? ReplyToMessage { get; set; }
         //public List<UserMessageStatusDto>? MessageStatuses { get; set; }
         //public List<UserMessageReactionDto>? Reactions { get; set; }
-        //public List<UserMessageFileDto>? Files { get; set; }
+        public List<UserMessageFileDto>? Files { get; set; }
     }
 }

@@ -14,7 +14,7 @@
         public int Status { get; set; } = 1;
         //public GroupMessageReplyDto? ReplyToMessage { get; set; }
         //public GroupMessageReplyDto? ReplyToMessage { get; set; }
-        //public List<GroupMessageFileDto>? GroupMessageFiles { get; set; }
+        public List<GroupMessageFileDto>? Files { get; set; }
         //public List<GroupMessageReactionDto>? GroupMessageReactions { get; set; }
         //public List<GroupMessageStatusDto>? GroupMessageStatuses { get; set; }
     }

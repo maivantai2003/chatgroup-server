@@ -1,4 +1,6 @@
-﻿using chatgroup_server.Data;
+﻿using chatgroup_server.Common;
+using chatgroup_server.Data;
+using chatgroup_server.Dtos;
 using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Models;
 using Microsoft.EntityFrameworkCore;
@@ -45,6 +47,37 @@ namespace chatgroup_server.Repositories
         public void Delete(GroupMessageFile groupMessageFile)
         {
             _context.GroupMessageFiles.Remove(groupMessageFile);
+        }
+
+        public async Task<IEnumerable<GroupMessageFileResponseDto>> GetAllFileGroupMessage(int groupId)
+        {
+            return await _context.GroupMessages.AsNoTracking().Where(x => x.GroupId == groupId)
+                .SelectMany(f => f.groupMessageFiles
+                .Select(file=>new GroupMessageFileResponseDto()
+                {
+                    UserId=f.SenderId,
+                    FileId=file.FileId,
+                    FileName=file.File.TenFile,
+                    FileUrl=file.File.DuongDan,
+                    SizeFile=file.File.KichThuocFile,
+                    TypeFile=file.File.LoaiFile,
+                    SentDate = f.CreateAt
+                })).ToListAsync();   
+        }
+
+        public async Task<GroupMessageFileResponseDto> GetGroupMessageFile(int groupMessageFileId)
+        {
+            return await _context.GroupMessageFiles.AsNoTracking().Where(x => x.GroupMessageFileId == groupMessageFileId)
+               .Select(f => new GroupMessageFileResponseDto()
+               {
+                   UserId = f.groupMessage.SenderId,
+                   FileId = f.File.MaFile,
+                   FileName = f.File.TenFile,
+                   TypeFile = f.File.LoaiFile,
+                   SizeFile = f.File.KichThuocFile,
+                   FileUrl = f.File.DuongDan,
+                   SentDate = f.groupMessage.CreateAt
+               }).FirstOrDefaultAsync();
         }
     }
 }

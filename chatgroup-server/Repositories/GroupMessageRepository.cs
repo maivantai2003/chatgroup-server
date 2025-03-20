@@ -38,6 +38,14 @@ namespace chatgroup_server.Repositories
                     MessageType = x.MessageType,
                     CreateAt = x.CreateAt,
                     Status = x.Status,
+                    Files = x.groupMessageFiles.Select(f => new GroupMessageFileDto()
+                    {
+                        FileId = f.FileId,
+                        FileName = f.File.TenFile,
+                        FileUrl = f.File.DuongDan,
+                        TypeFile = f.File.LoaiFile,
+                        SizeFile = f.File.KichThuocFile
+                    }).ToList()
                 }).FirstOrDefaultAsync();
         }
 
@@ -71,6 +79,14 @@ namespace chatgroup_server.Repositories
                      MessageType = x.MessageType,
                      CreateAt = x.CreateAt,
                      Status = x.Status,
+                     Files = x.groupMessageFiles.Select(f => new GroupMessageFileDto()
+                     {
+                         FileId = f.FileId,
+                         FileName = f.File.TenFile,
+                         FileUrl = f.File.DuongDan,
+                         TypeFile = f.File.LoaiFile,
+                         SizeFile = f.File.KichThuocFile
+                     }).ToList()
                  }).ToListAsync();
         }
     }

@@ -1,9 +1,10 @@
-using chatgroup_server.Data;
+﻿using chatgroup_server.Data;
 using chatgroup_server.Hubs;
 using chatgroup_server.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Microsoft.OpenApi.Models;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,6 +57,19 @@ builder.Services.AddSwaggerGen(opt =>
 //Log.Logger = new LoggerConfiguration().MinimumLevel.Debug().WriteTo.Console().WriteTo.File("Logs/app-log.txt",
 //    rollingInterval: RollingInterval.Day, shared: true).CreateLogger();
 //builder.Host.UseSerilog();
+builder.Services.AddRateLimiter(options =>
+{
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString(),
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10, // Tối đa 10 request
+                Window = TimeSpan.FromSeconds(60), // Trong vòng 60 giây
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 5 // Tối đa 5 request trong hàng đợi
+            }));
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

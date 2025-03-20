@@ -1,4 +1,5 @@
-﻿using chatgroup_server.Interfaces.IServices;
+﻿using chatgroup_server.Dtos;
+using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -38,8 +39,13 @@ namespace chatgroup_server.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> Add([FromBody] CloudMessageFile cloudMessageFile)
+        public async Task<IActionResult> Add([FromBody] CloudMessageFileAddDto cloudMessageFileDto)
         {
+            var cloudMessageFile = new CloudMessageFile()
+            {
+                FileId = cloudMessageFileDto.FileId,
+                CloudMessageId = cloudMessageFileDto.CloudMessageId,
+            };
             var response = await _service.AddAsync(cloudMessageFile);
             if (response.Success)
             {
@@ -70,6 +76,16 @@ namespace chatgroup_server.Controllers
                 return NotFound("Không tìm thấy dữ liệu");
 
             return Ok("Xóa thành công");
+        }
+        [HttpGet("[action]")]
+        public async Task<IActionResult> GetAllCloudMessageFile(int userId)
+        {
+            var response=await _service.GetAllFileCloudMessage(userId);
+            if (response.Success)
+            {
+                return Ok(response.Data);
+            }
+            return Ok(response.Errors);
         }
     }
 }

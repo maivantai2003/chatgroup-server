@@ -11,11 +11,14 @@ namespace chatgroup_server.Services
     {
         private readonly IConversationRepository _conversationRepository;
         private readonly IUnitOfWork _unitOfWork;
-
-        public ConversationService(IConversationRepository conversationRepository, IUnitOfWork unitOfWork)
+        private readonly RedisService _redisService;
+        private const string ConversationCacheKey = "conversation_{0}";
+        private const string AllConversationsCacheKey = "all_conversations_{0}";
+        public ConversationService(IConversationRepository conversationRepository, IUnitOfWork unitOfWork, RedisService redisService)
         {
             _conversationRepository = conversationRepository;
             _unitOfWork = unitOfWork;
+            _redisService = redisService;
         }
 
         public async Task<ApiResponse<Conversation>> AddConversationAsync(Conversation conversation)

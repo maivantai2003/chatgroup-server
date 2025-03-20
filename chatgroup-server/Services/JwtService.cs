@@ -20,7 +20,7 @@ namespace chatgroup_server.Services
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly RedisService _redisService;
+        private readonly RedisService _redisServices;
         private static string avatar;
         private static string userName;
         private UserInfor UserInfor;
@@ -28,7 +28,7 @@ namespace chatgroup_server.Services
             _context = context;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
-            _redisService = redisService;
+            _redisServices = redisService;
         }
 
         public async Task<AuthResponse> GetRefreshTokenAsync(string ipAddress, int userId, string phoneNumber)
@@ -37,8 +37,8 @@ namespace chatgroup_server.Services
             var accessToken = GenerateToken(phoneNumber, userId.ToString());
             //await _redisServices.RemoveCacheAsync($"accessToken:user-{userId}");
             //await _redisServices.RemoveCacheAsync($"refreshToken:user-{userId}");
-            //await _redisServices.SetCacheAysnc($"accessToken:user-{userId}", accessToken);
-            //await _redisServices.SetCacheAysnc($"refreshToken:user-{userId}", refreshToken);
+            //await _redisServices.SetCacheAsync($"accessToken:user-{userId}", accessToken, TimeSpan.FromMinutes(60));
+            //await _redisServices.SetCacheAsync($"refreshToken:user-{userId}", refreshToken, TimeSpan.FromDays(7));
             return await SaveTokenDetails(ipAddress, userId, accessToken, refreshToken);
         }
         private async Task<AuthResponse> SaveTokenDetails(string ipAddress, int userId, string tokenString, string refreshToken)
@@ -95,8 +95,8 @@ namespace chatgroup_server.Services
             };
             string tokenString = GenerateToken(user.PhoneNumber, user.UserId.ToString());
             string refreshToken = GenerateRefreshToken();
-            //await _redisServices.SetCacheAysnc($"accessToken:user-{user.UserId}", tokenString);
-            //await _redisServices.SetCacheAysnc($"refreshToken:user-{user.UserId}", refreshToken);
+            //await _redisServices.SetCacheAsync($"accessToken:user-{user.UserId}", tokenString, TimeSpan.FromMinutes(60));
+            //await _redisServices.SetCacheAsync($"refreshToken:user-{user.UserId}", refreshToken, TimeSpan.FromDays(7));
             return await SaveTokenDetails(ipAddress, user.UserId, tokenString, refreshToken);
         }
 

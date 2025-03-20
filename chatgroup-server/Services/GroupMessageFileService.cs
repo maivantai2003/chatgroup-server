@@ -3,6 +3,9 @@ using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Interfaces;
 using chatgroup_server.Models;
+using chatgroup_server.Dtos;
+using chatgroup_server.Repositories;
+using MimeKit;
 
 namespace chatgroup_server.Services
 {
@@ -33,19 +36,20 @@ namespace chatgroup_server.Services
             return ApiResponse<GroupMessageFile>.SuccessResponse("Chi tiết GroupMessageFile", result);
         }
 
-        public async Task<ApiResponse<GroupMessageFile>> AddAsync(GroupMessageFile groupMessageFile)
+        public async Task<ApiResponse<GroupMessageFileResponseDto>> AddAsync(GroupMessageFile groupMessageFile)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
                 await _groupMessageFileRepository.AddAsync(groupMessageFile);
                 await _unitOfWork.CommitAsync();
-                return ApiResponse<GroupMessageFile>.SuccessResponse("Thêm mới thành công", groupMessageFile);
+                var result = await _groupMessageFileRepository.GetGroupMessageFile(groupMessageFile.GroupMessageFileId);
+                return ApiResponse<GroupMessageFileResponseDto>.SuccessResponse("Thêm mới thành công",result);
             }
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                return ApiResponse<GroupMessageFile>.ErrorResponse("Thêm mới thất bại", new List<string> { ex.Message });
+                return ApiResponse<GroupMessageFileResponseDto>.ErrorResponse("Thêm mới thất bại", new List<string> { ex.Message });
             }
         }
 
@@ -82,6 +86,22 @@ namespace chatgroup_server.Services
             {
                 await _unitOfWork.RollbackAsync();
                 return false;
+            }
+        }
+
+        public async Task<ApiResponse<IEnumerable<GroupMessageFileResponseDto>>> GetAllFileGroupMessage(int groupId)
+        {
+            try
+            {
+                var result = await _groupMessageFileRepository.GetAllFileGroupMessage(groupId);
+                return ApiResponse<IEnumerable<GroupMessageFileResponseDto>>.SuccessResponse("Danh sách file group", result);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<IEnumerable<GroupMessageFileResponseDto>>.ErrorResponse("Lỗi khi lấy danh sách file group", new List<string>()
+                {
+                    ex.Message
+                });
             }
         }
     }

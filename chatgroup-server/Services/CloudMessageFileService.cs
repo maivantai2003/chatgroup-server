@@ -3,6 +3,8 @@ using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Interfaces;
 using chatgroup_server.Models;
+using chatgroup_server.Dtos;
+using chatgroup_server.Repositories;
 
 namespace chatgroup_server.Services
 {
@@ -32,19 +34,20 @@ namespace chatgroup_server.Services
             return ApiResponse<CloudMessageFile>.SuccessResponse("Chi tiết CloudMessageFile", result);
         }
 
-        public async Task<ApiResponse<CloudMessageFile>> AddAsync(CloudMessageFile cloudMessageFile)
+        public async Task<ApiResponse<CloudMessageFileResponseDto>> AddAsync(CloudMessageFile cloudMessageFile)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
                 await _repository.AddAsync(cloudMessageFile);
                 await _unitOfWork.CommitAsync();
-                return ApiResponse<CloudMessageFile>.SuccessResponse("Thêm thành công", cloudMessageFile);
+                var result = await _repository.GetCloudMessageFile(cloudMessageFile.CloudMessageFileId);
+                return ApiResponse<CloudMessageFileResponseDto>.SuccessResponse("Thêm thành công", result);
             }
             catch
             {
                 await _unitOfWork.RollbackAsync();
-                return ApiResponse<CloudMessageFile>.ErrorResponse("Thêm thất bại");
+                return ApiResponse<CloudMessageFileResponseDto>.ErrorResponse("Thêm thất bại");
             }
         }
 
@@ -85,6 +88,22 @@ namespace chatgroup_server.Services
             {
                 await _unitOfWork.RollbackAsync();
                 return false;
+            }
+        }
+
+        public async Task<ApiResponse<IEnumerable<CloudMessageFileResponseDto>>> GetAllFileCloudMessage(int userId)
+        {
+            try
+            {
+                var result = await _repository.GetAllFileCloudMessage(userId);
+                return ApiResponse<IEnumerable<CloudMessageFileResponseDto>>.SuccessResponse("Danh sách file cloud",result);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<IEnumerable<CloudMessageFileResponseDto>>.ErrorResponse("Lấy danh sách file cloud không thành công", new List<string>()
+                {
+                    ex.Message
+                });
             }
         }
     }

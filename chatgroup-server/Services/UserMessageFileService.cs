@@ -1,4 +1,5 @@
 ﻿using chatgroup_server.Common;
+using chatgroup_server.Dtos;
 using chatgroup_server.Interfaces;
 using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Interfaces.IServices;
@@ -16,19 +17,35 @@ namespace chatgroup_server.Services
             _unitOfWork = unitOfWork;
             _userMessageFileRepository = userMessageFileRepository; 
         }
-        public async Task<ApiResponse<UserMessageFile>> AddFileToMessageAsync(UserMessageFile file)
+        public async Task<ApiResponse<UserMessageFileResponseDto>> AddFileToMessageAsync(UserMessageFile file)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
                 await _userMessageFileRepository.AddFileToMessageAsync(file);
                 await _unitOfWork.CommitAsync();
-                return ApiResponse<UserMessageFile>.SuccessResponse("Thêm file thành công", file);
+                var result = await _userMessageFileRepository.GetUserMessageFile(file.UserMessageFileId);
+                return ApiResponse<UserMessageFileResponseDto>.SuccessResponse("Thêm file thành công", result);
             }
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                return ApiResponse<UserMessageFile>.ErrorResponse("Thêm file không thành công", new List<string>()
+                return ApiResponse<UserMessageFileResponseDto>.ErrorResponse("Thêm file không thành công", new List<string>()
+                {
+                    ex.Message
+                });
+            }
+        }
+
+        public async Task<ApiResponse<IEnumerable<UserMessageFileResponseDto>>> GetAllFileUserMessage(int senderId, int receiverId)
+        {
+            try
+            {
+                var result=await _userMessageFileRepository.GetAllFileUserMessage(senderId, receiverId);
+                return ApiResponse<IEnumerable<UserMessageFileResponseDto>>.SuccessResponse("Danh sách tin nhắn user", result);
+            }
+            catch (Exception ex) {
+                return ApiResponse<IEnumerable<UserMessageFileResponseDto>>.ErrorResponse("Lỗi khi lấy danh sách tin nhắn user", new List<string>()
                 {
                     ex.Message
                 });
