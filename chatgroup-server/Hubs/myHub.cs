@@ -122,6 +122,36 @@ namespace chatgroup_server.Hubs
                 await Clients.Client(connectionId).SendAsync("RequestFriend", userId);
             }
         }
+        public async Task SendCloudMessageFile(string userId,CloudMessageFileSendDto file)
+        {
+            var connections = _connection.GetUserConections(userId);
+            foreach (var connectionId in connections)
+            {
+                await Clients.Client(connectionId).SendAsync("ReceiveCloudMessageFile", file);
+            }
+        }
+        public async Task SendUserMessageFile(string userId, UserMessageFileSendDto file)
+        {
+            var connections = _connection.GetUserConections(userId);
+            foreach (var connectionId in connections)
+            {
+                await Clients.Client(connectionId).SendAsync("ReceiveUserMessageFile", file);
+                await Clients.Client(connectionId).SendAsync("ReceiveUserMessageFileInfor", file);
+            }
+        }
+        public async Task SendGroupMessageFile(string groupId, string userId, GroupMessageFileSendDto file)
+        {
+            await Clients.Group(groupId).SendAsync("ReceiveGroupMessageFile", userId, file);
+            await Clients.Group(groupId).SendAsync("ReceiveGroupMessageFileInfor", userId, file);
+        }
+        public async Task AddConversationMemberGroup(string userId,Conversation conversation)
+        {
+            var connections = _connection.GetUserConections(userId);
+            foreach (var connectionId in connections)
+            {
+                await Clients.Client(connectionId).SendAsync("ReceiveConversationMemberGroup", conversation);
+            }
+        }
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             _connection.RemoveUserConnection(Context.ConnectionId);
