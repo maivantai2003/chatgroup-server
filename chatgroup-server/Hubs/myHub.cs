@@ -122,6 +122,7 @@ namespace chatgroup_server.Hubs
                 await Clients.Client(connectionId).SendAsync("RequestFriend", userId);
             }
         }
+        //
         public async Task SendCloudMessageFile(string userId,CloudMessageFileSendDto file)
         {
             var connections = _connection.GetUserConections(userId);
@@ -130,19 +131,21 @@ namespace chatgroup_server.Hubs
                 await Clients.Client(connectionId).SendAsync("ReceiveCloudMessageFile", file);
             }
         }
-        public async Task SendUserMessageFile(string userId, UserMessageFileSendDto file)
+        //
+        public async Task SendUserMessageFile(string userId,string senderId, UserMessageFileSendDto file,IEnumerable<UserMessageFileResponseDto> listFile)
         {
             var connections = _connection.GetUserConections(userId);
             foreach (var connectionId in connections)
             {
                 await Clients.Client(connectionId).SendAsync("ReceiveUserMessageFile", file);
-                await Clients.Client(connectionId).SendAsync("ReceiveUserMessageFileInfor", file);
+                await Clients.Client(connectionId).SendAsync("ReceiveUserMessageFileInfor",senderId, listFile);
             }
         }
-        public async Task SendGroupMessageFile(string groupId, string userId, GroupMessageFileSendDto file)
+        //
+        public async Task SendGroupMessageFile(string groupId, string userId, GroupMessageFileSendDto file, IEnumerable<GroupMessageFileResponseDto> listFile)
         {
             await Clients.Group(groupId).SendAsync("ReceiveGroupMessageFile", userId, file);
-            await Clients.Group(groupId).SendAsync("ReceiveGroupMessageFileInfor", userId, file);
+            await Clients.Group(groupId).SendAsync("ReceiveGroupMessageFileInfor", userId, listFile);
         }
         public async Task AddConversationMemberGroup(string userId,Conversation conversation)
         {
@@ -150,6 +153,14 @@ namespace chatgroup_server.Hubs
             foreach (var connectionId in connections)
             {
                 await Clients.Client(connectionId).SendAsync("ReceiveConversationMemberGroup", conversation);
+            }
+        }
+        public async Task UpdateConversationMemberInGroup(string userId, Conversation conversation)
+        {
+            var connections = _connection.GetUserConections(userId);
+            foreach (var connectionId in connections)
+            {
+                await Clients.Client(connectionId).SendAsync("ReceiveConversationMemberInGroup", conversation);
             }
         }
         public override async Task OnDisconnectedAsync(Exception? exception)
