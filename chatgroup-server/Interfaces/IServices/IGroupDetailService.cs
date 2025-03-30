@@ -10,6 +10,6 @@ namespace chatgroup_server.Interfaces.IServices
         Task<IEnumerable<GroupDetail>> GetGroupDetailsByUserIdAsync(int userId);
         Task<ApiResponse<GroupDetail>> AddGroupDetailAsync(GroupDetail groupDetail);
         Task<bool> UpdateGroupDetailAsync(GroupDetail groupDetail);
-        Task<bool> DeleteGroupDetailAsync(int groupDetailId);
+        Task<ApiResponse<GroupDetail>> DeleteGroupDetailAsync(int groupDetailId);
     }
 }

@@ -39,14 +39,14 @@ namespace chatgroup_server.Repositories
 
         public async Task<IEnumerable<GroupUserDto>> GetAllGroupsAsync(int userId)
         {
-            return await _context.GroupDetails.AsNoTracking().Where(x => x.UserId == userId && x.Status==1).Select(
+            return await _context.GroupDetails.AsNoTracking().Where(x => x.UserId == userId && x.Status==1 && x.Group.Status==1).Select(
                 x => new GroupUserDto()
                 {
                     GroupId = x.Group.GroupId,
                     GroupName=x.Group.GroupName ?? "None",
                     Status = x.Group.Status,
                     Avatar=x.Group.Avatar,
-                    groupDetailUsers=x.Group.groupDetail.Select(
+                    groupDetailUsers=x.Group.groupDetail.Where(m => m.Status == 1).Select(
                         m=>new GroupDetailUserDto()
                         {
                             GroupDetailId = m.GroupDetailId,
@@ -56,7 +56,7 @@ namespace chatgroup_server.Repositories
                             UserName=m.User.UserName,
                             Status=m.Status,
                         }).ToList(),
-                    UserNumber = x.Group.groupDetail.Count()
+                    UserNumber = x.Group.groupDetail.Count(m => m.Status == 1)
                 }).ToListAsync();
         }
 

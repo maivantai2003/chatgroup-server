@@ -44,6 +44,7 @@ namespace chatgroup_server.Controllers
                 Avatar = userRegister.Avatar,   
                 Birthday = userRegister.Birthday,
                 Sex = userRegister.Sex, 
+                Password = userRegister.Password,   
             };
             var response=await _userService.AddUserAsync(user);
             if (!response.Success)
@@ -53,7 +54,7 @@ namespace chatgroup_server.Controllers
             {
                 return Ok(new
                 {
-                    data=response
+                    response.Errors
                 });
             }
             return Ok(response.Data);

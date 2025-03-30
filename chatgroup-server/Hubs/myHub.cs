@@ -52,6 +52,12 @@ namespace chatgroup_server.Hubs
             await Groups.AddToGroupAsync(Context.ConnectionId, groupId);
             await Clients.Group(groupId).SendAsync("UserJoin", Context.User?.Claims.FirstOrDefault(c => c.Type == "userId")?.Value+","+groupId);
         }
+        public async Task LeaveGroup(string groupId)
+        {
+            if (string.IsNullOrEmpty(groupId)) return;
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupId);
+            await Clients.Group(groupId).SendAsync("UserLeave", Context.User?.Claims.FirstOrDefault(c => c.Type == "userId")?.Value + "," + groupId);
+        }
         public async Task SendGroupMessage(string groupId,string userId,GroupMessageResponseDto groupMessage)
         {
 
@@ -91,12 +97,12 @@ namespace chatgroup_server.Hubs
             var connections = _connection.GetUserConections(userId);
             foreach (var connectionId in connections)
             {
-                await Clients.Client(connectionId).SendAsync("ReceiveHoverUserMessage",message);
+                await Clients.Client(connectionId).SendAsync("ReceiveHoverUserMessage",userId,message);
             }
         }
         public async Task HoverSendGroupMessage(string groupId,string userId, string message)
         {
-            await Clients.Group(groupId).SendAsync("ReceiveHoverGroupMessage", userId,message);
+            await Clients.Group(groupId).SendAsync("ReceiveHoverGroupMessage", userId,groupId,message);
         }
         public async Task AwaitProgressSendFile(string userId,double progress)
         {
@@ -145,7 +151,7 @@ namespace chatgroup_server.Hubs
         public async Task SendGroupMessageFile(string groupId, string userId, GroupMessageFileSendDto file, IEnumerable<GroupMessageFileResponseDto> listFile)
         {
             await Clients.Group(groupId).SendAsync("ReceiveGroupMessageFile", userId, file);
-            await Clients.Group(groupId).SendAsync("ReceiveGroupMessageFileInfor", userId, listFile);
+            await Clients.Group(groupId).SendAsync("ReceiveGroupMessageFileInfor", groupId,userId, listFile);
         }
         public async Task AddConversationMemberGroup(string userId,Conversation conversation)
         {

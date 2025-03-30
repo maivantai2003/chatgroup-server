@@ -16,10 +16,7 @@ namespace chatgroup_server.Repositories
 
         public async Task<GroupDetail?> GetGroupDetailByIdAsync(int groupDetailId)
         {
-            return await _context.GroupDetails
-                .Include(gd => gd.User)
-                .Include(gd => gd.Group)
-                .FirstOrDefaultAsync(gd => gd.GroupDetailId == groupDetailId);
+            return await _context.GroupDetails.FindAsync(groupDetailId);
         }
 
         public async Task<IEnumerable<GroupDetail>> GetGroupDetailsByGroupIdAsync(int groupId)
@@ -48,9 +45,10 @@ namespace chatgroup_server.Repositories
             _context.GroupDetails.Update(groupDetail);
         }
 
-        public void DeleteGroupDetail(GroupDetail groupDetail)
+        public async Task DeleteGroupDetail(int groupDetailId)
         {
-            _context.GroupDetails.Remove(groupDetail);
+            await _context.GroupDetails.Where(x => x.GroupDetailId == groupDetailId)
+                .ExecuteUpdateAsync(setter=>setter.SetProperty(x=>x.Status,0));
         }
     }
 }

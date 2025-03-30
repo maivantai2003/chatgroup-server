@@ -15,6 +15,8 @@ namespace chatgroup_server.Models
         public DateTime Birthday { get; set; } = new DateTime(1990, 1, 1);
         public string? Avatar { get; set; }
         public string? CoverPhoto { get; set; }
+        [StringLength(50)] 
+        public string? Password {  get; set; }
         public int Status { get; set; } = 1;
         //Friend
         public virtual ICollection<Friends>? Friends { get; set; }

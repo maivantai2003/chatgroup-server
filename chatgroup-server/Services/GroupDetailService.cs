@@ -68,22 +68,28 @@ namespace chatgroup_server.Services
             }
         }
 
-        public async Task<bool> DeleteGroupDetailAsync(int groupDetailId)
+        public async Task<ApiResponse<GroupDetail>> DeleteGroupDetailAsync(int groupDetailId)
         {
-            var groupDetail = await _groupDetailRepository.GetGroupDetailByIdAsync(groupDetailId);
-            if (groupDetail == null) return false;
-
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                _groupDetailRepository.DeleteGroupDetail(groupDetail);
+                var groupDetail = await _groupDetailRepository.GetGroupDetailByIdAsync(groupDetailId);
+                if (groupDetail == null) return ApiResponse<GroupDetail>.ErrorResponse("Xóa không thành công", new List<string>()
+                {
+                    "Không tìm thấy đối tượng"
+                });
+                await _groupDetailRepository.DeleteGroupDetail(groupDetail.GroupDetailId);
                 await _unitOfWork.CommitAsync();
-                return true;
+                return ApiResponse<GroupDetail>.SuccessResponse("Xóa thành công",groupDetail);
             }
-            catch
-            {
-                await _unitOfWork.RollbackAsync();
-                return false;
+            catch(Exception ex) {
+                {
+                    await _unitOfWork.RollbackAsync();
+                    return ApiResponse<GroupDetail>.ErrorResponse("Xóa không thành công", new List<string>()
+                {
+                    ex.Message
+                });
+                }
             }
         }
     }

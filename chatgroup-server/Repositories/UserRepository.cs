@@ -78,7 +78,8 @@ namespace chatgroup_server.Repositories
                 Birthday=result.Birthday,
                 CoverPhoto=result.CoverPhoto,
                 PhoneNumber = result.PhoneNumber,
-                Sex = result.Sex
+                Sex = result.Sex,
+                Password=result.Password
             };
         }
 

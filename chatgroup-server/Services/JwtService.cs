@@ -75,7 +75,7 @@ namespace chatgroup_server.Services
         }
         public async Task<AuthResponse> GetTokenAsync(AuthResquest request, string ipAddress)
         {
-            var user = _context.Users.AsNoTracking().FirstOrDefault(x => x.PhoneNumber.Equals(request.PhoneNumber) && x.UserName.Equals(request.UserName));
+            var user = _context.Users.AsNoTracking().FirstOrDefault(x => x.PhoneNumber.Equals(request.PhoneNumber) && x.Password.Equals(request.UserName));
             if (user == null)
             {
                 return await Task.FromResult<AuthResponse>(null);

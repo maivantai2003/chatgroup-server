@@ -29,5 +29,15 @@ namespace chatgroup_server.Controllers
             }
             return Ok(response.Data);
         }
+        [HttpDelete("[action]/{id}")]
+        public async Task<IActionResult> DeleteGroupDetail(int id)
+        {
+            var response = await _groupDetailService.DeleteGroupDetailAsync(id);
+            if (!response.Success)
+            {
+                return Ok(response.Errors);
+            }
+            return Ok(response.Data);
+        }
     }
 }

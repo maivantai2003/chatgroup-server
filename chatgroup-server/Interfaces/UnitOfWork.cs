@@ -18,18 +18,41 @@ namespace chatgroup_server.Interfaces
         }
         public async Task CommitAsync()
         {
-            await _context.SaveChangesAsync();
-            await _transaction.CommitAsync();
+            if (_transaction == null) throw new InvalidOperationException("Transaction has not been started.");
+            try
+            {
+                await _context.SaveChangesAsync();
+                await _transaction.CommitAsync();
+            }
+            catch
+            {
+                await RollbackAsync();
+                throw;
+            }
+            finally
+            {
+                await _transaction.DisposeAsync();
+                _transaction = null;
+            }
         }
 
         public async Task RollbackAsync()
         {
-            await _transaction.RollbackAsync();
+            if (_transaction != null)
+            {
+                await _transaction.RollbackAsync();
+                await _transaction.DisposeAsync();
+                _transaction = null;
+            }
         }
 
         public async Task<int> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync();
+        }
+        public void Dispose()
+        {
+            _transaction?.Dispose();
         }
     }
 }

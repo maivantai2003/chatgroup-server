@@ -9,6 +9,6 @@ namespace chatgroup_server.Interfaces.IRepositories
         Task<IEnumerable<GroupDetail>> GetGroupDetailsByUserIdAsync(int userId);
         Task AddGroupDetailAsync(GroupDetail groupDetail);
         void UpdateGroupDetail(GroupDetail groupDetail);
-        void DeleteGroupDetail(GroupDetail groupDetail);
+        Task DeleteGroupDetail(int groupDetailId);
     }
 }
