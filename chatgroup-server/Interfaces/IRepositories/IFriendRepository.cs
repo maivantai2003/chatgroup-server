@@ -10,6 +10,7 @@ namespace chatgroup_server.Interfaces.IRepositories
         Task<IEnumerable<FriendRequest>> GetFriendRequest(int friendId);
         Task<FriendRequest> GetFriend(int Id);
         Task AddFriendAsync(Friends friend);
+        Task RemoveFriendAsync(int friendId);
         void UpdateFriend(Friends friend);
         void DeleteFriend(Friends friend);
     }

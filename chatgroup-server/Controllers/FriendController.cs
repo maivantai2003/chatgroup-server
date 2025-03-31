@@ -66,5 +66,10 @@ namespace chatgroup_server.Controllers
             }
             return Ok(response.Data);   
         }
+        //[HttpPost("[action]")]
+        //public async Task<IActionResult> RemoveFriend(int userId, int friendId)
+        //{
+        //    return Ok();
+        //}
     }
 }

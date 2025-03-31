@@ -83,5 +83,10 @@ namespace chatgroup_server.Repositories
                 Status = result.Status
             };
         }
+
+        public Task RemoveFriendAsync(int friendId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

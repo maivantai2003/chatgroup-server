@@ -25,7 +25,7 @@ namespace chatgroup_server.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(new AuthResponse { IsSuccess = false, Reason = "UserName and Password must be provider" });
+                return BadRequest(new AuthResponse { IsSuccess = false, Reason = "PhoneNumber and Password must be provider" });
             }
             var authResponse = await _jwtService.GetTokenAsync(authRequest, HttpContext.Connection.RemoteIpAddress.ToString());
             if (authResponse == null)
