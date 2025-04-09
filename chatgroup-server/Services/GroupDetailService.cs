@@ -3,6 +3,7 @@ using chatgroup_server.Interfaces;
 using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
 using chatgroup_server.Common;
+using chatgroup_server.Dtos;
 
 namespace chatgroup_server.Services
 {
@@ -68,24 +69,24 @@ namespace chatgroup_server.Services
             }
         }
 
-        public async Task<ApiResponse<GroupDetail>> DeleteGroupDetailAsync(int groupDetailId)
+        public async Task<ApiResponse<LeaveGroupDetailDto>> DeleteGroupDetailAsync(LeaveGroupDetailDto groupDetailDto)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                var groupDetail = await _groupDetailRepository.GetGroupDetailByIdAsync(groupDetailId);
-                if (groupDetail == null) return ApiResponse<GroupDetail>.ErrorResponse("Xóa không thành công", new List<string>()
-                {
-                    "Không tìm thấy đối tượng"
-                });
-                await _groupDetailRepository.DeleteGroupDetail(groupDetail.GroupDetailId);
+                //var groupDetail = await _groupDetailRepository.GetGroupDetailByIdAsync(groupDetailId);
+                //if (groupDetail == null) return ApiResponse<GroupDetail>.ErrorResponse("Xóa không thành công", new List<string>()
+                //{
+                //    "Không tìm thấy đối tượng"
+                //});
+                await _groupDetailRepository.DeleteGroupDetail(groupDetailDto);
                 await _unitOfWork.CommitAsync();
-                return ApiResponse<GroupDetail>.SuccessResponse("Xóa thành công",groupDetail);
+                return ApiResponse<LeaveGroupDetailDto>.SuccessResponse("Xóa thành công",groupDetailDto);
             }
             catch(Exception ex) {
                 {
                     await _unitOfWork.RollbackAsync();
-                    return ApiResponse<GroupDetail>.ErrorResponse("Xóa không thành công", new List<string>()
+                    return ApiResponse<LeaveGroupDetailDto>.ErrorResponse("Xóa không thành công", new List<string>()
                 {
                     ex.Message
                 });

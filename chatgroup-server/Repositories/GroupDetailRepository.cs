@@ -1,4 +1,5 @@
 ﻿using chatgroup_server.Data;
+using chatgroup_server.Dtos;
 using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Models;
 using Microsoft.EntityFrameworkCore;
@@ -45,10 +46,10 @@ namespace chatgroup_server.Repositories
             _context.GroupDetails.Update(groupDetail);
         }
 
-        public async Task DeleteGroupDetail(int groupDetailId)
+        public async Task DeleteGroupDetail(LeaveGroupDetailDto groupDetailDto)
         {
-            await _context.GroupDetails.Where(x => x.GroupDetailId == groupDetailId)
-                .ExecuteUpdateAsync(setter=>setter.SetProperty(x=>x.Status,0));
+            await _context.GroupDetails.Where(x => x.UserId == groupDetailDto.userId && x.GroupId==groupDetailDto.groupId)
+                .ExecuteUpdateAsync(setter=>setter.SetProperty(x=>x.Status,groupDetailDto.status));
         }
     }
 }

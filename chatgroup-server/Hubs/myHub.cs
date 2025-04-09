@@ -29,6 +29,7 @@ namespace chatgroup_server.Hubs
             }
             await base.OnConnectedAsync();
         }
+        //AccepFriend
         public async Task AcceptFriend(string userId,Conversation conversation)
         {
             var connections=_connection.GetUserConections(userId);
@@ -38,6 +39,7 @@ namespace chatgroup_server.Hubs
                 await Clients.Client(connectionId).SendAsync("ReceiveAcceptFriend",conversation);
             }
         }
+        //Add member in group
         public async Task AddMemberToGroup(string userId,Conversation conversation)
         {
             var connections = _connection.GetUserConections(userId);
@@ -46,6 +48,7 @@ namespace chatgroup_server.Hubs
                 await Clients.Client(connectionId).SendAsync("MemberToGroup",conversation);
             }
         }
+        // Join group
         public async Task JoinGroup(string groupId)
         {
             if (string.IsNullOrEmpty(groupId)) return;
@@ -169,10 +172,24 @@ namespace chatgroup_server.Hubs
                 await Clients.Client(connectionId).SendAsync("ReceiveConversationMemberInGroup", conversation);
             }
         }
+        //cancel friend
+        public async Task CancelFriend(string userId)
+        {
+            var connections = _connection.GetUserConections(userId);
+            foreach (var connectionId in connections)
+            {
+               await Clients.Client(connectionId).SendAsync("ReceiveCancelFriend");
+            }
+        }
+        //cancel group
+        public async Task CancelGroup(string groupId,string userId)
+        {
+            await Clients.Group(groupId).SendAsync("ReceiveCancelGroup");
+        }
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             _connection.RemoveUserConnection(Context.ConnectionId);
-            Console.WriteLine($"🔴 User disconnected: {Context.ConnectionId}");
+            Console.WriteLine($"User disconnected: {Context.ConnectionId}");
 
             await base.OnDisconnectedAsync(exception);
         }
