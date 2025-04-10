@@ -32,6 +32,21 @@ namespace chatgroup_server.Services
             }
         }
 
+        public async Task<ApiResponse<bool>> CheckPhoneNumber(string? phoneNumber)
+        {
+            try
+            {
+                var result=await _userRepository.CheckPhoneNumber(phoneNumber);
+                return ApiResponse<bool>.SuccessResponse("Số điện thoại"+(result?"đã":"chưa")+"tồn tại",result);
+            }
+            catch (Exception ex) {
+                return ApiResponse<bool>.ErrorResponse("Lỗi khi tìm số điện thoại", new List<string>()
+                {
+                    ex.Message,
+                });
+            }
+        }
+
         public Task<bool> DeleteUserAsync(int userId)
         {
             throw new NotImplementedException();

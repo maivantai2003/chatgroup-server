@@ -82,6 +82,11 @@ namespace chatgroup_server.Repositories
                 Password=result.Password
             };
         }
+        public async Task<bool> CheckPhoneNumber(string ?phoneNumber)
+        {
+           var result= await _context.Users.AsNoTracking().FirstOrDefaultAsync(x=>x.PhoneNumber==phoneNumber); 
+           return result!=null?true:false;  
+        }
 
     }
 }

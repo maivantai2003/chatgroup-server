@@ -16,6 +16,16 @@ namespace chatgroup_server.Controllers
             _userService = userService;
         }
         [HttpGet("[action]")]
+        public async Task<IActionResult> CheckPhoneNumber(string? phoneNumber)
+        {
+            var response = await _userService.CheckPhoneNumber(phoneNumber);
+            if (!response.Success)
+            {
+                return Ok(response.Errors);
+            }
+            return Ok(response.Data);
+        }
+        [HttpGet("[action]")]
         public async Task<IActionResult> GetAllUser(int userId)
         {
             var response=await _userService.GetAllUsersAsync(userId);
