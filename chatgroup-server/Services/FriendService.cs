@@ -16,9 +16,17 @@ namespace chatgroup_server.Services
             _friendsRepository = friendsRepository;
             _unitOfWork = unitOfWork;
         }
-        public async Task<Friends?> GetFriendshipAsync(int userId, int friendId)
+        public async Task<ApiResponse<Friends?>> GetFriendshipAsync(int userId, int friendId)
         {
-            return await _friendsRepository.GetFriendshipAsync(userId, friendId);
+            //return await _friendsRepository.GetFriendshipAsync(userId, friendId);
+            try
+            {
+                var result= await _friendsRepository.GetFriendshipAsync(userId, friendId);
+                return ApiResponse<Friends?>.SuccessResponse("Chưa kết bạn", result);
+            }
+            catch (Exception ex) { 
+                return ApiResponse<Friends?>.ErrorResponse("Lỗi khi tìm kiếm bạn",new List<string> { ex.Message });
+            }
         }
 
         public async Task<ApiResponse<IEnumerable<FriendRequest>>> GetFriendsByUserIdAsync(int userId)

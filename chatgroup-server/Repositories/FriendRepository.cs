@@ -15,11 +15,8 @@ namespace chatgroup_server.Repositories
         }
         public async Task<Friends?> GetFriendshipAsync(int userId, int friendId)
         {
-            return await _context.Friends
-                .Include(f => f.User)
-                .Include(f => f.Friend)
-                .FirstOrDefaultAsync(f => (f.UserId == userId && f.FriendId == friendId) ||
-                                          (f.UserId == friendId && f.FriendId == userId));
+            return await _context.Friends.AsNoTracking()
+                .FirstOrDefaultAsync(f => (f.UserId == userId && f.FriendId == friendId) || (f.UserId == friendId && f.FriendId == userId));
         }
 
         public async Task<IEnumerable<FriendRequest>> GetFriendsByUserIdAsync(int userId)

@@ -59,5 +59,21 @@ namespace chatgroup_server.Controllers
             }
             return Ok(response.Data);
         }
+        [HttpPost("[action]")]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new AuthResponse { IsSuccess = false, Reason = "UserName and Password must be provider" });
+            }
+
+            string ipAddress = HttpContext.Connection.RemoteIpAddress.ToString();
+            var response = await _jwtService.RefreshTokenAsync(request, ipAddress);
+
+            if (!response.IsSuccess)
+                return BadRequest(response);
+
+            return Ok(response);
+        }
     }
 }

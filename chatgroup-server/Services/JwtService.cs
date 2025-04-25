@@ -35,10 +35,6 @@ namespace chatgroup_server.Services
         {
             var refreshToken = GenerateRefreshToken();
             var accessToken = GenerateToken(phoneNumber, userId.ToString());
-            //await _redisServices.RemoveCacheAsync($"accessToken:user-{userId}");
-            //await _redisServices.RemoveCacheAsync($"refreshToken:user-{userId}");
-            //await _redisServices.SetCacheAsync($"accessToken:user-{userId}", accessToken, TimeSpan.FromMinutes(60));
-            //await _redisServices.SetCacheAsync($"refreshToken:user-{userId}", refreshToken, TimeSpan.FromDays(7));
             return await SaveTokenDetails(ipAddress, userId, accessToken, refreshToken);
         }
         private async Task<AuthResponse> SaveTokenDetails(string ipAddress, int userId, string tokenString, string refreshToken)
@@ -54,7 +50,7 @@ namespace chatgroup_server.Services
             var useRefreshToken = new UserRefreshToken
             {
                 CreateDate = DateTime.UtcNow,
-                ExpirationDate = DateTime.UtcNow.AddMinutes(20),
+                ExpirationDate = DateTime.UtcNow.AddDays(7),
                 IpAddress = ipAddress,
                 IsInvalidades = false,
                 RefreshToken = refreshToken,
@@ -95,8 +91,6 @@ namespace chatgroup_server.Services
             };
             string tokenString = GenerateToken(user.PhoneNumber, user.UserId.ToString());
             string refreshToken = GenerateRefreshToken();
-            //await _redisServices.SetCacheAsync($"accessToken:user-{user.UserId}", tokenString, TimeSpan.FromMinutes(60));
-            //await _redisServices.SetCacheAsync($"refreshToken:user-{user.UserId}", refreshToken, TimeSpan.FromDays(7));
             return await SaveTokenDetails(ipAddress, user.UserId, tokenString, refreshToken);
         }
 
@@ -129,7 +123,7 @@ namespace chatgroup_server.Services
                     new Claim("userName",userName),
                     new Claim("userInfor",JsonConvert.SerializeObject(UserInfor))
                 }),
-                Expires = DateTime.UtcNow.AddMinutes(60),
+                Expires = DateTime.UtcNow.AddSeconds(120),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes),
                 SecurityAlgorithms.HmacSha256
                 )
@@ -138,6 +132,39 @@ namespace chatgroup_server.Services
             string tokenString = TokenHandler.WriteToken(token);
             return tokenString;
         }
-       
+        public async Task<AuthResponse> RefreshTokenAsync(RefreshTokenRequest request, string ipAddress)
+        {
+            var token = new JwtSecurityTokenHandler().ReadJwtToken(request.ExpiredToken);
+
+            var userRefreshToken = _context.UserRefreshTokens.FirstOrDefault(x =>
+                x.IsInvalidades == false &&
+                x.Token == request.ExpiredToken &&
+                x.RefreshToken == request.RefreshToken &&
+                x.IpAddress == ipAddress
+            );
+
+            var response = ValidateDetails(token, userRefreshToken);
+            if (!response.IsSuccess) return response;
+
+            userRefreshToken.IsInvalidades = true;
+            _context.UserRefreshTokens.Update(userRefreshToken);
+            await _context.SaveChangesAsync();
+
+            var phoneNumber = token.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            return await GetRefreshTokenAsync(ipAddress, userRefreshToken.UserId, phoneNumber);
+        }
+        private AuthResponse ValidateDetails(JwtSecurityToken token, UserRefreshToken? userRefreshToken)
+        {
+            if (userRefreshToken == null)
+                return new AuthResponse { IsSuccess = false, Reason = "Invalid Token Details." };
+
+            if (token.ValidTo > DateTime.UtcNow)
+                return new AuthResponse { IsSuccess = false, Reason = "Token not expired" };
+
+            if (!userRefreshToken.IsActive)
+                return new AuthResponse { IsSuccess = false, Reason = "Refresh Token Expired" };
+
+            return new AuthResponse { IsSuccess = true };
+        }
     }
 }

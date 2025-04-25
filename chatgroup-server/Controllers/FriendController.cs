@@ -71,5 +71,15 @@ namespace chatgroup_server.Controllers
         //{
         //    return Ok();
         //}
+        [HttpGet("[action]")]
+        public async Task<IActionResult> GetFriendship(int userId, int friendId)
+        {
+            var response = await _friendService.GetFriendshipAsync(userId, friendId);
+            if (!response.Success)
+            {
+                return Ok(response.Errors);
+            }
+            return Ok(response.Data);
+        }
     }
 }

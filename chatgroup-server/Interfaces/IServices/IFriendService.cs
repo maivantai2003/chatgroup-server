@@ -6,7 +6,7 @@ namespace chatgroup_server.Interfaces.IServices
 {
     public interface IFriendService
     {
-        Task<Friends?> GetFriendshipAsync(int userId, int friendId);
+        Task<ApiResponse<Friends?>> GetFriendshipAsync(int userId, int friendId);
         Task<ApiResponse<IEnumerable<FriendRequest>>> GetFriendsByUserIdAsync(int userId);
         Task<ApiResponse<IEnumerable<FriendRequest>>> GetFriendRequest(int friendId);
         Task<ApiResponse<FriendRequest>> AddFriendAsync(Friends friend);

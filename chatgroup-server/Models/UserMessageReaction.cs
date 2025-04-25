@@ -17,7 +17,5 @@ namespace chatgroup_server.Models
         public virtual User? User { get; set; }
         [ForeignKey(nameof(UserMessageId))] 
         public virtual UserMessages? userMessages { get; set; }
-
-
     }
 }

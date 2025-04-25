@@ -7,5 +7,6 @@ namespace chatgroup_server.Interfaces.IServices
         Task<AuthResponse> GetTokenAsync(AuthResquest request, string ipAddress);
         Task<AuthResponse> GetRefreshTokenAsync(string ipAddress, int userId, string phoneNumber);
         Task<bool> IsTokenValid(string accessToken, string ipAddress);
+        Task<AuthResponse> RefreshTokenAsync(RefreshTokenRequest request, string ipAddress);
     }
 }

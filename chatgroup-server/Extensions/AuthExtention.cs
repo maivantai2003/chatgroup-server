@@ -31,29 +31,11 @@ namespace chatgroup_server.Extensions
                 options.TokenValidationParameters= tokenValidationParameters;
                 options.Events = new JwtBearerEvents
                 {
-                    //OnMessageReceived = context =>
-                    //{
-                    //    var accessToken = context.Request.Cookies["accessToken"];
-                    //    if (!string.IsNullOrEmpty(accessToken))
-                    //    {
-                    //        context.Token = accessToken;
-                    //    }
-                    //    return Task.CompletedTask;
-                    //},
                     OnTokenValidated = async (context) =>
                     {
                         var ipAddress = context.Request.HttpContext.Connection.RemoteIpAddress?.ToString();
                         var jwtService = context.Request.HttpContext.RequestServices.GetService<IJwtService>();
                         var jwtToken = context.SecurityToken as JwtSecurityToken;
-
-                        //if (jwtService != null && jwtToken != null)
-                        //{
-                        //    bool isValid = await jwtService.IsTokenValid(jwtToken.RawData, ipAddress);
-                        //    if (!isValid)
-                        //    {
-                        //        context.Fail("Invalid Token Details");
-                        //    }
-                        //}
                     },
                     OnMessageReceived = context =>
                     {
@@ -65,11 +47,6 @@ namespace chatgroup_server.Extensions
                         }
                         return Task.CompletedTask;
                     },
-                    //OnAuthenticationFailed = context =>
-                    //{
-                    //    Console.WriteLine($"Authentication failed: {context.Exception.Message}");
-                    //    return Task.CompletedTask;
-                    //}
                 };
             });
             services.AddHttpContextAccessor();
