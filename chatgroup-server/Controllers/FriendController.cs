@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using chatgroup_server.Dtos;
 using chatgroup_server.Models;
 using chatgroup_server.Interfaces.IServices;
+using Microsoft.AspNetCore.Authorization;
 namespace chatgroup_server.Controllers
 {
     [Route("api/[controller]")]

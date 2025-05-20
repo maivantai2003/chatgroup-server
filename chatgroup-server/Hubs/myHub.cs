@@ -29,7 +29,8 @@ namespace chatgroup_server.Hubs
             }
             await base.OnConnectedAsync();
         }
-        //AccepFriend
+        //AccepFriend quân id: 2, tui :1
+        // tui 1:{2,3}
         public async Task AcceptFriend(string userId,Conversation conversation)
         {
             var connections=_connection.GetUserConections(userId);
@@ -37,9 +38,12 @@ namespace chatgroup_server.Hubs
             foreach (var connectionId in connections)
             {
                 await Clients.Client(connectionId).SendAsync("ReceiveAcceptFriend",conversation);
+                //Clients.Client(2).SendAsync("ReceiveAcceptFriend","Quân đã chấp nhận kết bạn") Edge;
+                //Clients.Client(3).SendAsync("ReceiveAcceptFriend","Quân đã chấp nhận kết bạn") Coccoc;
             }
         }
         //Add member in group
+        //mới tạo group người A:1 thêm B:2, C:3
         public async Task AddMemberToGroup(string userId,Conversation conversation)
         {
             var connections = _connection.GetUserConections(userId);
@@ -49,6 +53,7 @@ namespace chatgroup_server.Hubs
             }
         }
         // Join group
+        //Quân có 2 group Group A:1, Group B:2, khi nhấn vào group A thì sẽ tạo kết nối nhóm A với Quân, group B cũng tương tự
         public async Task JoinGroup(string groupId)
         {
             if (string.IsNullOrEmpty(groupId)) return;
@@ -61,6 +66,7 @@ namespace chatgroup_server.Hubs
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupId);
             await Clients.Group(groupId).SendAsync("UserLeave", Context.User?.Claims.FirstOrDefault(c => c.Type == "userId")?.Value + "," + groupId);
         }
+        //Quân có 2 group Group A:1, Group B:2, khi nhấn vào group A thì sẽ tạo kết nối nhóm A với Quân thì lúc này Quân gửi tin nhắn trong group A được
         public async Task SendGroupMessage(string groupId,string userId,GroupMessageResponseDto groupMessage)
         {
 
@@ -96,6 +102,7 @@ namespace chatgroup_server.Hubs
             }
 
         }
+        //Typing when sender send message
         public async Task HoverSendUserMessage(string userId, string message) {
             var connections = _connection.GetUserConections(userId);
             foreach (var connectionId in connections)
@@ -103,6 +110,7 @@ namespace chatgroup_server.Hubs
                 await Clients.Client(connectionId).SendAsync("ReceiveHoverUserMessage",userId,message);
             }
         }
+        //Typing when sender send message to group
         public async Task HoverSendGroupMessage(string groupId,string userId, string message)
         {
             await Clients.Group(groupId).SendAsync("ReceiveHoverGroupMessage", userId,groupId,message);

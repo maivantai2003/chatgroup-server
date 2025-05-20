@@ -55,7 +55,8 @@ namespace chatgroup_server.Extensions
             //GroupMessageFile
             services.AddScoped<IGroupMessageFileService, GroupMessageFileService>();
             services.AddScoped<IGroupMessageFileRepository, GroupMessageFileRepository>();
-            //
+            //OpenAI
+            services.AddScoped<IOpenAIService, OpenAIService>();
             return services;
         }
     }
