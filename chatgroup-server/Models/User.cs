@@ -12,6 +12,8 @@ namespace chatgroup_server.Models
         public string Sex { get; set; } = "Other";
         public string? PhoneNumber { get; set; }
         public string? UserName { get; set; }
+        [DataType(DataType.EmailAddress)]
+        public string? Gmail {  get; set; }
         public DateTime Birthday { get; set; } = new DateTime(1990, 1, 1);
         public string? Avatar { get; set; }
         public string? CoverPhoto { get; set; }

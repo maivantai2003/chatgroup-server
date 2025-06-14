@@ -31,13 +31,10 @@ namespace chatgroup_server.Services
 
                 using var httpClient = new HttpClient();
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
-
-                // Kiểm tra xem câu hỏi có liên quan đến tạo hình ảnh hay không (ví dụ: chứa từ khóa "create image", "generate image", ...)
                 if (question.Contains("create image", StringComparison.OrdinalIgnoreCase) ||
                     question.Contains("generate image", StringComparison.OrdinalIgnoreCase) ||
                     question.Contains("draw", StringComparison.OrdinalIgnoreCase) || question.Contains("hình ảnh", StringComparison.OrdinalIgnoreCase))
                 {
-                    // Nếu có, gọi API tạo hình ảnh
                     var requestBody = new
                     {
                         prompt = question,

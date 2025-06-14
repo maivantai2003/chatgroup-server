@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.VisualBasic;
 using Newtonsoft.Json;
+using tryAGI.OpenAI;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace chatgroup_server.Hubs
@@ -29,8 +30,6 @@ namespace chatgroup_server.Hubs
             }
             await base.OnConnectedAsync();
         }
-        //AccepFriend quân id: 2, tui :1
-        // tui 1:{2,3}
         public async Task AcceptFriend(string userId,Conversation conversation)
         {
             var connections=_connection.GetUserConections(userId);
@@ -38,12 +37,9 @@ namespace chatgroup_server.Hubs
             foreach (var connectionId in connections)
             {
                 await Clients.Client(connectionId).SendAsync("ReceiveAcceptFriend",conversation);
-                //Clients.Client(2).SendAsync("ReceiveAcceptFriend","Quân đã chấp nhận kết bạn") Edge;
-                //Clients.Client(3).SendAsync("ReceiveAcceptFriend","Quân đã chấp nhận kết bạn") Coccoc;
             }
         }
         //Add member in group
-        //mới tạo group người A:1 thêm B:2, C:3
         public async Task AddMemberToGroup(string userId,Conversation conversation)
         {
             var connections = _connection.GetUserConections(userId);
@@ -201,5 +197,82 @@ namespace chatgroup_server.Hubs
 
             await base.OnDisconnectedAsync(exception);
         }
+        //Call video
+        public async Task CallUser(string targetUserId)
+        {
+            var connections = _connection.GetUserConections(targetUserId);
+            foreach (var connectionId in connections)
+            {
+                await Clients.Client(connectionId).SendAsync("ReceiveCall", connectionId);
+            }
+        }
+        //Accept Call
+        public async Task AnswerCall(string callerUserId)
+        {
+            var connections = _connection.GetUserConections(callerUserId);
+            foreach (var connectionId in connections)
+            {
+                await Clients.Client(connectionId).SendAsync("CallAccepted");
+            }
+            
+        }
+        //Reject Call
+        public async Task RejectCall(string callerUserId)
+        {
+            var connections = _connection.GetUserConections(callerUserId);
+            foreach (var connectionId in connections)
+            {
+                await Clients.Client(connectionId).SendAsync("CallRejected");
+            }
+        }
+        //
+        //public async Task CallUser(string targetUserId, string callerId, object offer)
+        //{
+        //    var connections = _connection.GetUserConections(targetUserId);
+        //    foreach (var conn in connections)
+        //    {
+        //        await Clients.Client(conn).SendAsync("IncomingCall", new
+        //        {
+        //            callerId,
+        //            offer
+        //        });
+        //    }
+        //}
+
+        //public async Task AnswerCall(string callerId, object answer)
+        //{
+        //    var connections = _connection.GetUserConections(callerId);
+        //    foreach (var conn in connections)
+        //    {
+        //        await Clients.Client(conn).SendAsync("CallAnswered", answer);
+        //    }
+        //}
+
+        //public async Task SendSdp(string targetUserId, object sdp)
+        //{
+        //    var connections = _connection.GetUserConections(targetUserId);
+        //    foreach (var connectionId in connections)
+        //    {
+        //        await Clients.Client(connectionId).SendAsync("ReceiveSdp", sdp);
+        //    }
+        //}
+
+        //public async Task SendIce(string targetUserId, object candidate)
+        //{
+        //    var connections = _connection.GetUserConections(targetUserId);
+        //    foreach (var connectionId in connections)
+        //    {
+        //        await Clients.Client(connectionId).SendAsync("ReceiveIce", candidate);
+        //    }
+        //}
+
+        //public async Task HangUp(string targetUserId)
+        //{
+        //    var connections = _connection.GetUserConections(targetUserId);
+        //    foreach (var conn in connections)
+        //    {
+        //        await Clients.Client(conn).SendAsync("CallEnded");
+        //    }
+        //}
     }
 }
