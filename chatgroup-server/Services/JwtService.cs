@@ -123,7 +123,7 @@ namespace chatgroup_server.Services
                     new Claim("userName",userName),
                     new Claim("userInfor",JsonConvert.SerializeObject(UserInfor))
                 }),
-                Expires = DateTime.UtcNow.AddSeconds(120),
+                Expires = DateTime.UtcNow.AddMinutes(30),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(keyBytes),
                 SecurityAlgorithms.HmacSha256
                 )

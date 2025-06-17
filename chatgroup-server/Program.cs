@@ -15,7 +15,7 @@ builder.Services.AddSignalR();
 ConfigurationManager configuration = builder.Configuration;
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+//builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(options => { options.UseSqlServer(builder.Configuration.GetConnectionString("Connection")); });
 builder.Services.AddApplication();
 builder.Services.AddStackExchangeRedisCache(options =>
@@ -57,6 +57,17 @@ builder.Services.AddSwaggerGen(opt =>
 //Log.Logger = new LoggerConfiguration().MinimumLevel.Debug().WriteTo.Console().WriteTo.File("Logs/app-log.txt",
 //    rollingInterval: RollingInterval.Day, shared: true).CreateLogger();
 //builder.Host.UseSerilog();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy
+            .WithOrigins("https://chatgroup-client-iass.vercel.app")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
 builder.Services.AddRateLimiter(options =>
 {
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
@@ -79,12 +90,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseHttpsRedirection();
-app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod()
-                            .SetIsOriginAllowed(origin => true)
-                            .AllowCredentials());
+//app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod()
+//                            .SetIsOriginAllowed(origin => true)
+//                            .AllowCredentials());
+app.UseRouting();
+app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseWebSockets();
-app.MapHub<myHub>("/app-hub");
+app.MapHub<myHub>("/app-hub").RequireCors("AllowFrontend"); ;
 app.MapControllers();
 app.Run();

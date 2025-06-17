@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.VisualBasic;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Tls;
 using tryAGI.OpenAI;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
@@ -226,53 +227,64 @@ namespace chatgroup_server.Hubs
             }
         }
         //
-        //public async Task CallUser(string targetUserId, string callerId, object offer)
-        //{
-        //    var connections = _connection.GetUserConections(targetUserId);
-        //    foreach (var conn in connections)
-        //    {
-        //        await Clients.Client(conn).SendAsync("IncomingCall", new
-        //        {
-        //            callerId,
-        //            offer
-        //        });
-        //    }
-        //}
+        // Gửi lời mời gọi video
+        public async Task SendCallRequest(string toUserId)
+        {
+            var connections = _connection.GetUserConections(toUserId);
+            if (connections != null)
+            {
+                foreach (var connectionId in connections)
+                {
+                    //await Clients.Client(connectionId).SendAsync("CallRejected");
+                    await Clients.Client(connectionId).SendAsync("ReceiveCallRequest", Context.User?.Claims.FirstOrDefault(c => c.Type == "userId")?.Value);
+                }
+                
+            }
+        }
 
-        //public async Task AnswerCall(string callerId, object answer)
-        //{
-        //    var connections = _connection.GetUserConections(callerId);
-        //    foreach (var conn in connections)
-        //    {
-        //        await Clients.Client(conn).SendAsync("CallAnswered", answer);
-        //    }
-        //}
+        // Gửi offer SDP
+        public async Task SendOffer(string toUserId, string offer)
+        {
+            var connections = _connection.GetUserConections(toUserId);
+            if (connections != null)
+            {
+                foreach (var connectionId in connections)
+                {
+                    //await Clients.Client(connectionId).SendAsync("CallRejected");
+                    await Clients.Client(connectionId).SendAsync("ReceiveOffer", Context.User?.Claims.FirstOrDefault(c => c.Type == "userId")?.Value, offer);
+                }
+                
+            }
+        }
 
-        //public async Task SendSdp(string targetUserId, object sdp)
-        //{
-        //    var connections = _connection.GetUserConections(targetUserId);
-        //    foreach (var connectionId in connections)
-        //    {
-        //        await Clients.Client(connectionId).SendAsync("ReceiveSdp", sdp);
-        //    }
-        //}
+        // Gửi answer SDP
+        public async Task SendAnswer(string toUserId, string answer)
+        {
+            var connections = _connection.GetUserConections(toUserId);
+            if (connections != null)
+            {
+                foreach (var connectionId in connections)
+                {
+                    //await Clients.Client(connectionId).SendAsync("CallRejected");
+                    await Clients.Client(connectionId).SendAsync("ReceiveAnswer", Context.User?.Claims.FirstOrDefault(c => c.Type == "userId")?.Value, answer);
+                }
+                
+            }
+        }
 
-        //public async Task SendIce(string targetUserId, object candidate)
-        //{
-        //    var connections = _connection.GetUserConections(targetUserId);
-        //    foreach (var connectionId in connections)
-        //    {
-        //        await Clients.Client(connectionId).SendAsync("ReceiveIce", candidate);
-        //    }
-        //}
-
-        //public async Task HangUp(string targetUserId)
-        //{
-        //    var connections = _connection.GetUserConections(targetUserId);
-        //    foreach (var conn in connections)
-        //    {
-        //        await Clients.Client(conn).SendAsync("CallEnded");
-        //    }
-        //}
+        // Gửi ICE Candidate
+        public async Task SendIceCandidate(string toUserId, string candidate)
+        {
+            var connections = _connection.GetUserConections(toUserId);
+            if (connections != null)
+            {
+                foreach (var connectionId in connections)
+                {
+                    //await Clients.Client(connectionId).SendAsync("CallRejected");
+                    await Clients.Client(connectionId).SendAsync("ReceiveIceCandidate", Context.User?.Claims.FirstOrDefault(c => c.Type == "userId")?.Value, candidate);
+                }
+                
+            }
+        }
     }
 }
