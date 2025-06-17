@@ -5,10 +5,7 @@
     plan: free
     region: oregon
     branch: main
-    dockerfilePath: chatgroup-server/Dockerfile
-    buildCommand: ""
-    startCommand: "dotnet chatgroup-server.dll"
-    buildContext: ./chatgroup-server
+    dockerfilePath: ./Dockerfile
     autoDeploy: true
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
