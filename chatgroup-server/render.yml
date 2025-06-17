@@ -5,7 +5,7 @@
     plan: free
     region: oregon
     branch: main
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: chatgroup-server/Dockerfile
     autoDeploy: true
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
