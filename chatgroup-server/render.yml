@@ -1,0 +1,12 @@
+﻿services:
+  - type: web
+    name: chatgroup-server
+    env: docker
+    plan: free
+    region: oregon
+    branch: main
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production

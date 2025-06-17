@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>chatgroup_server</RootNamespace>
+    <UserSecretsId>00fcbe3b-4e8d-407f-b1c0-934c2e61be40</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,6 +23,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.12" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
     <PackageReference Include="MimeKit" Version="4.10.0" />
     <PackageReference Include="OpenAI" Version="2.1.0" />
     <PackageReference Include="Quartz" Version="3.13.1" />

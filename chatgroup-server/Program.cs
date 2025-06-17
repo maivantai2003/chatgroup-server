@@ -100,4 +100,6 @@ app.UseAuthorization();
 app.UseWebSockets();
 app.MapHub<myHub>("/app-hub").RequireCors("AllowFrontend"); ;
 app.MapControllers();
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+app.Urls.Add($"http://0.0.0.0:{port}");
 app.Run();
