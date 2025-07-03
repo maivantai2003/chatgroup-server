@@ -54,20 +54,19 @@ builder.Services.AddSwaggerGen(opt =>
         }
     });
 });
-//Log.Logger = new LoggerConfiguration().MinimumLevel.Debug().WriteTo.Console().WriteTo.File("Logs/app-log.txt",
-//    rollingInterval: RollingInterval.Day, shared: true).CreateLogger();
-//builder.Host.UseSerilog();
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowFrontend", policy =>
-    {
-        policy
-            .WithOrigins("https://chatgroup-client-iass.vercel.app")
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
-    });
-});
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowFrontend", policy =>
+//    {
+//        policy
+//            .WithOrigins("https://chatgroup-client.vercel.app", "http://localhost:3000", "https://1e1a-2001-ee0-4f0e-6540-4158-1926-c8e6-5250.ngrok-free.app")
+//            .AllowAnyHeader()
+//            .AllowAnyMethod()
+//            .AllowCredentials();
+//    });
+//});
+
+
 builder.Services.AddRateLimiter(options =>
 {
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
@@ -75,10 +74,10 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: context.Connection.RemoteIpAddress?.ToString(),
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit = 10, // Tối đa 10 request
-                Window = TimeSpan.FromSeconds(60), // Trong vòng 60 giây
+                PermitLimit = 10,
+                Window = TimeSpan.FromSeconds(60),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit = 5 // Tối đa 5 request trong hàng đợi
+                QueueLimit = 5
             }));
 });
 var app = builder.Build();
@@ -90,16 +89,20 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseHttpsRedirection();
-//app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod()
-//                            .SetIsOriginAllowed(origin => true)
-//                            .AllowCredentials());
+app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod()
+                            .SetIsOriginAllowed(origin => true)
+                            .AllowCredentials());
 app.UseRouting();
-app.UseCors("AllowFrontend");
+//app.UseRateLimiter();
+//app.UseCors(policy => policy
+// .WithOrigins("https://chatgroup-client.vercel.app")
+// .AllowAnyHeader()
+// .AllowAnyMethod()
+// .AllowCredentials());
+//app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseWebSockets();
-app.MapHub<myHub>("/app-hub").RequireCors("AllowFrontend"); ;
+app.MapHub<myHub>("/app-hub");
 app.MapControllers();
-var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
-app.Urls.Add($"http://0.0.0.0:{port}");
 app.Run();

@@ -12,6 +12,8 @@ namespace chatgroup_server.Interfaces.IServices
         Task<ApiResponse<IEnumerable<UserDto>>> GetAllUsersAsync(int userId);
         Task<ApiResponse<User>> AddUserAsync(User user);
         Task<ApiResponse<User>> UpdateUserAsync(User user);
+        Task<ApiResponse<string>> ForgotPassword(ForgotPasswordRequest request);
+        Task<ApiResponse<string>> ResetPassword(ResetPasswordRequest request);
         Task<bool> DeleteUserAsync(int userId);
     }
 }

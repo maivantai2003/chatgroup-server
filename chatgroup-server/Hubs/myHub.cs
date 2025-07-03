@@ -218,12 +218,15 @@ namespace chatgroup_server.Hubs
             
         }
         //Reject Call
-        public async Task RejectCall(string callerUserId)
+        public async Task RejectCall(string toUserId)
         {
-            var connections = _connection.GetUserConections(callerUserId);
-            foreach (var connectionId in connections)
+            var connections = _connection.GetUserConections(toUserId);
+            if (connections != null)
             {
-                await Clients.Client(connectionId).SendAsync("CallRejected");
+                foreach (var connectionId in connections)
+                {
+                    await Clients.Client(connectionId).SendAsync("CallRejected", Context.User?.Claims.FirstOrDefault(c => c.Type == "userId")?.Value);
+                }
             }
         }
         //
@@ -241,7 +244,6 @@ namespace chatgroup_server.Hubs
                 
             }
         }
-
         // Gửi offer SDP
         public async Task SendOffer(string toUserId, string offer)
         {
@@ -256,7 +258,6 @@ namespace chatgroup_server.Hubs
                 
             }
         }
-
         // Gửi answer SDP
         public async Task SendAnswer(string toUserId, string answer)
         {

@@ -75,5 +75,39 @@ namespace chatgroup_server.Controllers
 
             return Ok(response);
         }
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+        {
+            var response = await _userService.ForgotPassword(request);
+            if(!response.Success)
+            {
+                return BadRequest(response.Errors);
+            }
+            return Ok(response.Message);
+        }
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        {
+            var response = await _userService.ResetPassword(request);
+            if (!response.Success)
+            {
+                return BadRequest(response.Errors);
+            }
+            return Ok(response.Data);
+        }
+        [HttpPost("google-login")]
+        public async Task<IActionResult> GoogleLogin(GoogleAuthen google)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new AuthResponse { IsSuccess = false, Reason = "PhoneNumber and Password must be provider" });
+            }
+            var authResponse = await _jwtService.GoogleLogin(google.Token, HttpContext.Connection.RemoteIpAddress.ToString());
+            if (authResponse == null)
+            {
+                return Unauthorized();
+            }
+            return Ok(authResponse);
+        }
     }
 }

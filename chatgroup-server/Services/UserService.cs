@@ -11,10 +11,16 @@ namespace chatgroup_server.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;
-        public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork)
+        private readonly ISendGmailService _sendGmailService;
+        private readonly IJwtService _jwtService;
+        private readonly IConfiguration _configuration;
+        public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork,ISendGmailService sendGmailService, IJwtService jwtService, IConfiguration configuration)
         {
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
+            _sendGmailService = sendGmailService;
+            _jwtService = jwtService;
+            _configuration = configuration;
         }
 
         public async Task<ApiResponse<User>> AddUserAsync(User user)
@@ -50,6 +56,59 @@ namespace chatgroup_server.Services
         public Task<bool> DeleteUserAsync(int userId)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<ApiResponse<string>> ForgotPassword(ForgotPasswordRequest request)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(request.Email))
+                {
+                    return ApiResponse<string>.ErrorResponse(
+                        "Số điện thoại và email không được để trống",
+                        new List<string> { "Email không tồn tại" }
+                    );
+                }
+
+                var user = await _userRepository.GetUserByEmailAsync(request.Email);
+                if (user == null)
+                {
+                    return ApiResponse<string>.ErrorResponse(
+                        "Không tìm thấy người dùng với email này",
+                        new List<string> { "Email không tồn tại" }
+                    );
+                }
+
+                var token = _jwtService.GenerateResetPasswordToken(user.Gmail);
+                var resetLink = $"{_configuration["FrontendUrl"]}/reset-password?token={token}";
+                var body = $@"
+                    <h3>Đặt lại mật khẩu</h3>
+                    <p>Click vào link dưới để đặt lại mật khẩu:</p>
+                    <a href='{resetLink}'>Đặt lại mật khẩu</a>
+                    <p>Lưu ý: Link chỉ có hiệu lực trong 15 phút.</p>";
+
+                var gmail = new Gmail
+                {
+                    Name = user.UserName ?? "Người dùng",
+                    ToGmail = user.Gmail ?? request.Email,
+                    Subject = "Đặt lại mật khẩu",
+                    Body = body
+                };
+
+                await _sendGmailService.SendGmailAsync(gmail);
+
+                return ApiResponse<string>.SuccessResponse(
+                    "Đã gửi email đặt lại mật khẩu thành công",
+                    "Vui lòng kiểm tra email để đặt lại mật khẩu."
+                );
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<string>.ErrorResponse(
+                    "Gửi email đặt lại mật khẩu thất bại",
+                    new List<string> { ex.Message }
+                );
+            }
         }
 
         public async Task<ApiResponse<IEnumerable<UserDto>>> GetAllUsersAsync(int userId)
@@ -93,6 +152,39 @@ namespace chatgroup_server.Services
             }catch(Exception ex)
             {
                 return ApiResponse<User?>.ErrorResponse("Không tìm thấy người dùng", new List<string>
+                {
+                    ex.Message
+                });
+            }
+        }
+
+        public async Task<ApiResponse<string>> ResetPassword(ResetPasswordRequest request)
+        {
+            try
+            {
+                string email = _jwtService.DecodeResetPasswordToken(request.Token).Email;
+                if (string.IsNullOrEmpty(email))
+                {
+                    return ApiResponse<string>.ErrorResponse("Token không hợp lệ", new List<string>
+                    {
+                        "Không thể giải mã token"
+                    });
+                }
+                var user = await _userRepository.GetUserByEmailAsync(email);
+                if (user == null)
+                {
+                    return ApiResponse<string>.ErrorResponse("Không tìm thấy người dùng với email này", new List<string>
+                    {
+                        "Email không tồn tại"
+                    });
+                }
+                await _userRepository.UpdateUserByEmail(request.NewPassword,user.Gmail);
+                return ApiResponse<string>.SuccessResponse("Đặt lại mật khẩu thành công", "Mật khẩu đã được cập nhật thành công."); 
+
+            }
+            catch(Exception ex)
+            {
+                return ApiResponse<string>.ErrorResponse("Đặt lại mật khẩu thất bại", new List<string>
                 {
                     ex.Message
                 });

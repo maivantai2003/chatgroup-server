@@ -3,11 +3,13 @@ using chatgroup_server.Data;
 using chatgroup_server.Dtos;
 using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
+using Google.Apis.Auth;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -69,13 +71,8 @@ namespace chatgroup_server.Services
                 Browser = browserName,
             };
         }
-        public async Task<AuthResponse> GetTokenAsync(AuthResquest request, string ipAddress)
+        private async Task<AuthResponse> CreateAuthResponseAsync(User user, string ipAddress)
         {
-            var user = _context.Users.AsNoTracking().FirstOrDefault(x => x.PhoneNumber.Equals(request.PhoneNumber) && x.Password.Equals(request.UserName));
-            if (user == null)
-            {
-                return await Task.FromResult<AuthResponse>(null);
-            }
             avatar = user.Avatar;
             userName = user.UserName;
             UserInfor = new UserInfor()
@@ -86,12 +83,22 @@ namespace chatgroup_server.Services
                 Sex = user.Sex,
                 Bio = user.Bio,
                 Birthday = user.Birthday,
-                PhoneNumber=user.PhoneNumber,
-                CoverPhoto=user.CoverPhoto
+                PhoneNumber = user.PhoneNumber,
+                CoverPhoto = user.CoverPhoto
             };
-            string tokenString = GenerateToken(user.PhoneNumber, user.UserId.ToString());
+
+            string tokenString = GenerateToken(user.PhoneNumber ?? user.Gmail, user.UserId.ToString());
             string refreshToken = GenerateRefreshToken();
             return await SaveTokenDetails(ipAddress, user.UserId, tokenString, refreshToken);
+        }
+        public async Task<AuthResponse> GetTokenAsync(AuthResquest request, string ipAddress)
+        {
+            var user = _context.Users.AsNoTracking().FirstOrDefault(x => x.PhoneNumber.Equals(request.PhoneNumber) && x.Password.Equals(request.UserName));
+            if (user == null)
+            {
+                return await Task.FromResult<AuthResponse>(null);
+            }
+            return await CreateAuthResponseAsync(user, ipAddress);
         }
 
         public async Task<bool> IsTokenValid(string accessToken, string ipAddress)
@@ -166,5 +173,93 @@ namespace chatgroup_server.Services
 
             return new AuthResponse { IsSuccess = true };
         }
+        public string GenerateResetPasswordToken(string email)
+        {
+            var jwtKey = _configuration["Jwt:Key"];
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Email, email),
+                new Claim("purpose", "reset_password")
+            };
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddMinutes(15),
+                SigningCredentials = creds
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
+        public (bool IsValid, string? Email, string? Reason) DecodeResetPasswordToken(string token)
+        {
+            var jwtKey = _configuration["Jwt:Key"];
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(jwtKey);
+
+            try
+            {
+                var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero 
+                }, out SecurityToken validatedToken);
+
+                var email = principal.FindFirst(ClaimTypes.Email)?.Value;
+                var purpose = principal.FindFirst("purpose")?.Value;
+
+                if (purpose != "reset_password")
+                {
+                    return (false, null, "Invalid token purpose.");
+                }
+
+                return (true, email, null);
+            }
+            catch (SecurityTokenExpiredException)
+            {
+                return (false, null, "Token expired.");
+            }
+            catch (Exception ex)
+            {
+                return (false, null, "Invalid token: " + ex.Message);
+            }
+        }
+        public async Task<AuthResponse> GoogleLogin(string token, string ipAddress)
+        {
+            try
+            {
+                var payload=await GoogleJsonWebSignature.ValidateAsync(token);
+                var email=payload.Email;
+                var name=payload.Name;
+                var picture=payload.Picture;
+                var user=await _context.Users.AsNoTracking().FirstOrDefaultAsync(x=>x.Gmail==email);
+                if (user != null) {
+                    return await CreateAuthResponseAsync(user, ipAddress);
+                }
+                return new AuthResponse()
+                {
+                    IsSuccess = false,
+                    Reason = "Người dùng chưa được tạo"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new AuthResponse
+                {
+                    IsSuccess = false,
+                    Reason = "Token Google không hợp lệ: " + ex.Message
+                };
+            }
+        }
+
     }
 }

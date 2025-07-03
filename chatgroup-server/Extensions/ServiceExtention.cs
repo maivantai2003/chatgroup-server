@@ -1,4 +1,5 @@
-﻿using chatgroup_server.Interfaces;
+﻿using chatgroup_server.Helpers;
+using chatgroup_server.Interfaces;
 using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
@@ -57,6 +58,8 @@ namespace chatgroup_server.Extensions
             services.AddScoped<IGroupMessageFileRepository, GroupMessageFileRepository>();
             //OpenAI
             services.AddScoped<IOpenAIService, OpenAIService>();
+            //SendGmail
+            services.AddScoped<ISendGmailService, SendGmailService>();
             return services;
         }
     }

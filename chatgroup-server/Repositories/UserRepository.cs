@@ -88,5 +88,16 @@ namespace chatgroup_server.Repositories
            return result!=null?true:false;  
         }
 
+        public async Task<User?> GetUserByEmailAsync(string email)
+        {
+            var result =await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Gmail == email);
+            return result;
+        }
+
+        public async Task UpdateUserByEmail(string password, string email)
+        {
+            await _context.Users.Where(x => x.Gmail == email)
+                .ExecuteUpdateAsync(u => u.SetProperty(x => x.Password, password));
+        }
     }
 }
