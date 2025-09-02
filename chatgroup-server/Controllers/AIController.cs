@@ -1,4 +1,6 @@
 ﻿using chatgroup_server.Interfaces.IServices;
+using chatgroup_server.RabbitMQ.Models;
+using chatgroup_server.RabbitMQ.Producer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,6 +23,20 @@ namespace chatgroup_server.Controllers
                 return Ok(response.Errors);
             }
             return Ok(response.Data);   
+        }
+        [HttpPost("SendMail")]
+        public async Task<IActionResult> SendMail(EmailMessageModel emailRequest)
+        {
+            try
+            {
+                var product = new EmailProducer();
+                await product.SendEmail(emailRequest);
+                return Ok(new { message = "Email enqueued successfully!" });
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
         }
     }
 }

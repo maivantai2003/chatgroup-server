@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Microsoft.OpenApi.Models;
 using System.Threading.RateLimiting;
+using chatgroup_server.RabbitMQ.Consumer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,18 +55,6 @@ builder.Services.AddSwaggerGen(opt =>
         }
     });
 });
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowFrontend", policy =>
-//    {
-//        policy
-//            .WithOrigins("https://chatgroup-client.vercel.app", "http://localhost:3000", "https://1e1a-2001-ee0-4f0e-6540-4158-1926-c8e6-5250.ngrok-free.app")
-//            .AllowAnyHeader()
-//            .AllowAnyMethod()
-//            .AllowCredentials();
-//    });
-//});
-
 
 builder.Services.AddRateLimiter(options =>
 {
