@@ -23,7 +23,8 @@ namespace chatgroup_server.Hubs
 
         public override async Task OnConnectedAsync()
         {
-            var userId = Context.User?.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
+            //var userId = Context.User?.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
+            var userId=getIdUser();
             if (!string.IsNullOrEmpty(userId))
             {
                 _connection.AddUserConnection(userId, Context.ConnectionId);
@@ -198,6 +199,119 @@ namespace chatgroup_server.Hubs
 
             await base.OnDisconnectedAsync(exception);
         }
+        //WebRTC
+        // Gửi tín hiệu Offer
+        //public async Task SendOffer(string toUserId, string offer)
+        //{
+        //    try
+        //    {
+        //        var connections = _connection.GetUserConections(toUserId) ?? new List<string>();
+        //        foreach (var connectionId in connections)
+        //        {
+        //            await Clients.Client(connectionId).SendAsync("ReceiveOffer", getIdUser(), offer);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine($"SendOffer error: {ex}");
+        //        throw;
+        //    }
+        //}
+        //// Gửi tín hiệu Answer
+        //public async Task SendAnswer(string toUserId, string answer)
+        //{
+        //    var connections = _connection.GetUserConections(toUserId);
+        //    foreach (var connectionId in connections)
+        //    {
+        //        await Clients.Client(connectionId).SendAsync("ReceiveAnswer", getIdUser(), answer);
+        //    }
+        //}
+        //// Gửi ICE Candidate
+        //public async Task SendCandidate(string toUserId, string candidate)
+        //{
+        //    var connections = _connection.GetUserConections(toUserId);
+        //    foreach (var connectionId in connections)
+        //    {
+        //        await Clients.Client(connectionId).SendAsync("ReceiveCandidate", Context.User?.Claims.FirstOrDefault(c => c.Type == "userId")?.Value, candidate);
+        //    }
+        //}
+        //// Thông báo có cuộc gọi đến
+        //public async Task CallUser(string toUserId)
+        //{
+        //    var connections = _connection.GetUserConections(toUserId);
+        //    foreach (var connectionId in connections)
+        //    {
+        //        await Clients.Client(connectionId).SendAsync("IncomingCall", "Văn Tài", getIdUser());
+        //    }
+        //}
+        ///  
+        //public async Task CallUser(string targetUserId, string callerId, string callerName, string offer)
+        //{
+        //    var connections = _connection.GetUserConections(targetUserId);
+        //    if (connections == null || !connections.Any()) return;
+
+        //    foreach (var conn in connections)
+        //    {
+        //        await Clients.Client(conn).SendAsync("ReceiveCall", new
+        //        {
+        //            CallerId = callerId,
+        //            CallerName = callerName,
+        //            Offer = offer
+        //        });
+        //    }
+        //}
+
+        //// Người B chấp nhận
+        //public async Task AnswerCall(string targetUserId, string answer)
+        //{
+        //    var connections = _connection.GetUserConections(targetUserId);
+        //    if (connections == null || !connections.Any()) return;
+
+        //    foreach (var conn in connections)
+        //    {
+        //        await Clients.Client(conn).SendAsync("CallAnswered", new
+        //        {
+        //            AnswererId = getIdUser(),
+        //            Answer = answer
+        //        });
+        //    }
+        //}
+
+        //// Người B từ chối
+        //public async Task RejectCall(string targetUserId)
+        //{
+        //    var connections = _connection.GetUserConections(targetUserId);
+        //    if (connections == null || !connections.Any()) return;
+
+        //    foreach (var conn in connections)
+        //    {
+        //        await Clients.Client(conn).SendAsync("CallRejected", new
+        //        {
+        //            RejecterId = getIdUser()
+        //        });
+        //    }
+        //}
+
+        //// Trao đổi ICE Candidate
+        //public async Task SendIceCandidate(string targetUserId, string candidate)
+        //{
+        //    var connections = _connection.GetUserConections(targetUserId);
+        //    if (connections == null || !connections.Any()) return;
+
+        //    foreach (var conn in connections)
+        //    {
+        //        await Clients.Client(conn).SendAsync("ReceiveCandidate", new
+        //        {
+        //            FromUserId = getIdUser(),
+        //            Candidate = candidate
+        //        });
+        //    }
+        //}
+        private string getIdUser()
+        {
+            var result = Context.User?.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
+            return result;
+        }
         //Call video
         public async Task CallUser(string targetUserId)
         {
@@ -215,7 +329,7 @@ namespace chatgroup_server.Hubs
             {
                 await Clients.Client(connectionId).SendAsync("CallAccepted");
             }
-            
+
         }
         //Reject Call
         public async Task RejectCall(string toUserId)
@@ -241,7 +355,7 @@ namespace chatgroup_server.Hubs
                     //await Clients.Client(connectionId).SendAsync("CallRejected");
                     await Clients.Client(connectionId).SendAsync("ReceiveCallRequest", Context.User?.Claims.FirstOrDefault(c => c.Type == "userId")?.Value);
                 }
-                
+
             }
         }
         // Gửi offer SDP
@@ -255,7 +369,7 @@ namespace chatgroup_server.Hubs
                     //await Clients.Client(connectionId).SendAsync("CallRejected");
                     await Clients.Client(connectionId).SendAsync("ReceiveOffer", Context.User?.Claims.FirstOrDefault(c => c.Type == "userId")?.Value, offer);
                 }
-                
+
             }
         }
         // Gửi answer SDP
@@ -269,7 +383,7 @@ namespace chatgroup_server.Hubs
                     //await Clients.Client(connectionId).SendAsync("CallRejected");
                     await Clients.Client(connectionId).SendAsync("ReceiveAnswer", Context.User?.Claims.FirstOrDefault(c => c.Type == "userId")?.Value, answer);
                 }
-                
+
             }
         }
 
@@ -284,7 +398,7 @@ namespace chatgroup_server.Hubs
                     //await Clients.Client(connectionId).SendAsync("CallRejected");
                     await Clients.Client(connectionId).SendAsync("ReceiveIceCandidate", Context.User?.Claims.FirstOrDefault(c => c.Type == "userId")?.Value, candidate);
                 }
-                
+
             }
         }
     }

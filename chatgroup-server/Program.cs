@@ -8,9 +8,6 @@ using System.Threading.RateLimiting;
 using chatgroup_server.RabbitMQ.Consumer;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
 ConfigurationManager configuration = builder.Configuration;
@@ -81,14 +78,12 @@ app.UseHttpsRedirection();
 app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod()
                             .SetIsOriginAllowed(origin => true)
                             .AllowCredentials());
-app.UseRouting();
-//app.UseRateLimiter();
 //app.UseCors(policy => policy
-// .WithOrigins("https://chatgroup-client.vercel.app")
-// .AllowAnyHeader()
-// .AllowAnyMethod()
-// .AllowCredentials());
-//app.UseCors("AllowFrontend");
+//    .WithOrigins("http://localhost:3000")
+//    .AllowAnyHeader()
+//    .AllowAnyMethod()
+//    .AllowCredentials());
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseWebSockets();
