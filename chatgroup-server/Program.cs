@@ -83,6 +83,7 @@ app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod()
 //    .AllowAnyHeader()
 //    .AllowAnyMethod()
 //    .AllowCredentials());
+//app.MapHealthChecks("/health");
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
