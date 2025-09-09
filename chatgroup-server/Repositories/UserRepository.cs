@@ -3,6 +3,7 @@ using chatgroup_server.Dtos;
 using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Models;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Crypto.Generators;
 
 namespace chatgroup_server.Repositories
 {
@@ -40,9 +41,9 @@ namespace chatgroup_server.Repositories
             //    })
             //    .ToListAsync();
             var friendIds = await _context.Friends
-        .Where(f => (f.UserId == userId || f.FriendId == userId) && (f.Status == 0 || f.Status == 1))
-        .Select(f => f.UserId == userId ? f.FriendId : f.UserId)
-        .ToListAsync();
+                    .Where(f => (f.UserId == userId || f.FriendId == userId) && (f.Status == 0 || f.Status == 1))
+                    .Select(f => f.UserId == userId ? f.FriendId : f.UserId)
+                    .ToListAsync();
 
             // Lấy danh sách user chưa kết bạn
             return await _context.Users
@@ -96,8 +97,15 @@ namespace chatgroup_server.Repositories
 
         public async Task UpdateUserByEmail(string password, string email)
         {
-            await _context.Users.Where(x => x.Gmail == email)
-                .ExecuteUpdateAsync(u => u.SetProperty(x => x.Password, password));
+            //await _context.Users.Where(x => x.Gmail == email)
+            //    .ExecuteUpdateAsync(u => u.SetProperty(x => x.Password, password));
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Gmail == email);
+            if (user != null)
+            {
+                //user.Password = BCrypt.Net.BCrypt.HashPassword(password);
+                user.Password= password;
+                _context.Users.Update(user);
+            }
         }
     }
 }

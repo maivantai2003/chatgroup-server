@@ -1,9 +1,10 @@
-﻿using chatgroup_server.Interfaces.IRepositories;
+﻿using chatgroup_server.Common;
+using chatgroup_server.Dtos;
+using chatgroup_server.Helpers;
 using chatgroup_server.Interfaces;
+using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
-using chatgroup_server.Common;
-using chatgroup_server.Dtos;
 
 namespace chatgroup_server.Services
 {
@@ -11,11 +12,15 @@ namespace chatgroup_server.Services
     {
         private readonly IGroupDetailRepository _groupDetailRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IUserContextService _userContextService;
+        private readonly RedisService _redisService;
 
-        public GroupDetailService(IGroupDetailRepository groupDetailRepository, IUnitOfWork unitOfWork)
+        public GroupDetailService(IGroupDetailRepository groupDetailRepository, IUnitOfWork unitOfWork, IUserContextService userContextService, RedisService redisService)
         {
             _groupDetailRepository = groupDetailRepository;
             _unitOfWork = unitOfWork;
+            _userContextService = userContextService;
+            _redisService = redisService;
         }
 
         public async Task<GroupDetail?> GetGroupDetailByIdAsync(int groupDetailId)
@@ -40,6 +45,7 @@ namespace chatgroup_server.Services
             {
                 await _groupDetailRepository.AddGroupDetailAsync(groupDetail);
                 await _unitOfWork.CommitAsync();
+                await _redisService.RemoveCacheAsync(CacheKeys.GroupsOfUser(groupDetail.UserId));
                 return ApiResponse<GroupDetail>.SuccessResponse("Thêm thành viên thành công", groupDetail);
                 
             }
@@ -60,6 +66,7 @@ namespace chatgroup_server.Services
             {
                 _groupDetailRepository.UpdateGroupDetail(groupDetail);
                 await _unitOfWork.CommitAsync();
+                await _redisService.RemoveCacheAsync(CacheKeys.GroupsOfUser(groupDetail.UserId));
                 return true;
             }
             catch
@@ -81,6 +88,7 @@ namespace chatgroup_server.Services
                 //});
                 await _groupDetailRepository.DeleteGroupDetail(groupDetailDto);
                 await _unitOfWork.CommitAsync();
+                await _redisService.RemoveCacheAsync(CacheKeys.GroupsOfUser(groupDetailDto.userId));
                 return ApiResponse<LeaveGroupDetailDto>.SuccessResponse("Xóa thành công",groupDetailDto);
             }
             catch(Exception ex) {

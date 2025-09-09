@@ -1,11 +1,14 @@
 ﻿using chatgroup_server.Data;
-using chatgroup_server.Hubs;
 using chatgroup_server.Extensions;
-using Microsoft.EntityFrameworkCore;
-using Serilog;
-using Microsoft.OpenApi.Models;
-using System.Threading.RateLimiting;
+using chatgroup_server.Hubs;
 using chatgroup_server.RabbitMQ.Consumer;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Models;
+using Serilog;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
@@ -20,7 +23,16 @@ builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = configuration["RedisCacheUrl"];
 });
+
 builder.Services.AddAuthenConfiguration(configuration);
+builder.Services.AddHealthChecks()
+    .AddRedis(configuration["RedisCacheUrl"], name: "redis", tags: new[] { "ready" })
+    .AddSqlServer(configuration.GetConnectionString("Connection"), name: "sqlserver", tags: new[] { "ready" });
+builder.Services.AddHealthChecksUI(options =>
+{
+    options.SetEvaluationTimeInSeconds(30);
+    options.AddHealthCheckEndpoint("ChapApp Health", "/health");
+}).AddInMemoryStorage();
 builder.Services.AddSwaggerGen(opt =>
 {
     opt.SwaggerDoc("v1", new OpenApiInfo { Title = "ChapApp-Server", Version = "v1" });
@@ -88,6 +100,15 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseWebSockets();
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    Predicate = _ => true,
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
+app.MapHealthChecksUI(options =>
+{
+    options.UIPath = "/health-ui";
+});
 app.MapHub<myHub>("/app-hub");
 app.MapControllers();
 app.Run();

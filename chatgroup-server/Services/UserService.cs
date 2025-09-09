@@ -1,9 +1,11 @@
 ﻿using chatgroup_server.Common;
 using chatgroup_server.Dtos;
+using chatgroup_server.Helpers;
 using chatgroup_server.Interfaces;
 using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
+using System.Collections.Generic;
 
 namespace chatgroup_server.Services
 {
@@ -14,13 +16,15 @@ namespace chatgroup_server.Services
         private readonly ISendGmailService _sendGmailService;
         private readonly IJwtService _jwtService;
         private readonly IConfiguration _configuration;
-        public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork,ISendGmailService sendGmailService, IJwtService jwtService, IConfiguration configuration)
+        private readonly RedisService _redisService;
+        public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork,ISendGmailService sendGmailService, IJwtService jwtService, IConfiguration configuration,RedisService redisService)
         {
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
             _sendGmailService = sendGmailService;
             _jwtService = jwtService;
             _configuration = configuration;
+            _redisService = redisService;
         }
 
         public async Task<ApiResponse<User>> AddUserAsync(User user)
@@ -30,6 +34,7 @@ namespace chatgroup_server.Services
             {
                 await _userRepository.AddUserAsync(user);
                 await _unitOfWork.CommitAsync();
+                await _redisService.RemoveCacheAsync(CacheKeys.Users(user.UserId));
                 return ApiResponse<User>.SuccessResponse("Đăng Ký Thành Công",user);
             }
             catch (Exception ex) {
@@ -113,9 +118,16 @@ namespace chatgroup_server.Services
 
         public async Task<ApiResponse<IEnumerable<UserDto>>> GetAllUsersAsync(int userId)
         {
+            string cacheKey=CacheKeys.Users(userId);
             try
             {
+                var users = await _redisService.GetCacheAsync<IEnumerable<UserDto>>(cacheKey);
+                if(users!=null && users.Any())
+                {
+                    return ApiResponse<IEnumerable<UserDto>>.SuccessResponse("Danh sách bạn có thể biết", users);
+                }
                 var result=await _userRepository.GetAllUsersAsync(userId);
+                await _redisService.SetCacheAsync(cacheKey, result,TimeSpan.FromMinutes(CacheKeys.Time));
                 return ApiResponse<IEnumerable<UserDto>>.SuccessResponse("Danh sách bạn có thể biết",result);
             }
             catch (Exception ex) {
@@ -129,9 +141,16 @@ namespace chatgroup_server.Services
 
         public async Task<ApiResponse<UserInfor?>> GetUserById(int userId)
         {
+            string cacheKey = CacheKeys.User(userId);
             try
             {
+                var user = await _redisService.GetCacheAsync<UserInfor?>(cacheKey);
+                if (user != null)
+                {
+                    return ApiResponse<UserInfor?>.SuccessResponse("Tìm thấy người dùng", user);
+                }
                 var result = await _userRepository.GetUserById(userId);
+                await _redisService.SetCacheAsync(cacheKey, result,TimeSpan.FromMinutes(CacheKeys.Time));
                 return ApiResponse<UserInfor?>.SuccessResponse("Tìm thấy người dùng", result);
             }
             catch (Exception ex)
@@ -145,6 +164,7 @@ namespace chatgroup_server.Services
 
         public async Task<ApiResponse<User?>> GetUserByIdAsync(string numberPhone)
         {
+
             try
             {
                 var result=await _userRepository.GetUserByIdAsync(numberPhone);
@@ -160,6 +180,7 @@ namespace chatgroup_server.Services
 
         public async Task<ApiResponse<string>> ResetPassword(ResetPasswordRequest request)
         {
+            await _unitOfWork.BeginTransactionAsync();
             try
             {
                 string email = _jwtService.DecodeResetPasswordToken(request.Token).Email;
@@ -178,12 +199,15 @@ namespace chatgroup_server.Services
                         "Email không tồn tại"
                     });
                 }
-                await _userRepository.UpdateUserByEmail(request.NewPassword,user.Gmail);
-                return ApiResponse<string>.SuccessResponse("Đặt lại mật khẩu thành công", "Mật khẩu đã được cập nhật thành công."); 
+                await _userRepository.UpdateUserByEmail(request.NewPassword,email);
+                await _unitOfWork.CommitAsync();
+                await _redisService.RemoveCacheAsync(CacheKeys.User(user.UserId));
+                return ApiResponse<string>.SuccessResponse("Đặt lại mật khẩu thành công", "User password: "+user.Password+" New Password: "+request.NewPassword+" Email: "+ email); 
 
             }
             catch(Exception ex)
             {
+                await _unitOfWork.RollbackAsync();
                 return ApiResponse<string>.ErrorResponse("Đặt lại mật khẩu thất bại", new List<string>
                 {
                     ex.Message
@@ -198,6 +222,8 @@ namespace chatgroup_server.Services
             {
                 _userRepository.UpdateUser(user);
                 await _unitOfWork.CommitAsync();
+                await _redisService.RemoveCacheAsync(CacheKeys.User(user.UserId));
+                await _redisService.RemoveCacheAsync(CacheKeys.Users(user.UserId));
                 return ApiResponse<User>.SuccessResponse("Cập nhật người dùng thành công", user);
             }
             catch (Exception ex)

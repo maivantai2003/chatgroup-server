@@ -1,9 +1,12 @@
 ﻿using chatgroup_server.Common;
 using chatgroup_server.Dtos;
+using chatgroup_server.Helpers;
 using chatgroup_server.Interfaces;
 using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
+using System.Collections.Generic;
+using tryAGI.OpenAI;
 
 namespace chatgroup_server.Services
 {
@@ -11,10 +14,12 @@ namespace chatgroup_server.Services
     {
         private readonly IFriendRepository _friendsRepository;
         private readonly IUnitOfWork _unitOfWork;
-        public FriendService(IFriendRepository friendsRepository, IUnitOfWork unitOfWork)
+        private readonly RedisService _redisService;
+        public FriendService(IFriendRepository friendsRepository, IUnitOfWork unitOfWork,RedisService redisService)
         {
             _friendsRepository = friendsRepository;
             _unitOfWork = unitOfWork;
+            _redisService = redisService;
         }
         public async Task<ApiResponse<Friends?>> GetFriendshipAsync(int userId, int friendId)
         {
@@ -31,11 +36,18 @@ namespace chatgroup_server.Services
 
         public async Task<ApiResponse<IEnumerable<FriendRequest>>> GetFriendsByUserIdAsync(int userId)
         {
+            string cacheKey = CacheKeys.Friends(userId);
             try
             {
-                var result=await _friendsRepository.GetFriendsByUserIdAsync(userId);
-                if (result != null)
+                var cacheFriends = await _redisService.GetCacheAsync<IEnumerable<FriendRequest>>(cacheKey);
+                if (cacheFriends != null && cacheFriends.Any())
                 {
+                    return ApiResponse<IEnumerable<FriendRequest>>.SuccessResponse("Danh sách bạn bè", cacheFriends);
+                }
+                var result=await _friendsRepository.GetFriendsByUserIdAsync(userId);
+                if (result != null && result.Any())
+                {
+                    await _redisService.SetCacheAsync(cacheKey, result,TimeSpan.FromMinutes(20));
                     return ApiResponse<IEnumerable<FriendRequest>>.SuccessResponse("Danh sách bạn bè",result);
                 }
                 return ApiResponse<IEnumerable<FriendRequest>>.SuccessResponse("Danh sách bạn bè trống", result);
@@ -54,6 +66,8 @@ namespace chatgroup_server.Services
             {
                 await _friendsRepository.AddFriendAsync(friend);
                 await _unitOfWork.CommitAsync();
+                await _redisService.RemoveCacheAsync(CacheKeys.Friends(friend.UserId));
+                await _redisService.RemoveCacheAsync(CacheKeys.Friends(friend.FriendId));
                 var result=await _friendsRepository.GetFriend(friend.Id);
                 return ApiResponse<FriendRequest>.SuccessResponse("Gửi kết bạn thành công",result);    
             }
@@ -72,6 +86,8 @@ namespace chatgroup_server.Services
             {
                 _friendsRepository.UpdateFriend(friend);
                 await _unitOfWork.CommitAsync();
+                await _redisService.RemoveCacheAsync(CacheKeys.Friends(friend.UserId));
+                await _redisService.RemoveCacheAsync(CacheKeys.Friends(friend.FriendId));
                 return ApiResponse<Friends>.SuccessResponse("Cập nhật thành công", friend);
             }
             catch(Exception ex)

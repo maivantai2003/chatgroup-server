@@ -1,6 +1,7 @@
 ﻿using chatgroup_server.Common;
 using chatgroup_server.Data;
 using chatgroup_server.Dtos;
+using chatgroup_server.Helpers;
 using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
 using Google.Apis.Auth;
@@ -52,7 +53,8 @@ namespace chatgroup_server.Services
             var useRefreshToken = new UserRefreshToken
             {
                 CreateDate = DateTime.UtcNow,
-                ExpirationDate = DateTime.UtcNow.AddDays(7),
+                //ExpirationDate = DateTime.UtcNow.AddDays(7),
+                ExpirationDate = DateTime.UtcNow.AddMinutes(45),
                 IpAddress = ipAddress,
                 IsInvalidades = false,
                 RefreshToken = refreshToken,
@@ -93,10 +95,14 @@ namespace chatgroup_server.Services
         }
         public async Task<AuthResponse> GetTokenAsync(AuthResquest request, string ipAddress)
         {
-            var user = _context.Users.AsNoTracking().FirstOrDefault(x => x.PhoneNumber.Equals(request.PhoneNumber) && x.Password.Equals(request.UserName));
+            var user = _context.Users.AsNoTracking().FirstOrDefault(x => x.PhoneNumber.Equals(request.PhoneNumber));
             if (user == null)
             {
                 return await Task.FromResult<AuthResponse>(null);
+            }
+            if(!PasswordHelper.Verify(request.UserName, user.Password))
+            {
+                return null;
             }
             return await CreateAuthResponseAsync(user, ipAddress);
         }
@@ -125,7 +131,7 @@ namespace chatgroup_server.Services
                 Subject = new System.Security.Claims.ClaimsIdentity(new Claim[]
                 {
                     new Claim("userId",Id),
-                    new Claim(ClaimTypes.NameIdentifier,phoneNumber),
+                    new Claim(ClaimTypes.NameIdentifier,Id),
                     new Claim("avatar",avatar),
                     new Claim("userName",userName),
                     new Claim("userInfor",JsonConvert.SerializeObject(UserInfor))
@@ -237,11 +243,14 @@ namespace chatgroup_server.Services
         {
             try
             {
+                //Console.WriteLine(token);
                 var payload=await GoogleJsonWebSignature.ValidateAsync(token);
+                //Console.WriteLine(payload);
                 var email=payload.Email;
                 var name=payload.Name;
                 var picture=payload.Picture;
                 var user=await _context.Users.AsNoTracking().FirstOrDefaultAsync(x=>x.Gmail==email);
+                Console.WriteLine(email);
                 if (user != null) {
                     return await CreateAuthResponseAsync(user, ipAddress);
                 }

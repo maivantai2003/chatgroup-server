@@ -66,21 +66,27 @@ namespace chatgroup_server.Extensions
             services.AddScoped<ISendGmailService, SendGmailService>();
             //RabbitMQ
             services.AddHostedService<EmailConsumer>();
-           
+            //Recaptcha
+            services.AddHttpClient<IRecaptchaService, RecaptchaService>();
+            //
+            services.AddHttpContextAccessor();
+            services.AddScoped<IUserContextService, UserContextService>();
+            //Redis healthCheck
+            
             //Quartz CleanupToken
             services.AddQuartz(q =>
             {
                 var jobKey = new JobKey("CleanupToken");
                 q.AddJob<TokenCleanupService>(opts => opts.WithIdentity(jobKey));
-                q.AddTrigger(opts => opts.ForJob(jobKey).WithIdentity("CleanupToken-trigger").StartNow().WithSimpleSchedule(
-                    x => x.WithIntervalInMinutes(30).RepeatForever()
-                    ));
-                //q.AddTrigger(opts => opts
-                //    .ForJob(jobKey)
-                //    .WithIdentity("CleanupToken-trigger")
-                //    .StartNow()
-                //    .WithCronSchedule("0 0 0 * * ?")
-                //);
+                //q.AddTrigger(opts => opts.ForJob(jobKey).WithIdentity("CleanupToken-trigger").StartNow().WithSimpleSchedule(
+                //    x => x.WithIntervalInMinutes(10).RepeatForever()
+                //    ));
+                q.AddTrigger(opts => opts
+                    .ForJob(jobKey)
+                    .WithIdentity("CleanupToken-trigger")
+                    .StartNow()
+                    .WithCronSchedule("0 0 0 * * ?")
+                );
             });
             services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
             return services;

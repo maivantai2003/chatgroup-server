@@ -1,8 +1,9 @@
-﻿using chatgroup_server.Interfaces.IServices;
-using Microsoft.AspNetCore.Mvc;
-using chatgroup_server.Dtos;
+﻿using chatgroup_server.Dtos;
+using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 namespace chatgroup_server.Controllers
 {
     [Route("api/[controller]")]
@@ -22,6 +23,8 @@ namespace chatgroup_server.Controllers
             if (!respone.Success) { 
                 return Ok(respone.Errors);
             }
+            //var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            //Console.WriteLine("UserId: "+userId);
             return Ok(respone.Data);    
         }
         [HttpPost("[action]")]

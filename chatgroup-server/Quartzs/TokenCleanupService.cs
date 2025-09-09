@@ -16,6 +16,7 @@ namespace chatgroup_server.Quartzs
             using var scope= _scopeFactory.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             var now= DateTime.UtcNow;
+            Console.WriteLine(now);
             var expiredTokens = await dbContext.UserRefreshTokens.Where(x=>x.ExpirationDate<=now || x.IsInvalidades).ToListAsync();
             if (expiredTokens.Any()) {
                 dbContext.UserRefreshTokens.RemoveRange(expiredTokens);

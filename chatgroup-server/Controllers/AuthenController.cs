@@ -5,6 +5,7 @@ using chatgroup_server.Dtos;
 using chatgroup_server.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using chatgroup_server.Helpers;
 
 namespace chatgroup_server.Controllers
 {
@@ -15,10 +16,12 @@ namespace chatgroup_server.Controllers
         private readonly IJwtService _jwtService;
         private readonly IUserService _userService;
         private readonly RedisService _redisService;
-        public AuthenController(IJwtService jwtService,RedisService redisService,IUserService userService) { 
+        private readonly IRecaptchaService _recaptchaService;
+        public AuthenController(IJwtService jwtService,RedisService redisService,IUserService userService,IRecaptchaService recaptchaService) { 
             _jwtService = jwtService;
             _redisService = redisService;   
             _userService = userService;
+            _recaptchaService = recaptchaService;
         }
         [HttpPost("[action]")]
         public async Task<IActionResult> AuthToken([FromBody] AuthResquest authRequest)
@@ -44,7 +47,7 @@ namespace chatgroup_server.Controllers
                 Avatar = userRegister.Avatar,   
                 Birthday = userRegister.Birthday,
                 Sex = userRegister.Sex, 
-                Password = userRegister.Password,   
+                Password = PasswordHelper.Hash(userRegister.Password),   
             };
             var response=await _userService.AddUserAsync(user);
             if (!response.Success)
@@ -78,6 +81,11 @@ namespace chatgroup_server.Controllers
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
+            var isHuman = await _recaptchaService.Verify(request.CaptchaToken);
+            if (!isHuman)
+            {
+                return BadRequest("Captcha không hợp lệ");
+            }
             var response = await _userService.ForgotPassword(request);
             if(!response.Success)
             {

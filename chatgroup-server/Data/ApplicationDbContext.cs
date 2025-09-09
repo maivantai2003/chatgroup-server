@@ -5,7 +5,7 @@ namespace chatgroup_server.Data
 {
     public class ApplicationDbContext:DbContext
     {
-        public ApplicationDbContext(DbContextOptions options):base(options) { }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) :base(options) { }
         public DbSet<User> Users { get; set; }
         public DbSet<Friends> Friends { get; set; }
         public DbSet<Group> Groups { get; set; }
@@ -30,10 +30,10 @@ namespace chatgroup_server.Data
             modelBuilder.Entity<UserMessages>().HasOne(u => u.Sender).WithMany(u => u.Senders).HasForeignKey(x => x.SenderId).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<UserMessages>().HasOne(u=>u.Receiver).WithMany(u=>u.Receivers).HasForeignKey(x=>x.ReceiverId).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<GroupMessageReaction>()
-        .HasOne(gmr => gmr.User)
-        .WithMany(u => u.groupMessageReactions)
-        .HasForeignKey(gmr => gmr.UserId)
-        .OnDelete(DeleteBehavior.NoAction);
+            .HasOne(gmr => gmr.User)
+            .WithMany(u => u.groupMessageReactions)
+            .HasForeignKey(gmr => gmr.UserId)
+            .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<UserMessageReaction>()
                 .HasOne(umr => umr.User)
@@ -84,7 +84,12 @@ namespace chatgroup_server.Data
             modelBuilder.Entity<GroupMessages>()
                 .HasIndex(gm => gm.ReplyToMessageId)
                 .HasDatabaseName("IX_GroupMessages_ReplyToMessageId");
+            //
+            modelBuilder.Entity<User>().HasIndex(u => u.PhoneNumber).IsUnique();
+            modelBuilder.Entity<User>().HasIndex(u => u.Gmail).IsUnique();
             base.OnModelCreating(modelBuilder);
+            
+
         }
     } 
 }
