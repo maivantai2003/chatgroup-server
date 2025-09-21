@@ -86,7 +86,7 @@ namespace chatgroup_server.Data
                 .HasDatabaseName("IX_GroupMessages_ReplyToMessageId");
             //
             modelBuilder.Entity<User>().HasIndex(u => u.PhoneNumber).IsUnique();
-            modelBuilder.Entity<User>().HasIndex(u => u.Gmail).IsUnique();
+            //modelBuilder.Entity<User>().HasIndex(u => u.Gmail).IsUnique();
             base.OnModelCreating(modelBuilder);
             
 

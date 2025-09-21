@@ -387,11 +387,11 @@ namespace chatgroup_server.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Gmail")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Password")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(450)");
@@ -407,10 +407,6 @@ namespace chatgroup_server.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("UserId");
-
-                    b.HasIndex("Gmail")
-                        .IsUnique()
-                        .HasFilter("[Gmail] IS NOT NULL");
 
                     b.HasIndex("PhoneNumber")
                         .IsUnique()

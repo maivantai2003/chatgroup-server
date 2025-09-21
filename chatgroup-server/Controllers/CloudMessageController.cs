@@ -40,6 +40,7 @@ namespace chatgroup_server.Controllers
                 Content = cloudMessageDto.Content,
                 Type = cloudMessageDto.Type,
             };
+            Console.WriteLine(cloudMessage);
             var response = await _messageService.AddMessageAsync(cloudMessage);
             return response.Success ? Ok(response.Data) : BadRequest(response.Errors);
         }

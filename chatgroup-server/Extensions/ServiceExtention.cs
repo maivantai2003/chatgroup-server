@@ -68,6 +68,8 @@ namespace chatgroup_server.Extensions
             services.AddHostedService<EmailConsumer>();
             //Recaptcha
             services.AddHttpClient<IRecaptchaService, RecaptchaService>();
+            //NewPaper
+            services.AddScoped<INewPaperService, NewPaperService>();
             //
             services.AddHttpContextAccessor();
             services.AddScoped<IUserContextService, UserContextService>();

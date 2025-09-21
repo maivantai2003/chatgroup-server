@@ -7,13 +7,16 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using RabbitMQ.Client;
 using Serilog;
+using Serilog.Exceptions;
+using Serilog.Sinks.Elasticsearch;
+using System.Reflection;
 using System.Threading.RateLimiting;
-
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
-ConfigurationManager configuration = builder.Configuration;
+ConfigurationManager configurations = builder.Configuration;
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
@@ -21,13 +24,24 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => { options.UseSqlS
 builder.Services.AddApplication();
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = configuration["RedisCacheUrl"];
+    options.Configuration = configurations["RedisCacheUrl"];
 });
 
-builder.Services.AddAuthenConfiguration(configuration);
+builder.Services.AddAuthenConfiguration(configurations);
 builder.Services.AddHealthChecks()
-    .AddRedis(configuration["RedisCacheUrl"], name: "redis", tags: new[] { "ready" })
-    .AddSqlServer(configuration.GetConnectionString("Connection"), name: "sqlserver", tags: new[] { "ready" });
+    .AddRedis(configurations["RedisCacheUrl"], name: "redis", tags: new[] { "ready","redis" })
+    .AddSqlServer(configurations.GetConnectionString("Connection"), name: "sqlserver", tags: new[] { "ready", "sqlserver" })
+    .AddRabbitMQ(sp =>
+    {
+        var factory = new ConnectionFactory
+        {
+            Uri = new Uri(configurations["Rabbit:RabbitMQ"])
+        };
+        return factory.CreateConnectionAsync();
+    },name: "rabbitmq", timeout: TimeSpan.FromSeconds(5), tags: new[]
+    {
+        "ready","rabbitmq"
+    });
 builder.Services.AddHealthChecksUI(options =>
 {
     options.SetEvaluationTimeInSeconds(30);
@@ -64,7 +78,8 @@ builder.Services.AddSwaggerGen(opt =>
         }
     });
 });
-
+configureLogging();
+builder.Host.UseSerilog();
 builder.Services.AddRateLimiter(options =>
 {
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
@@ -112,3 +127,23 @@ app.MapHealthChecksUI(options =>
 app.MapHub<myHub>("/app-hub");
 app.MapControllers();
 app.Run();
+void configureLogging()
+{
+    var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+    var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json",optional:false,reloadOnChange:true)
+        .AddJsonFile($"appsettings.{environment}.json",optional:true).Build();
+    Log.Logger = new LoggerConfiguration().Enrich.FromLogContext().Enrich.WithExceptionDetails()
+        .WriteTo.Debug().WriteTo.Console().WriteTo.Elasticsearch(ConfigurationElasticSink(configuration,environment))
+        .Enrich.WithProperty("Environment",environment).ReadFrom.Configuration(configuration)
+        .CreateLogger();
+}
+ElasticsearchSinkOptions ConfigurationElasticSink(IConfigurationRoot configuration,string environment)
+{
+    return new ElasticsearchSinkOptions(new Uri(configuration["ElasticConfiguration:Uri"]))
+    {
+        AutoRegisterTemplate = true,
+        IndexFormat=$"{Assembly.GetExecutingAssembly().GetName().Name.ToLower().Replace(".","-")}-{environment.ToLower()}-{DateTime.UtcNow:yyyy-MM}",
+        NumberOfReplicas=1,
+        NumberOfShards=2      
+    };
+}

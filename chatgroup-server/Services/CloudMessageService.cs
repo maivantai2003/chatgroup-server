@@ -11,22 +11,27 @@ namespace chatgroup_server.Services
     {
         private readonly ICloudMessageRepository _messageRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<CloudMessageService> _logger;
 
-        public CloudMessageService(ICloudMessageRepository messageRepository, IUnitOfWork unitOfWork)
+        public CloudMessageService(ICloudMessageRepository messageRepository, IUnitOfWork unitOfWork, ILogger<CloudMessageService> logger)
         {
             _messageRepository = messageRepository;
             _unitOfWork = unitOfWork;
+            _logger = logger;
         }
 
         public async Task<ApiResponse<IEnumerable<CloudMessageResponseDto>>> GetMessagesByUserIdAsync(int userId)
         {
+            _logger.LogInformation("Fetching messages for UserId {UserId}", userId);
             try
             {
                 var messages = await _messageRepository.GetMessagesByUserIdAsync(userId);
+                _logger.LogInformation("Fetched {Count} messages for UserId {UserId}", messages?.Count() ?? 0, userId);
                 return ApiResponse<IEnumerable<CloudMessageResponseDto>>.SuccessResponse("Danh sách tin nhắn", messages);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error when fetching messages for UserId {UserId}", userId);
                 return ApiResponse<IEnumerable<CloudMessageResponseDto>>.ErrorResponse("Lỗi khi lấy danh sách tin nhắn", new List<string> { ex.Message });
             }
         }
