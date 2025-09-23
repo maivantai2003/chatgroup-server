@@ -38,7 +38,7 @@ builder.Services.AddHealthChecks()
             Uri = new Uri(configurations["Rabbit:RabbitMQ"])
         };
         return factory.CreateConnectionAsync();
-    },name: "rabbitmq", timeout: TimeSpan.FromSeconds(5), tags: new[]
+    }, name: "rabbitmq", timeout: TimeSpan.FromSeconds(5), tags: new[]
     {
         "ready","rabbitmq"
     });
