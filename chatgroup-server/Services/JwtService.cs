@@ -23,11 +23,11 @@ namespace chatgroup_server.Services
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly RedisService _redisServices;
+        private readonly IRedisService _redisServices;
         private static string avatar;
         private static string userName;
         private UserInfor UserInfor;
-        public JwtService(ApplicationDbContext context,IConfiguration configuration,IHttpContextAccessor httpContextAccessor, RedisService redisService) {
+        public JwtService(ApplicationDbContext context,IConfiguration configuration,IHttpContextAccessor httpContextAccessor, IRedisService redisService) {
             _context = context;
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;

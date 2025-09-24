@@ -11,10 +11,10 @@ namespace chatgroup_server.Services
     {
         private readonly IConversationRepository _conversationRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly RedisService _redisService;
+        private readonly IRedisService _redisService;
         private const string ConversationCacheKey = "conversation_{0}";
         private const string AllConversationsCacheKey = "all_conversations_{0}";
-        public ConversationService(IConversationRepository conversationRepository, IUnitOfWork unitOfWork, RedisService redisService)
+        public ConversationService(IConversationRepository conversationRepository, IUnitOfWork unitOfWork, IRedisService redisService)
         {
             _conversationRepository = conversationRepository;
             _unitOfWork = unitOfWork;

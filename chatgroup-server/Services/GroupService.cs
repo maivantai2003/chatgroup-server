@@ -15,9 +15,9 @@ namespace chatgroup_server.Services
     {
         private readonly IGroupRepository _groupRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly RedisService _redisService;
+        private readonly IRedisService _redisService;
         private readonly IUserContextService _userContextService;
-        public GroupService(IGroupRepository groupRepository, IUnitOfWork unitOfWork,RedisService redisService, IUserContextService userContextService)
+        public GroupService(IGroupRepository groupRepository, IUnitOfWork unitOfWork,IRedisService redisService, IUserContextService userContextService)
         {
             _groupRepository = groupRepository;
             _unitOfWork = unitOfWork;

@@ -25,21 +25,6 @@ namespace chatgroup_server.Repositories
 
         public async Task<IEnumerable<UserDto>> GetAllUsersAsync(int userId)
         {
-            //var usersWithFriendStatus = _context.Friends
-            //    .Where(f => f.Status == 0 || f.Status == 1)
-            //    .Select(f => f.UserId)
-            //    .Union(_context.Friends.Where(f => f.Status == 0 || f.Status == 1).Select(f => f.FriendId));
-
-            //return await _context.Users
-            //    .AsNoTracking()
-            //    .Where(u => u.Status == 1 && u.UserId != userId && !usersWithFriendStatus.Contains(u.UserId))
-            //    .Select(u => new UserDto
-            //    {
-            //        UserId = u.UserId,
-            //        UserName = u.UserName,
-            //        Avatar = u.Avatar
-            //    })
-            //    .ToListAsync();
             var friendIds = await _context.Friends
                     .Where(f => (f.UserId == userId || f.FriendId == userId) && (f.Status == 0 || f.Status == 1))
                     .Select(f => f.UserId == userId ? f.FriendId : f.UserId)
@@ -85,7 +70,7 @@ namespace chatgroup_server.Repositories
         }
         public async Task<bool> CheckPhoneNumber(string ?phoneNumber)
         {
-           var result= await _context.Users.AsNoTracking().FirstOrDefaultAsync(x=>x.PhoneNumber==phoneNumber); 
+           var result= await _context.Users.AsNoTracking().FirstOrDefaultAsync(x=>x.PhoneNumber==phoneNumber && x.Status==1); 
            return result!=null?true:false;  
         }
 

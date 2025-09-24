@@ -16,7 +16,7 @@ namespace chatgroup_server.Extensions
     {
         public static IServiceCollection AddApplication(this IServiceCollection services) {
             services.AddSingleton<IManagerConection,ManagerConection>();
-            services.AddSingleton<RedisService>();
+            services.AddSingleton<IRedisService,RedisService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IUserRepository, UserRepository>();

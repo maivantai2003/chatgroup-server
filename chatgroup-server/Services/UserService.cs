@@ -16,8 +16,8 @@ namespace chatgroup_server.Services
         private readonly ISendGmailService _sendGmailService;
         private readonly IJwtService _jwtService;
         private readonly IConfiguration _configuration;
-        private readonly RedisService _redisService;
-        public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork,ISendGmailService sendGmailService, IJwtService jwtService, IConfiguration configuration,RedisService redisService)
+        private readonly IRedisService _redisService;
+        public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork,ISendGmailService sendGmailService, IJwtService jwtService, IConfiguration configuration,IRedisService redisService)
         {
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;

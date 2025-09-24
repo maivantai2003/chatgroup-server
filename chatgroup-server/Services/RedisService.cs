@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.Caching.Distributed;
+﻿using chatgroup_server.Interfaces.IServices;
+using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
 
 namespace chatgroup_server.Services
 {
-    public class RedisService
+    public class RedisService:IRedisService
     {
         private readonly IDistributedCache _cache;
         public RedisService(IDistributedCache cache)

@@ -9,9 +9,9 @@ namespace chatgroup_server.Services
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
-        private readonly RedisService _redisService;
+        private readonly IRedisService _redisService;
         private readonly IUserContextService _userContextService;
-        public NewPaperService(IHttpClientFactory httpClientFactory, IConfiguration configuration,RedisService redisService,IUserContextService userContextService)
+        public NewPaperService(IHttpClientFactory httpClientFactory, IConfiguration configuration,IRedisService redisService,IUserContextService userContextService)
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;

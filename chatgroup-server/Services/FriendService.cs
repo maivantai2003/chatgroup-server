@@ -14,8 +14,8 @@ namespace chatgroup_server.Services
     {
         private readonly IFriendRepository _friendsRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly RedisService _redisService;
-        public FriendService(IFriendRepository friendsRepository, IUnitOfWork unitOfWork,RedisService redisService)
+        private readonly IRedisService _redisService;
+        public FriendService(IFriendRepository friendsRepository, IUnitOfWork unitOfWork,IRedisService redisService)
         {
             _friendsRepository = friendsRepository;
             _unitOfWork = unitOfWork;
