@@ -235,5 +235,22 @@ namespace chatgroup_server.Services
                 });
             }
         }
+
+        public async Task<ApiResponse<bool>> UserUpdateStatus(int userId, UserUpdateStatusDto userUpdateStatusDto)
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                var result = await _userRepository.UpdateStatus(userId, userUpdateStatusDto);
+                return ApiResponse<bool>.SuccessResponse("Cập nhật trạng thái thành công",result);
+            }catch(Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                return ApiResponse<bool>.ErrorResponse("Cập nhật không thành công", new List<string>()
+                {
+                    ex.Message
+                });
+            }
+        }
     }
 }

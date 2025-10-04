@@ -34,9 +34,9 @@ namespace chatgroup_server.Controllers
             return Ok(response.Data);
         }
         [HttpGet("[action]")]
-        public async Task<IActionResult> GetAllUserMessage(int senderId,int receiverId)
+        public async Task<IActionResult> GetAllUserMessage(int senderId,int receiverId, DateTime? lastCreateAt = null,int pageSize=10)
         {
-            var response=await _userMessageService.GetAllUserMessageByIdAsync(senderId,receiverId);
+            var response=await _userMessageService.GetAllUserMessageByIdAsync(senderId,receiverId,lastCreateAt,pageSize);
             if (response.Success) {
                 return Ok(response.Data); 
             }

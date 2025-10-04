@@ -10,6 +10,7 @@ namespace chatgroup_server.Interfaces.IServices
         Task<ApiResponse<bool>> CheckPhoneNumber(string? phoneNumber);   
         Task<ApiResponse<UserInfor?>> GetUserById(int userId);
         Task<ApiResponse<IEnumerable<UserDto>>> GetAllUsersAsync(int userId);
+        Task<ApiResponse<bool>> UserUpdateStatus(int userId,UserUpdateStatusDto userUpdateStatusDto);
         Task<ApiResponse<User>> AddUserAsync(User user);
         Task<ApiResponse<User>> UpdateUserAsync(User user);
         Task<ApiResponse<string>> ForgotPassword(ForgotPasswordRequest request);

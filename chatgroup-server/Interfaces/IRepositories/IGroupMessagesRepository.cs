@@ -7,7 +7,7 @@ namespace chatgroup_server.Interfaces.IRepositories
     {
         Task<IEnumerable<GroupMessages>> GetAllMessagesAsync();
         Task<GroupMessageResponseDto?> GetGroupMessageByIdAsync(int id);
-        Task<IEnumerable<GroupMessageResponseDto?>> GetAllGroupMessageById(int groupId);
+        Task<IEnumerable<GroupMessageResponseDto?>> GetAllGroupMessageById(int groupId, DateTime? lastCreateAt = null, int pageSize = 10);
         Task AddGroupMessageAsync(GroupMessages message);
         void UpdateMessage(GroupMessages message);
         void DeleteMessage(GroupMessages message);

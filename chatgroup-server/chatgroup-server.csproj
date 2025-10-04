@@ -19,6 +19,7 @@
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="CloudinaryDotNet" Version="1.27.3" />
     <PackageReference Include="CodeHollow.FeedReader" Version="1.2.6" />
+    <PackageReference Include="FirebaseAdmin" Version="3.4.0" />
     <PackageReference Include="Google.Apis.Auth" Version="1.70.0" />
     <PackageReference Include="LangChain" Version="0.17.0" />
     <PackageReference Include="LangChain.Core" Version="0.17.0" />

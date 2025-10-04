@@ -92,11 +92,11 @@ namespace chatgroup_server.Services
             throw new NotImplementedException();
         }
 
-        public async Task<ApiResponse<IEnumerable<UserMessageResponseDto>>> GetAllUserMessageByIdAsync(int senderId, int receiverId)
+        public async Task<ApiResponse<IEnumerable<UserMessageResponseDto>>> GetAllUserMessageByIdAsync(int senderId, int receiverId, DateTime? lastCreateAt = null, int pageSize = 10)
         {
             try
             {
-                var result = await _userMessageRepository.GetAllUserMessageByIdAsync(senderId, receiverId);
+                var result = await _userMessageRepository.GetAllUserMessageByIdAsync(senderId, receiverId,lastCreateAt,pageSize);
                 return ApiResponse<IEnumerable<UserMessageResponseDto>>.SuccessResponse("Lấy danh sách tin nhắn thành công", result);
             }
             catch (Exception ex) {

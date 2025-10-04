@@ -19,6 +19,9 @@ namespace chatgroup_server.Models
         public string? CoverPhoto { get; set; }
         [MaxLength(255)] 
         public string? Password {  get; set; }
+        public bool IsOnline { get; set; } = false;
+        public DateTime? FistLogin { get; set; }
+        public DateTime? LastLogin { get; set; }
         public int Status { get; set; } = 1;
         //Friend
         public virtual ICollection<Friends>? Friends { get; set; }

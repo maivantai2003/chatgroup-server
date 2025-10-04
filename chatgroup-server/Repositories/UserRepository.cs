@@ -92,5 +92,12 @@ namespace chatgroup_server.Repositories
                 _context.Users.Update(user);
             }
         }
+
+        public async Task<bool> UpdateStatus(int userId, UserUpdateStatusDto userUpdateStatusDto)
+        {
+            var result = await _context.Users.Where(x => x.UserId == userId)
+                .ExecuteUpdateAsync(p => p.SetProperty(x=>x.IsOnline,userUpdateStatusDto.IsOnline).SetProperty(x=>x.LastLogin,userUpdateStatusDto.LastLogin).SetProperty(x=>x.FistLogin,userUpdateStatusDto.FistLogin));
+            return result > 0;
+        }
     }
 }

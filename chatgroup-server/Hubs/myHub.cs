@@ -16,9 +16,11 @@ namespace chatgroup_server.Hubs
     public class myHub : Hub
     {
         private readonly IManagerConection _connection;
-        public myHub(IManagerConection connection)
+        private readonly IFirebaseService _firebaseService;
+        public myHub(IManagerConection connection,IFirebaseService firebaseService)
         {
             _connection = connection;
+            _firebaseService = firebaseService;
         }
 
         public override async Task OnConnectedAsync()
@@ -87,7 +89,16 @@ namespace chatgroup_server.Hubs
                 await Clients.Client(connectionId).SendAsync("UpdateConversationUser", conversation);
                 await Clients.Client(connectionId).SendAsync("CheckUser",_connection.GetAllConnectedUsers());
             }
-            
+            var fcmToken = "";
+            if (!string.IsNullOrEmpty(fcmToken))
+            {
+                await _firebaseService.SendNotificationAsync(
+                    fcmToken,
+                    $"Tin nhắn mới từ {userMessage.SenderName}",
+                    userMessage.Content
+                );
+            }
+
         }
         public async Task SendCloudMessage(string userId, CloudMessageResponseDto cloudMessage, Conversation conversation)
         {

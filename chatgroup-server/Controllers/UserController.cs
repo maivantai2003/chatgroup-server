@@ -75,6 +75,16 @@ namespace chatgroup_server.Controllers
             }
             return Ok(response.Data);
         }
+        [HttpPut("[action]/{id}")]
+        public async Task<IActionResult> UpdateStatus(int id,UserUpdateStatusDto userUpdateStatusDto)
+        {
+            var response = await _userService.UserUpdateStatus(id, userUpdateStatusDto);
+            if (response.Success)
+            {
+                return Ok(response.Data);
+            }
+            return Ok(response.Errors);
+        }
 
     }
 }

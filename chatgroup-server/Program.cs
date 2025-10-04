@@ -29,19 +29,19 @@ builder.Services.AddStackExchangeRedisCache(options =>
 
 builder.Services.AddAuthenConfiguration(configurations);
 builder.Services.AddHealthChecks()
-    .AddRedis(configurations["RedisCacheUrl"], name: "redis", tags: new[] { "ready","redis" })
-    .AddSqlServer(configurations.GetConnectionString("Connection"), name: "sqlserver", tags: new[] { "ready", "sqlserver" })
-    .AddRabbitMQ(sp =>
-    {
-        var factory = new ConnectionFactory
-        {
-            Uri = new Uri(configurations["Rabbit:RabbitMQ"])
-        };
-        return factory.CreateConnectionAsync();
-    }, name: "rabbitmq", timeout: TimeSpan.FromSeconds(5), tags: new[]
-    {
-        "ready","rabbitmq"
-    });
+    .AddRedis(configurations["RedisCacheUrl"], name: "redis", tags: new[] { "ready", "redis" })
+    .AddSqlServer(configurations.GetConnectionString("Connection"), name: "sqlserver", tags: new[] { "ready", "sqlserver" });
+    //.AddRabbitMQ(sp =>
+    //{
+    //    var factory = new ConnectionFactory
+    //    {
+    //        Uri = new Uri(configurations["Rabbit:RabbitMQ"])
+    //    };
+    //    return factory.CreateConnectionAsync();
+    //}, name: "rabbitmq", timeout: TimeSpan.FromSeconds(5), tags: new[]
+    //{
+    //    "ready","rabbitmq"
+    //});
 builder.Services.AddHealthChecksUI(options =>
 {
     options.SetEvaluationTimeInSeconds(30);
@@ -105,12 +105,6 @@ app.UseHttpsRedirection();
 app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod()
                             .SetIsOriginAllowed(origin => true)
                             .AllowCredentials());
-//app.UseCors(policy => policy
-//    .WithOrigins("http://localhost:3000")
-//    .AllowAnyHeader()
-//    .AllowAnyMethod()
-//    .AllowCredentials());
-//app.MapHealthChecks("/health");
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

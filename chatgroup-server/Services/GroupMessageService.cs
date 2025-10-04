@@ -70,11 +70,11 @@ namespace chatgroup_server.Services
             }
         }
 
-        public async Task<ApiResponse<IEnumerable<GroupMessageResponseDto>>> GetAllGroupMessageById(int groupId)
+        public async Task<ApiResponse<IEnumerable<GroupMessageResponseDto>>> GetAllGroupMessageById(int groupId, DateTime? lastCreateAt = null, int pageSize = 10)
         {
             try
             {
-                var result=await _groupMessageRepository.GetAllGroupMessageById(groupId);
+                var result=await _groupMessageRepository.GetAllGroupMessageById(groupId,lastCreateAt,pageSize);
                 return ApiResponse<IEnumerable<GroupMessageResponseDto>>.SuccessResponse("Lấy danh sách tin nhắn nhóm thành công", result);
             }
             catch (Exception ex) {

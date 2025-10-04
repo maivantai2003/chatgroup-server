@@ -34,9 +34,9 @@ namespace chatgroup_server.Controllers
             return BadRequest(response.Data);
         }
         [HttpGet("[action]")]
-        public async Task<IActionResult> GetAllGroupMessage(int id)
+        public async Task<IActionResult> GetAllGroupMessage(int id, DateTime? lastCreateAt = null, int pageSize = 10)
         {
-            var response = await _groupMessageService.GetAllGroupMessageById(id);
+            var response = await _groupMessageService.GetAllGroupMessageById(id,lastCreateAt,pageSize);
             if (response.Success)
             {
                 return Ok(response.Data);

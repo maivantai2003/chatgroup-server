@@ -386,8 +386,17 @@ namespace chatgroup_server.Migrations
                     b.Property<string>("CoverPhoto")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("FistLogin")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Gmail")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsOnline")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastLogin")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Password")
                         .HasMaxLength(255)
@@ -685,7 +694,7 @@ namespace chatgroup_server.Migrations
                     b.HasOne("chatgroup_server.Models.GroupMessages", "groupMessage")
                         .WithMany("groupMessageFiles")
                         .HasForeignKey("GroupedMessageId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("File");
@@ -767,7 +776,7 @@ namespace chatgroup_server.Migrations
                     b.HasOne("chatgroup_server.Models.UserMessages", "userMessage")
                         .WithMany("userMessageFiles")
                         .HasForeignKey("UserMessageId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("File");

@@ -6,7 +6,7 @@ namespace chatgroup_server.Interfaces.IServices
 {
     public interface IUserMessageService
     {
-        Task<ApiResponse<IEnumerable<UserMessageResponseDto>>> GetAllUserMessageByIdAsync(int senderId, int receiverId);
+        Task<ApiResponse<IEnumerable<UserMessageResponseDto>>> GetAllUserMessageByIdAsync(int senderId, int receiverId, DateTime? lastCreateAt = null, int pageSize = 10);
         Task<IEnumerable<UserMessages>> GetMessagesBySenderIdAsync(int senderId);
         Task<IEnumerable<UserMessages>> GetMessagesByReceiverIdAsync(int receiverId);
         Task<ApiResponse<UserMessageResponseDto>> AddUserMessageAsync(UserMessages userMessage);

@@ -7,6 +7,9 @@ using chatgroup_server.Quartzs;
 using chatgroup_server.RabbitMQ.Consumer;
 using chatgroup_server.Repositories;
 using chatgroup_server.Services;
+using FirebaseAdmin;
+using FirebaseAdmin.Messaging;
+using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 
@@ -74,7 +77,13 @@ namespace chatgroup_server.Extensions
             services.AddHttpContextAccessor();
             services.AddScoped<IUserContextService, UserContextService>();
             //Redis healthCheck
-            
+            //Firebase
+            FirebaseApp firebaseApp = FirebaseApp.Create(new AppOptions()
+            {
+                Credential = GoogleCredential.FromFile("firebase-adminsdk.json")
+            });
+            services.AddSingleton(FirebaseMessaging.GetMessaging(firebaseApp));
+            services.AddSingleton<IFirebaseService, FirebaseService>();
             //Quartz CleanupToken
             services.AddQuartz(q =>
             {

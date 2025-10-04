@@ -29,6 +29,8 @@ namespace chatgroup_server.Data
             modelBuilder.Entity<Friends>().HasOne(f=>f.Friend).WithMany().HasForeignKey(f=>f.FriendId).OnDelete(DeleteBehavior.NoAction);
             modelBuilder.Entity<UserMessages>().HasOne(u => u.Sender).WithMany(u => u.Senders).HasForeignKey(x => x.SenderId).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<UserMessages>().HasOne(u=>u.Receiver).WithMany(u=>u.Receivers).HasForeignKey(x=>x.ReceiverId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<UserMessageFile>().HasOne(u=>u.userMessage).WithMany(m=>m.userMessageFiles).HasForeignKey(u=>u.UserMessageId).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<GroupMessageFile>().HasOne(u => u.groupMessage).WithMany(u => u.groupMessageFiles).HasForeignKey(u => u.GroupedMessageId).OnDelete(DeleteBehavior.Restrict);
             modelBuilder.Entity<GroupMessageReaction>()
             .HasOne(gmr => gmr.User)
             .WithMany(u => u.groupMessageReactions)
