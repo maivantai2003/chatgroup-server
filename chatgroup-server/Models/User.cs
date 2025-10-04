@@ -20,7 +20,7 @@ namespace chatgroup_server.Models
         [MaxLength(255)] 
         public string? Password {  get; set; }
         public bool IsOnline { get; set; } = false;
-        public DateTime? FistLogin { get; set; }
+        public DateTime? FirstLogin { get; set; }
         public DateTime? LastLogin { get; set; }
         public int Status { get; set; } = 1;
         //Friend
@@ -44,5 +44,7 @@ namespace chatgroup_server.Models
         public virtual ICollection<Conversation>? UserConversations { get; set; }
         //CloudMessage
         public virtual ICollection<CloudMessage>? CloudMessages { get; set; }
+        //
+        public virtual ICollection<UserDevice>? UserDevices { get; set; }
     }
 }

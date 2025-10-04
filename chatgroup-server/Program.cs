@@ -1,6 +1,8 @@
 ﻿using chatgroup_server.Data;
 using chatgroup_server.Extensions;
+using chatgroup_server.Helpers;
 using chatgroup_server.Hubs;
+using chatgroup_server.Middlewares;
 using chatgroup_server.RabbitMQ.Consumer;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -83,15 +85,32 @@ builder.Host.UseSerilog();
 builder.Services.AddRateLimiter(options =>
 {
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
-        RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: context.Connection.RemoteIpAddress?.ToString(),
+    {
+        var userId = context.User?.FindFirst("sub")?.Value
+                     ?? context.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var partitionKey = !string.IsNullOrEmpty(userId)
+            ? $"user:{userId}"
+            : $"ip:{context.Connection.RemoteIpAddress?.ToString()}";
+
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: partitionKey,
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit = 10,
+                PermitLimit = 20, // 20 request
                 Window = TimeSpan.FromSeconds(60),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                 QueueLimit = 5
-            }));
+            });
+    });
+    //RateLimitPartition.GetFixedWindowLimiter(
+    //    partitionKey: context.Connection.RemoteIpAddress?.ToString(),
+    //    factory: _ => new FixedWindowRateLimiterOptions
+    //    {
+    //        PermitLimit = 10,
+    //        Window = TimeSpan.FromSeconds(60),
+    //        QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+    //        QueueLimit = 5
+    //    }));
 });
 var app = builder.Build();
 
@@ -106,6 +125,8 @@ app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod()
                             .SetIsOriginAllowed(origin => true)
                             .AllowCredentials());
 app.UseRouting();
+app.UseRateLimiter();
+app.UseMiddleware<RateLimitRejectedMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseWebSockets();

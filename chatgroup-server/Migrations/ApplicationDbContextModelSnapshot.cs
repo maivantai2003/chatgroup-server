@@ -386,7 +386,7 @@ namespace chatgroup_server.Migrations
                     b.Property<string>("CoverPhoto")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("FistLogin")
+                    b.Property<DateTime?>("FirstLogin")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Gmail")
@@ -422,6 +422,54 @@ namespace chatgroup_server.Migrations
                         .HasFilter("[PhoneNumber] IS NOT NULL");
 
                     b.ToTable("User");
+                });
+
+            modelBuilder.Entity("chatgroup_server.Models.UserDevice", b =>
+                {
+                    b.Property<int>("UserDeviceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserDeviceId"));
+
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Browser")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeviceName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeviceToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DeviceType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsOnline")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastActiveAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("OS")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserDeviceId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserDevices");
                 });
 
             modelBuilder.Entity("chatgroup_server.Models.UserMessageFile", b =>
@@ -765,6 +813,17 @@ namespace chatgroup_server.Migrations
                     b.Navigation("Sender");
                 });
 
+            modelBuilder.Entity("chatgroup_server.Models.UserDevice", b =>
+                {
+                    b.HasOne("chatgroup_server.Models.User", "User")
+                        .WithMany("UserDevices")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("chatgroup_server.Models.UserMessageFile", b =>
                 {
                     b.HasOne("chatgroup_server.Models.Files", "File")
@@ -901,6 +960,8 @@ namespace chatgroup_server.Migrations
                     b.Navigation("SentGroupMessages");
 
                     b.Navigation("UserConversations");
+
+                    b.Navigation("UserDevices");
 
                     b.Navigation("groupDetails");
 

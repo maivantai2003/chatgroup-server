@@ -73,9 +73,12 @@ namespace chatgroup_server.Extensions
             services.AddHttpClient<IRecaptchaService, RecaptchaService>();
             //NewPaper
             services.AddScoped<INewPaperService, NewPaperService>();
-            //
+            //http
             services.AddHttpContextAccessor();
             services.AddScoped<IUserContextService, UserContextService>();
+            //UserDevice
+            services.AddScoped<IUserDeviceRepository, UserDeviceRepository>();
+            services.AddScoped<IUserDeviceService, UserDeviceService>();
             //Redis healthCheck
             //Firebase
             FirebaseApp firebaseApp = FirebaseApp.Create(new AppOptions()
