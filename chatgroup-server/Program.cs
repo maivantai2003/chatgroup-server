@@ -14,6 +14,7 @@ using Serilog;
 using Serilog.Exceptions;
 using Serilog.Sinks.Elasticsearch;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.RateLimiting;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
@@ -102,15 +103,27 @@ builder.Services.AddRateLimiter(options =>
                 QueueLimit = 5
             });
     });
-    //RateLimitPartition.GetFixedWindowLimiter(
-    //    partitionKey: context.Connection.RemoteIpAddress?.ToString(),
-    //    factory: _ => new FixedWindowRateLimiterOptions
-    //    {
-    //        PermitLimit = 10,
-    //        Window = TimeSpan.FromSeconds(60),
-    //        QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-    //        QueueLimit = 5
-    //    }));
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        context.HttpContext.Response.ContentType = "application/json";
+
+        var userId = context.HttpContext.User?.FindFirst("sub")?.Value
+                     ?? context.HttpContext.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var ip = context.HttpContext.Connection.RemoteIpAddress?.ToString();
+
+        // Logging
+        var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+        logger.LogWarning("[RateLimit] User: {UserId} IP: {IP}", userId ?? "guest", ip);
+        Console.WriteLine($"[RateLimit] User: {userId ?? "guest"} IP: {ip}");
+
+        var result = new
+        {
+            error = "Bạn đã gửi quá nhiều request, vui lòng thử lại sau."
+        };
+
+        await context.HttpContext.Response.WriteAsync(JsonSerializer.Serialize(result), cancellationToken);
+    };
 });
 var app = builder.Build();
 
@@ -126,7 +139,11 @@ app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod()
                             .AllowCredentials());
 app.UseRouting();
 app.UseRateLimiter();
-app.UseMiddleware<RateLimitRejectedMiddleware>();
+//app.UseMiddleware<RateLimitRejectedMiddleware>();
+//app.UseSerilogRequestLogging(options =>
+//{
+//    options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
+//});
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseWebSockets();
