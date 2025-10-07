@@ -15,13 +15,15 @@ namespace chatgroup_server.Controllers
     {
         private readonly IJwtService _jwtService;
         private readonly IUserService _userService;
-        private readonly RedisService _redisService;
+        private readonly IRedisService _redisService;
         private readonly IRecaptchaService _recaptchaService;
-        public AuthenController(IJwtService jwtService,RedisService redisService,IUserService userService,IRecaptchaService recaptchaService) { 
+        private readonly IUserContextService _userContextService;
+        public AuthenController(IJwtService jwtService,IRedisService redisService,IUserService userService,IRecaptchaService recaptchaService,IUserContextService userContextService) { 
             _jwtService = jwtService;
             _redisService = redisService;   
             _userService = userService;
             _recaptchaService = recaptchaService;
+            _userContextService = userContextService;
         }
         [HttpPost("[action]")]
         public async Task<IActionResult> AuthToken([FromBody] AuthResquest authRequest)
@@ -35,6 +37,7 @@ namespace chatgroup_server.Controllers
             {
                 return Unauthorized();
             }
+            Console.WriteLine(_userContextService.GetCurrentUserId());
             return Ok(authResponse);
         }
         [HttpPost("[action]")]
@@ -115,6 +118,7 @@ namespace chatgroup_server.Controllers
             {
                 return Unauthorized();
             }
+            Console.WriteLine("userId: "+_userContextService.GetCurrentUserId());
             return Ok(authResponse);
         }
     }

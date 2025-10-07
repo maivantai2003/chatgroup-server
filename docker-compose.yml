@@ -21,7 +21,7 @@ services:
       depends_on:
         - elasticsearch
       environment:
-        - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+        - ELASTICSEARCH_HOSTS=${ELA_HOST}
       networks:
         - elastic
    rabbitmq:
@@ -39,7 +39,25 @@ services:
          - 6379:6379
       networks:
          - elastic
-
+   chatgroup-server:
+      container_name: web-server
+      image: chatgroup-server:version-1
+      build:
+        context: .
+        dockerfile: Dockerfile
+      ports:
+        - 5000:80 
+      depends_on:
+          - elasticsearch
+          - rabbitmq
+          - redis
+      networks:
+          - elastic
+      environment:
+          - ASPNETCORE_ENVIRONMENT=Production
+          - ELASTICSEARCH_URL=http://elasticsearch:9200
+          - RABBITMQ_HOST=rabbitmq
+          - REDIS_HOST=redis
 
 networks:
    elastic:

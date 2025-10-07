@@ -97,10 +97,10 @@ builder.Services.AddRateLimiter(options =>
             partitionKey: partitionKey,
             factory: _ => new FixedWindowRateLimiterOptions
             {
-                PermitLimit = 20, // 20 request
+                PermitLimit = 60, // 20 request
                 Window = TimeSpan.FromSeconds(60),
                 QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-                QueueLimit = 5
+                QueueLimit = 20
             });
     });
     options.OnRejected = async (context, cancellationToken) =>

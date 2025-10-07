@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Tls;
+using System.Security.Claims;
 using tryAGI.OpenAI;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace chatgroup_server.Hubs
 {
@@ -37,6 +37,7 @@ namespace chatgroup_server.Hubs
 
         public override async Task OnConnectedAsync()
         {
+            Console.WriteLine("Value userId: "+Context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             //var userId = Context.User?.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
             var userId = GetCurrentUserId();
             if (!string.IsNullOrEmpty(userId))

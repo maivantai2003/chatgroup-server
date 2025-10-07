@@ -11,6 +11,8 @@ chatgroup-server/appsettings.*.json
 chatgroup-server/Migrations
 firebase-adminsdk.json
 chatgroup-server/firebase-adminsdk.json
+.env
+.env.*
 # User-specific files
 *.rsuser
 *.suo

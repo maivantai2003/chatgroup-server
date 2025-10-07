@@ -1,30 +1,21 @@
 ﻿# Stage 1: Build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /app
+WORKDIR /src
 
-# Copy solution and project files
-COPY chatgroup-server.sln .
-COPY chatgroup-server/chatgroup-server.csproj ./chatgroup-server/
+# Copy project file and restore dependencies
+COPY ["chatgroup-server.csproj", "./"]
+#COPY ["nuget.config", "./"]
+RUN dotnet restore  --disable-parallel
 
-# Restore dependencies
-RUN dotnet restore chatgroup-server/chatgroup-server.csproj
-
-# Copy source code
-COPY chatgroup-server/. ./chatgroup-server/
-
-# Build and publish
-WORKDIR /app/chatgroup-server
-RUN dotnet publish -c Release -o out
+# Copy all source code and build
+COPY . .
+RUN dotnet publish -c Release -o /app/publish
 
 # Stage 2: Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
-
-# Copy published output
-COPY --from=build /app/chatgroup-server/out ./
-
-# Configure port for Render
-ENV ASPNETCORE_URLS=http://0.0.0.0:$PORT
-EXPOSE 10000
-
+COPY --from=build /app/publish .
+ENV ASPNETCORE_URLS=http://+:80
+ENV DOTNET_ENVIRONMENT=Production
+EXPOSE 80
 ENTRYPOINT ["dotnet", "chatgroup-server.dll"]
