@@ -3,27 +3,13 @@ using chatgroup_server.RabbitMQ.Services;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace chatgroup_server.RabbitMQ.Producer
 {
-    public class EmailProducer
+    public class NotificationProducer
     {
-        //private readonly string _queueName = "email_queue";
-        //public async Task SendEmail(EmailMessageModel emailProducer)
-        //{
-        //    var json=JsonConvert.SerializeObject(emailProducer);
-        //    var body=Encoding.UTF8.GetBytes(json);
-        //    var connection=await RabbitMQConnectionFactory.GetConnectionAsync();
-        //    using var channel = await connection.CreateChannelAsync();
-        //    var properties = new BasicProperties()
-        //    {
-        //        Persistent = true,
-        //    };
-        //    await channel.QueueDeclareAsync(queue:_queueName,durable:true,exclusive:false,autoDelete:false,arguments:null);
-        //    await channel.BasicPublishAsync(exchange:string.Empty,routingKey:_queueName,mandatory:true,basicProperties:properties,body:body);
-
-        //}
-        private readonly string _queueName = "email_queue";
+        private readonly string _queueName = "notification_queue";
         private IChannel? _channel;
         public async Task InitializeAsync()
         {
@@ -37,14 +23,14 @@ namespace chatgroup_server.RabbitMQ.Producer
                 autoDelete: false,
                 arguments: null);
         }
-        public async Task SendEmailAsync(EmailMessageModel email)
+        public async Task SendNotificationAsync(NotificationMessageModel notification)
         {
-            if (_channel == null)
+           if(_channel== null)
+           {
                 await InitializeAsync();
-
-            var json = JsonConvert.SerializeObject(email);
+           }
+            var json = JsonConvert.SerializeObject(notification);
             var body = Encoding.UTF8.GetBytes(json);
-
             var props = new BasicProperties()
             {
                 Persistent = true

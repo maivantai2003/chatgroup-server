@@ -30,7 +30,7 @@ namespace chatgroup_server.Controllers
             try
             {
                 var product = new EmailProducer();
-                await product.SendEmail(emailRequest);
+                await product.SendEmailAsync(emailRequest);
                 return Ok(new { message = "Email enqueued successfully!" });
             }
             catch(Exception ex)

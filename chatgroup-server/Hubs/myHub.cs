@@ -1,7 +1,9 @@
 ﻿using chatgroup_server.Dtos;
 using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
+using chatgroup_server.RabbitMQ.Producer;
 using chatgroup_server.Services;
+using FirebaseAdmin.Messaging;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.VisualBasic;
@@ -108,15 +110,7 @@ namespace chatgroup_server.Hubs
             await SendToUserConnections(userId, "ReceiveUserMessage", userMessage);
             await SendToUserConnections(userId, "UpdateConversationUser", conversation);
             await SendToUserConnections(userId, "CheckUser", _connection.GetAllConnectedUsers());
-            var fcmToken = "";
-            if (!string.IsNullOrEmpty(fcmToken))
-            {
-                await _firebaseService.SendNotificationAsync(
-                    fcmToken,
-                    $"Tin nhắn mới từ {userMessage.SenderName}",
-                    userMessage.Content
-                );
-            }
+            
 
         }
         public async Task SendCloudMessage(string userId, CloudMessageResponseDto cloudMessage, Conversation conversation)
