@@ -67,8 +67,10 @@ namespace chatgroup_server.Extensions
             services.AddScoped<IOpenAIService, OpenAIService>();
             //SendGmail
             services.AddScoped<ISendGmailService, SendGmailService>();
-            //RabbitMQ
+            //RabbitMQ-Email
             services.AddHostedService<EmailConsumer>();
+            //RabbitMQ-Notification
+            services.AddHostedService<NotificationConsumer>();
             //Recaptcha
             services.AddHttpClient<IRecaptchaService, RecaptchaService>();
             //NewPaper

@@ -51,14 +51,14 @@ namespace chatgroup_server.Hubs
         }
         public async Task AcceptFriend(string userId,Conversation conversation)
         {
-            //var connections=_connection.GetUserConections(userId);
-            //if (connections == null || !connections.Any()) return;
-            //foreach (var connectionId in connections)
-            //{
-            //    await Clients.Client(connectionId).SendAsync("ReceiveAcceptFriend",conversation);
-            //}
-            //
-            await SendToUserConnections(userId,"ReceiveAcceptFriend", conversation);
+            var connections = _connection.GetUserConections(userId);
+            if (connections == null || !connections.Any()) return;
+            foreach (var connectionId in connections)
+            {
+                await Clients.Client(connectionId).SendAsync("ReceiveAcceptFriend", conversation);
+            }
+
+            //await SendToUserConnections(userId,"ReceiveAcceptFriend", conversation);
         }
         //Add member in group
         public async Task AddMemberToGroup(string userId,Conversation conversation)
@@ -99,18 +99,18 @@ namespace chatgroup_server.Hubs
         }
         public async Task SendUserMessage(string userId,UserMessageResponseDto userMessage,Conversation conversation)
         {
-            //var connections = _connection.GetUserConections(userId);
-            //foreach (var connectionId in connections)
-            //{
-            //    await Clients.Client(connectionId).SendAsync("ReceiveUserMessage", userMessage);
-            //    await Clients.Client(connectionId).SendAsync("UpdateConversationUser", conversation);
-            //    await Clients.Client(connectionId).SendAsync("CheckUser",_connection.GetAllConnectedUsers());
-            //}
+            var connections = _connection.GetUserConections(userId);
+            foreach (var connectionId in connections)
+            {
+                await Clients.Client(connectionId).SendAsync("ReceiveUserMessage", userMessage);
+                await Clients.Client(connectionId).SendAsync("UpdateConversationUser", conversation);
+                await Clients.Client(connectionId).SendAsync("CheckUser", _connection.GetAllConnectedUsers());
+            }
             //
-            await SendToUserConnections(userId, "ReceiveUserMessage", userMessage);
-            await SendToUserConnections(userId, "UpdateConversationUser", conversation);
-            await SendToUserConnections(userId, "CheckUser", _connection.GetAllConnectedUsers());
-            
+            //await SendToUserConnections(userId, "ReceiveUserMessage", userMessage);
+            //await SendToUserConnections(userId, "UpdateConversationUser", conversation);
+            //await SendToUserConnections(userId, "CheckUser", _connection.GetAllConnectedUsers());
+
 
         }
         public async Task SendCloudMessage(string userId, CloudMessageResponseDto cloudMessage, Conversation conversation)

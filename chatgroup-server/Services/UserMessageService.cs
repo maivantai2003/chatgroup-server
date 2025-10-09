@@ -4,6 +4,7 @@ using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
 using chatgroup_server.Common;
 using chatgroup_server.Dtos;
+using chatgroup_server.RabbitMQ.Producer;
 
 namespace chatgroup_server.Services
 {
@@ -36,6 +37,15 @@ namespace chatgroup_server.Services
                 await _userMessageRepository.AddUserMessageAsync(userMessage);
                 await _unitOfWork.CommitAsync();
                 var result=await _userMessageRepository.GetUserMessageById(userMessage.UserMessageId);
+                var notification = new NotificationProducer();
+                await notification.SendNotificationAsync(new RabbitMQ.Models.NotificationMessageModel()
+                {
+                    UserId=userMessage.UserMessageId,
+                    Body=userMessage.Content,
+                    DataJson="Message",
+                    Title="Message",
+                    Type = "Message"
+                });
                 if (result == null) {
                     return ApiResponse<UserMessageResponseDto>.ErrorResponse("Nhắn tin không thành công", new List<string>()
                     {
@@ -46,13 +56,12 @@ namespace chatgroup_server.Services
             }
             catch (Exception ex)
             {
-                {
-                    await _unitOfWork.RollbackAsync();
-                    return ApiResponse<UserMessageResponseDto>.ErrorResponse("Nhắn tin không thành công", new List<string>()
+                await _unitOfWork.RollbackAsync();
+                return ApiResponse<UserMessageResponseDto>.ErrorResponse("Nhắn tin không thành công", new List<string>()
                 {
                     ex.Message
                 });
-                }
+                
             }
         }
 
