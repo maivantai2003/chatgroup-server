@@ -242,6 +242,7 @@ namespace chatgroup_server.Services
             try
             {
                 var result = await _userRepository.UpdateStatus(userId, userUpdateStatusDto);
+                await _unitOfWork.CommitAsync();
                 return ApiResponse<bool>.SuccessResponse("Cập nhật trạng thái thành công",result);
             }catch(Exception ex)
             {

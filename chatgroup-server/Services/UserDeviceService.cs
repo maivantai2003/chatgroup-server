@@ -8,11 +8,12 @@ using Humanizer;
 
 namespace chatgroup_server.Services
 {
-    public class UserDeviceService:IUserDeviceService
+    public class UserDeviceService : IUserDeviceService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserDeviceRepository _userDeviceService;
-        public UserDeviceService(IUnitOfWork unitOfWork, IUserDeviceRepository userDeviceService) {
+        public UserDeviceService(IUnitOfWork unitOfWork, IUserDeviceRepository userDeviceService)
+        {
             _unitOfWork = unitOfWork;
             _userDeviceService = userDeviceService;
         }
@@ -30,7 +31,7 @@ namespace chatgroup_server.Services
                     Browser = userDeviceAddDto.Browser,
                     OS = userDeviceAddDto.OS,
                     DeviceName = userDeviceAddDto.DeviceName,
-                    Address = userDeviceAddDto.Address,
+                    //Address = userDeviceAddDto.Address,
                     IpAddress = ipAddress,
                     LastLoginAt = DateTime.UtcNow,
                     LastActiveAt = DateTime.UtcNow,
@@ -38,8 +39,9 @@ namespace chatgroup_server.Services
                 };
                 await _userDeviceService.AddUserDevice(userDevice);
                 await _unitOfWork.CommitAsync();
-                return ApiResponse<bool>.SuccessResponse("Thêm Thành Công",true);
-            }catch(Exception ex)
+                return ApiResponse<bool>.SuccessResponse("Thêm Thành Công", true);
+            }
+            catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
                 return ApiResponse<bool>.ErrorResponse("Thêm Không Thành Công", new List<string>()

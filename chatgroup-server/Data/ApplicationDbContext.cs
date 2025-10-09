@@ -7,7 +7,7 @@ namespace chatgroup_server.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) :base(options) { }
         public DbSet<User> Users { get; set; }
-        public DbSet<UserDevice> UserDevices {  get; set; }
+        public DbSet<UserDevice> UserDevices { get; set; }
         public DbSet<Friends> Friends { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<GroupMessages> GroupMessages {  get; set; }    

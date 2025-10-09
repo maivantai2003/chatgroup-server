@@ -43,7 +43,7 @@ services:
       container_name: web-server
       image: chatgroup-server:version-1
       build:
-        context: .
+        context: ./chatgroup-server
         dockerfile: Dockerfile
       ports:
         - 5000:80 

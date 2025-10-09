@@ -7,10 +7,10 @@ namespace chatgroup_server.Models
     {
         [Key]
         public int UserDeviceId { get; set; }
-        public int UserId {  get; set; }
+        public int UserId { get; set; }
         public string? DeviceToken { get; set; }
-        public string? DeviceType { get; set; } 
-        public bool IsOnline {  get; set; }=false;
+        public string? DeviceType { get; set; }
+        public bool IsOnline { get; set; } = false;
         public DateTime? LastLoginAt { get; set; }
         public DateTime? LastActiveAt { get; set; }
         public string? IpAddress { get; set; }
@@ -19,6 +19,6 @@ namespace chatgroup_server.Models
         public string? DeviceName { get; set; }
         public string? Address { get; set; }
         [ForeignKey(nameof(UserId))]
-        public User ?User { get; set; }
+        public User? User { get; set; }
     }
 }

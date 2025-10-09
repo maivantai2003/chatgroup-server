@@ -10,17 +10,18 @@ namespace chatgroup_server.Controllers
     public class UserDeviceController : ControllerBase
     {
         private readonly IUserDeviceService _userDeviceService;
-        public UserDeviceController(IUserDeviceService userDeviceService) {
+        public UserDeviceController(IUserDeviceService userDeviceService)
+        {
             _userDeviceService = userDeviceService;
         }
         [HttpPost]
         public async Task<IActionResult> AddUserDevice(UserDeviceAddDto userDeviceAddDto)
         {
             string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-            var response=await _userDeviceService.AddUserDevice(userDeviceAddDto, ipAddress);
+            var response = await _userDeviceService.AddUserDevice(userDeviceAddDto, ipAddress);
             if (response.Success)
             {
-                return Ok(response.Data);    
+                return Ok(response.Data);
             }
             return BadRequest(response.Errors);
         }

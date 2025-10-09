@@ -4,7 +4,7 @@ using chatgroup_server.Models;
 
 namespace chatgroup_server.Repositories
 {
-    public class UserDeviceRepository:IUserDeviceRepository
+    public class UserDeviceRepository : IUserDeviceRepository
     {
         private readonly ApplicationDbContext _context;
         public UserDeviceRepository(ApplicationDbContext context)
