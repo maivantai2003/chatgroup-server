@@ -5,7 +5,9 @@ using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
 using chatgroup_server.Quartzs;
 using chatgroup_server.RabbitMQ.Consumer;
+using chatgroup_server.RabbitMQ.Interfaces;
 using chatgroup_server.RabbitMQ.Producer;
+using chatgroup_server.RabbitMQ.Services;
 using chatgroup_server.Repositories;
 using chatgroup_server.Services;
 using FirebaseAdmin;
@@ -68,12 +70,17 @@ namespace chatgroup_server.Extensions
             services.AddScoped<IOpenAIService, OpenAIService>();
             //SendGmail
             services.AddScoped<ISendGmailService, SendGmailService>();
+            //RabbitMQ
+            services.AddSingleton<IRabbitMQConnection, RabbitMQConnection>();
+            services.AddSingleton<IRabbitMQChannelFactory, RabbitMQChannelFactory>();
             //RabbitMQ-Email
+            services.AddSingleton<IEmailProducer, EmailProducer>();
             services.AddHostedService<EmailConsumer>();
             //RabbitMQ-Notification
+            services.AddSingleton<INotificationProducer, NotificationProducer>();
             services.AddHostedService<NotificationConsumer>();
             //RabbitMQ-BirthDay
-            services.AddSingleton<BirthDayProducer>();
+            services.AddSingleton<IBirthDayProducer,BirthDayProducer>();
             services.AddHostedService<BirthDayConsumer>();
             //Recaptcha
             services.AddHttpClient<IRecaptchaService, RecaptchaService>();
@@ -110,20 +117,20 @@ namespace chatgroup_server.Extensions
                 var birthdayJobKey = new JobKey("BirthdayJob");
                 q.AddJob<BirthDayJob>(opts => opts.WithIdentity(birthdayJobKey));
 
-                //q.AddTrigger(opts => opts
-                //    .ForJob(birthdayJobKey)
-                //    .WithIdentity("BirthdayJob-trigger")
-                //    .StartNow()
-                //    .WithCronSchedule("0 8 * * ?") // chạy lúc 8h sáng mỗi ngày
-                //);
                 q.AddTrigger(opts => opts
-                .ForJob(birthdayJobKey)
-                .WithIdentity("BirthdayJob-trigger")
-                .StartNow()
-                .WithSimpleSchedule(x => x
-                .WithIntervalInMinutes(3) 
-                .RepeatForever())
+                    .ForJob(birthdayJobKey)
+                    .WithIdentity("BirthdayJob-trigger")
+                    .StartNow()
+                    .WithCronSchedule("0 0 8 ? * *") // chạy lúc 8h sáng mỗi ngày
                 );
+                //q.AddTrigger(opts => opts
+                //.ForJob(birthdayJobKey)
+                //.WithIdentity("BirthdayJob-trigger")
+                //.StartNow()
+                //.WithSimpleSchedule(x => x
+                //.WithIntervalInMinutes(3) 
+                //.RepeatForever())
+                //);
             });
             services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
             return services;

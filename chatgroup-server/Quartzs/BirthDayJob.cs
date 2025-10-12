@@ -1,4 +1,5 @@
 ﻿using chatgroup_server.Data;
+using chatgroup_server.RabbitMQ.Interfaces;
 using chatgroup_server.RabbitMQ.Models;
 using chatgroup_server.RabbitMQ.Producer;
 using Microsoft.EntityFrameworkCore;
@@ -12,8 +13,8 @@ namespace chatgroup_server.Quartzs
     public class BirthDayJob : IJob
     {
         private readonly IServiceScopeFactory _scopeFactory;
-        private readonly BirthDayProducer _producer;
-        public BirthDayJob(IServiceScopeFactory scopeFactory,BirthDayProducer producer)
+        private readonly IBirthDayProducer _producer;
+        public BirthDayJob(IServiceScopeFactory scopeFactory,IBirthDayProducer producer)
         {
             _scopeFactory = scopeFactory;
             _producer = producer;

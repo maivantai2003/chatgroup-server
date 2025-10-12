@@ -1,4 +1,5 @@
 ﻿using chatgroup_server.Interfaces.IServices;
+using chatgroup_server.RabbitMQ.Interfaces;
 using chatgroup_server.RabbitMQ.Models;
 using chatgroup_server.RabbitMQ.Producer;
 using Microsoft.AspNetCore.Http;
@@ -11,8 +12,10 @@ namespace chatgroup_server.Controllers
     public class AIController : ControllerBase
     {
         private readonly IOpenAIService _openAIService;
-        public AIController(IOpenAIService openAIService)
+        private readonly IEmailProducer _emailProducer;
+        public AIController(IOpenAIService openAIService,IEmailProducer emailProducer)
         {
+            _emailProducer = emailProducer;
             _openAIService = openAIService;
         }
         [HttpPost]
@@ -29,8 +32,8 @@ namespace chatgroup_server.Controllers
         {
             try
             {
-                var product = new EmailProducer();
-                await product.SendEmailAsync(emailRequest);
+                
+                await _emailProducer.SendEmailAsync(emailRequest);
                 return Ok(new { message = "Email enqueued successfully!" });
             }
             catch(Exception ex)

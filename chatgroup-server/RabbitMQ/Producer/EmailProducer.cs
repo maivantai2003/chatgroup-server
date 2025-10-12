@@ -1,4 +1,5 @@
-﻿using chatgroup_server.RabbitMQ.Models;
+﻿using chatgroup_server.RabbitMQ.Interfaces;
+using chatgroup_server.RabbitMQ.Models;
 using chatgroup_server.RabbitMQ.Services;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
@@ -6,56 +7,26 @@ using System.Text;
 
 namespace chatgroup_server.RabbitMQ.Producer
 {
-    public class EmailProducer
+    public class EmailProducer:IEmailProducer
     {
-        //private readonly string _queueName = "email_queue";
-        //public async Task SendEmail(EmailMessageModel emailProducer)
-        //{
-        //    var json=JsonConvert.SerializeObject(emailProducer);
-        //    var body=Encoding.UTF8.GetBytes(json);
-        //    var connection=await RabbitMQConnectionFactory.GetConnectionAsync();
-        //    using var channel = await connection.CreateChannelAsync();
-        //    var properties = new BasicProperties()
-        //    {
-        //        Persistent = true,
-        //    };
-        //    await channel.QueueDeclareAsync(queue:_queueName,durable:true,exclusive:false,autoDelete:false,arguments:null);
-        //    await channel.BasicPublishAsync(exchange:string.Empty,routingKey:_queueName,mandatory:true,basicProperties:properties,body:body);
-
-        //}
-        private readonly string _queueName = "email_queue";
-        private IChannel? _channel;
-        public async Task InitializeAsync()
+        
+        private readonly string QueueName = "email_queue";
+        private readonly IRabbitMQChannelFactory _channelFactory;
+        public EmailProducer(IRabbitMQChannelFactory channelFactory)
         {
-            var connection = await RabbitMQConnectionFactory.GetConnectionAsync();
-            _channel = await connection.CreateChannelAsync();
-
-            await _channel.QueueDeclareAsync(
-                queue: _queueName,
-                durable: true,
-                exclusive: false,
-                autoDelete: false,
-                arguments: null);
+            _channelFactory = channelFactory;
         }
+       
         public async Task SendEmailAsync(EmailMessageModel email)
         {
-            if (_channel == null)
-                await InitializeAsync();
+            using var channel = await _channelFactory.CreateChannelAsync();
+            await channel.QueueDeclareAsync(QueueName, durable: true, exclusive: false, autoDelete: false);
 
             var json = JsonConvert.SerializeObject(email);
             var body = Encoding.UTF8.GetBytes(json);
+            var props = new BasicProperties { Persistent = true };
 
-            var props = new BasicProperties()
-            {
-                Persistent = true
-            };
-
-            await _channel!.BasicPublishAsync(
-                exchange: string.Empty,
-                routingKey: _queueName,
-                mandatory: false,
-                basicProperties: props,
-                body: body);
+            await channel.BasicPublishAsync(string.Empty, QueueName, false, props, body);
         }
     }
 }

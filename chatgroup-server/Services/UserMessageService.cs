@@ -5,6 +5,7 @@ using chatgroup_server.Models;
 using chatgroup_server.Common;
 using chatgroup_server.Dtos;
 using chatgroup_server.RabbitMQ.Producer;
+using chatgroup_server.RabbitMQ.Interfaces;
 
 namespace chatgroup_server.Services
 {
@@ -12,11 +13,13 @@ namespace chatgroup_server.Services
     {
         private readonly IUserMessageRepository _userMessageRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly INotificationProducer _notificationProducer;
 
-        public UserMessageService(IUserMessageRepository userMessageRepository, IUnitOfWork unitOfWork)
+        public UserMessageService(IUserMessageRepository userMessageRepository, IUnitOfWork unitOfWork,INotificationProducer notificationProducer)
         {
             _userMessageRepository = userMessageRepository;
             _unitOfWork = unitOfWork;
+            _notificationProducer = notificationProducer;
         }
 
         public async Task<IEnumerable<UserMessages>> GetMessagesBySenderIdAsync(int senderId)
@@ -37,8 +40,8 @@ namespace chatgroup_server.Services
                 await _userMessageRepository.AddUserMessageAsync(userMessage);
                 await _unitOfWork.CommitAsync();
                 var result=await _userMessageRepository.GetUserMessageById(userMessage.UserMessageId);
-                var notification = new NotificationProducer();
-                await notification.SendNotificationAsync(new RabbitMQ.Models.NotificationMessageModel()
+                
+                await _notificationProducer.SendNotificationAsync(new RabbitMQ.Models.NotificationMessageModel()
                 {
                     UserId=userMessage.UserMessageId,
                     Body=userMessage.Content,

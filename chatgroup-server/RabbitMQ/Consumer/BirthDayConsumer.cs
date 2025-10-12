@@ -4,6 +4,7 @@ using chatgroup_server.Dtos;
 using chatgroup_server.Hubs;
 using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
+using chatgroup_server.RabbitMQ.Interfaces;
 using chatgroup_server.RabbitMQ.Models;
 using chatgroup_server.RabbitMQ.Services;
 using Microsoft.AspNetCore.SignalR;
@@ -20,26 +21,24 @@ namespace chatgroup_server.RabbitMQ.Consumer
     {
         private readonly IServiceProvider _serviceProvider;
         private IChannel? _channel;
-        private readonly string _exchangeName = "birthday.exchange";
-        private readonly string _queueName = "birthday.queue";
-        public BirthDayConsumer(IServiceProvider serviceProvider)
+        private readonly string ExchangeName = "birthday.exchange";
+        private readonly string QueueName = "birthday.queue";
+        private readonly IRabbitMQConnection _connection;
+        private readonly ILogger<BirthDayConsumer> _logger;
+        public BirthDayConsumer(IServiceProvider serviceProvider,IRabbitMQConnection connection, ILogger<BirthDayConsumer> logger)
         {
             _serviceProvider = serviceProvider;
-        }
-        public override async Task StartAsync(CancellationToken cancellationToken)
-        {
-            var connection = await RabbitMQConnectionFactory.GetConnectionAsync();
-            _channel = await connection.CreateChannelAsync();
-            await _channel.ExchangeDeclareAsync(exchange:_exchangeName,type:ExchangeType.Fanout,durable:true);
-            await _channel.QueueDeclareAsync(queue:_queueName,durable:true,exclusive:false,autoDelete:true);
-            await _channel.QueueBindAsync(queue:_queueName,exchange:_exchangeName,routingKey:"");
-            await base.StartAsync(cancellationToken);
+            _connection = connection;
+            _logger = logger;
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            if (_channel == null)
-                return;
-
+            var conn = await _connection.GetConnectionAsync();
+            _channel = await conn.CreateChannelAsync();
+            await _channel.ExchangeDeclareAsync(ExchangeName, ExchangeType.Fanout, durable: true);
+            await _channel.QueueDeclareAsync(QueueName, durable: true, exclusive: false, autoDelete: false);
+            await _channel.QueueBindAsync(QueueName, ExchangeName, routingKey: "");
+            await _channel.BasicQosAsync(0, 3, false);
             var consumer = new AsyncEventingBasicConsumer(_channel);
             consumer.ReceivedAsync += async (sender, ea) =>
             {
@@ -52,6 +51,11 @@ namespace chatgroup_server.RabbitMQ.Consumer
                     var body = Encoding.UTF8.GetString(ea.Body.ToArray());
                     var data = JsonConvert.DeserializeObject<BirthdayModel>(body);
                     Console.WriteLine("json: " + data);
+                    if (data == null)
+                    {
+                        await _channel.BasicNackAsync(ea.DeliveryTag, false, false);
+                        return;
+                    }
                     var conversation = new Conversation()
                     {
                         UserId = data.SenderId,
@@ -70,12 +74,18 @@ namespace chatgroup_server.RabbitMQ.Consumer
                 }
                 catch (Exception ex)
                 {
+                    _logger.LogError(ex, "[BirthDayConsumer Error]");
                     Console.WriteLine($"[BirthdayConsumer Error] {ex.Message}");
                     await _channel.BasicNackAsync(ea.DeliveryTag, false, true);
                 }
             };
 
-            await _channel.BasicConsumeAsync(_queueName, autoAck: false, consumer: consumer);
+            await _channel.BasicConsumeAsync(QueueName, autoAck: false, consumer: consumer);
+            //while (!stoppingToken.IsCancellationRequested)
+            //{
+            //    await Task.Delay(1000, stoppingToken);
+            //}
+            await Task.Delay(Timeout.Infinite, stoppingToken);
         }
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
