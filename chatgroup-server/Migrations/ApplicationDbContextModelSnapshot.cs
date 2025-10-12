@@ -417,6 +417,9 @@ namespace chatgroup_server.Migrations
 
                     b.HasKey("UserId");
 
+                    b.HasIndex("Birthday")
+                        .HasDatabaseName("IX_User_BirthDay");
+
                     b.HasIndex("PhoneNumber")
                         .IsUnique()
                         .HasFilter("[PhoneNumber] IS NOT NULL");
