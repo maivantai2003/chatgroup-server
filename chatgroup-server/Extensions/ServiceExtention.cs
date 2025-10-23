@@ -92,6 +92,8 @@ namespace chatgroup_server.Extensions
             //UserDevice
             services.AddScoped<IUserDeviceRepository, UserDeviceRepository>();
             services.AddScoped<IUserDeviceService, UserDeviceService>();
+            //OPT
+            services.AddSingleton<IOtpService, OtpService>();
             //Redis healthCheck
             //Firebase
             FirebaseApp firebaseApp = FirebaseApp.Create(new AppOptions()

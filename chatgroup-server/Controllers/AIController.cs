@@ -13,10 +13,12 @@ namespace chatgroup_server.Controllers
     {
         private readonly IOpenAIService _openAIService;
         private readonly IEmailProducer _emailProducer;
-        public AIController(IOpenAIService openAIService,IEmailProducer emailProducer)
+        private readonly IOtpService _otpService;
+        public AIController(IOpenAIService openAIService,IEmailProducer emailProducer, IOtpService otpService)
         {
             _emailProducer = emailProducer;
             _openAIService = openAIService;
+            _otpService = otpService;
         }
         [HttpPost]
         public async Task<IActionResult> QuestionChat(string question)
@@ -40,6 +42,12 @@ namespace chatgroup_server.Controllers
             {
                 return StatusCode(500, new { error = ex.Message });
             }
+        }
+        [HttpPost("GenerateOtp")]
+        public async Task<IActionResult> GenerateOtp(string email)
+        {
+            var otp =await _otpService.GenerateOtpAsync(email);
+            return Ok(new { Otp = otp });
         }
     }
 }
