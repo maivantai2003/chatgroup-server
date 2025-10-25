@@ -43,11 +43,11 @@ namespace chatgroup_server.Controllers
                 return StatusCode(500, new { error = ex.Message });
             }
         }
-        [HttpPost("GenerateOtp")]
-        public async Task<IActionResult> GenerateOtp(string email)
-        {
-            var otp =await _otpService.GenerateOtpAsync(email);
-            return Ok(new { Otp = otp });
-        }
+        //[HttpPost("GenerateOtp")]
+        //public async Task<IActionResult> GenerateOtp(string email)
+        //{
+        //    var otp =await _otpService.GenerateOtpAsync(email);
+        //    return Ok(new { Otp = otp });
+        //}
     }
 }
