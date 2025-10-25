@@ -41,7 +41,7 @@ jobs:
       - name: Build and Push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./chatgroup-server
           file: chatgroup-server/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
