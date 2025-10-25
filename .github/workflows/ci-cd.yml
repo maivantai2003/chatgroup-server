@@ -34,8 +34,8 @@ jobs:
         with:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/chatgroup-server
           tags: |
+            type=raw,value=latest
             type=ref,event=branch
-            type=ref,event=tag
             type=sha
 
       - name: Build and Push Docker image
