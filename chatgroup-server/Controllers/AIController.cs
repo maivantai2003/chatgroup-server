@@ -29,20 +29,20 @@ namespace chatgroup_server.Controllers
             }
             return Ok(response.Data);   
         }
-        [HttpPost("SendMail")]
-        public async Task<IActionResult> SendMail(EmailMessageModel emailRequest)
-        {
-            try
-            {
+        //[HttpPost("SendMail")]
+        //public async Task<IActionResult> SendMail(EmailMessageModel emailRequest)
+        //{
+        //    try
+        //    {
                 
-                await _emailProducer.SendEmailAsync(emailRequest);
-                return Ok(new { message = "Email enqueued successfully!" });
-            }
-            catch(Exception ex)
-            {
-                return StatusCode(500, new { error = ex.Message });
-            }
-        }
+        //        await _emailProducer.SendEmailAsync(emailRequest);
+        //        return Ok(new { message = "Email enqueued successfully!" });
+        //    }
+        //    catch(Exception ex)
+        //    {
+        //        return StatusCode(500, new { error = ex.Message });
+        //    }
+        //}
         //[HttpPost("GenerateOtp")]
         //public async Task<IActionResult> GenerateOtp(string email)
         //{
