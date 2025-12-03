@@ -17,7 +17,7 @@ namespace chatgroup_server.RabbitMQ.Services
         private static IConnection? _connection;
         private static readonly SemaphoreSlim _lock = new(1, 1);
 
-        public static async Task<IConnection> GetConnectionAsync()
+        public static async Task<IConnection> GetConnectionAsync(IConfiguration config)
         {
             if (_connection != null && _connection.IsOpen)
                 return _connection;
@@ -30,7 +30,7 @@ namespace chatgroup_server.RabbitMQ.Services
 
                 var factory = new ConnectionFactory()
                 {
-                    HostName = "localhost",
+                    HostName = config["RABBITMQ:HostName"] ?? "localhost",
                     //DispatchConsumersAsync = true 
                 };
 

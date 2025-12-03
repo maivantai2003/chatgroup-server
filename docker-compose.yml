@@ -21,7 +21,7 @@ services:
       depends_on:
         - elasticsearch
       environment:
-        - ELASTICSEARCH_HOSTS=${ELA_HOST}
+        - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
       networks:
         - elastic
    rabbitmq:
@@ -39,6 +39,19 @@ services:
          - 6379:6379
       networks:
          - elastic
+   sql-server:
+      container_name: sql-serverdb
+      image: mcr.microsoft.com/mssql/server:2022-latest
+      ports:
+         - 1433:1433
+      environment:
+         - ACCEPT_EULA=Y
+         - MSSQL_SA_PASSWORD=${SQL_SA_PASSWORD}
+         - MSSQL_PID=Developer
+      volumes:
+         - sql_data_chat:/var/opt/mssql
+      networks:
+         - elastic
    chatgroup-server:
       container_name: web-server
       image: chatgroup-server:version-1
@@ -46,8 +59,9 @@ services:
         context: ./chatgroup-server
         dockerfile: Dockerfile
       ports:
-        - 5000:80 
+        - 5500:80 
       depends_on:
+          - sql-server
           - elasticsearch
           - rabbitmq
           - redis
@@ -56,11 +70,14 @@ services:
       environment:
           - ASPNETCORE_ENVIRONMENT=Production
           - ELASTICSEARCH_URL=http://elasticsearch:9200
-          - RABBITMQ_HOST=rabbitmq
+          - RABBITMQ__HostName=rabbitmq
           - REDIS_HOST=redis
-
+          - ConnectionStrings__DefaultConnection=Server=sql-server,1433;Database=ailo_app;User Id=sa;Password=${SQL_SA_PASSWORD};TrustServerCertificate=True;
+          - ENABLE_SWAGGER=true
+          - HEALTHCHECK_HOST=web-server
 networks:
    elastic:
        driver: bridge
 volumes:
    elasticsearch-data:
+   sql_data_chat:

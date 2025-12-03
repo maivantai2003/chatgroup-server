@@ -1,0 +1,24 @@
+name: chatgroup-server
+
+on:
+  push:
+    branches: ["vantai"]
+  pull_request:
+    branches: ["vantai"]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checout source code
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Restore dependencies
+        run: dotnet restore chatgroup-server.sln
+      - name: Build project
+        run: dotnet build chatgroup-server.sln --no-restore --configuration Release
+      - name: Run tests
+        run: dotnet test chatgroup-server.Tests/chatgroup-server.Tests.csproj --no-build --configuration Release --verbosity detailed

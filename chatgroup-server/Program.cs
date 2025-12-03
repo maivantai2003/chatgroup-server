@@ -23,32 +23,23 @@ ConfigurationManager configurations = builder.Configuration;
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<ApplicationDbContext>(options => { options.UseSqlServer(builder.Configuration.GetConnectionString("Connection")); });
+builder.Services.AddDbContext<ApplicationDbContext>(options => { options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")); });
 builder.Services.AddApplication();
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = configurations["RedisCacheUrl"];
+    options.Configuration = configurations["REDIS_HOST"];
 });
 
 builder.Services.AddAuthenConfiguration(configurations);
 builder.Services.AddHealthChecks()
-    .AddRedis(configurations["RedisCacheUrl"], name: "redis", tags: new[] { "ready", "redis" })
-    .AddSqlServer(configurations.GetConnectionString("Connection"), name: "sqlserver", tags: new[] { "ready", "sqlserver" });
-    //.AddRabbitMQ(sp =>
-    //{
-    //    var factory = new ConnectionFactory
-    //    {
-    //        Uri = new Uri(configurations["Rabbit:RabbitMQ"])
-    //    };
-    //    return factory.CreateConnectionAsync();
-    //}, name: "rabbitmq", timeout: TimeSpan.FromSeconds(5), tags: new[]
-    //{
-    //    "ready","rabbitmq"
-    //});
+    .AddRedis(configurations["REDIS_HOST"], name: "redis", tags: new[] { "ready", "redis" })
+    .AddSqlServer(configurations.GetConnectionString("DefaultConnection"), name: "sqlserver", tags: new[] { "ready", "sqlserver" });
+var healthCheckHost = Environment.GetEnvironmentVariable("HEALTHCHECK_HOST") ?? "localhost";
 builder.Services.AddHealthChecksUI(options =>
 {
     options.SetEvaluationTimeInSeconds(30);
-    options.AddHealthCheckEndpoint("ChapApp Health", "/health");
+    //options.AddHealthCheckEndpoint("ChapApp Health", "/health");
+    options.AddHealthCheckEndpoint("ChapApp Health", $"http://{healthCheckHost}:80/health");
 }).AddInMemoryStorage();
 builder.Services.AddSwaggerGen(opt =>
 {
@@ -126,9 +117,21 @@ builder.Services.AddRateLimiter(options =>
     };
 });
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
+var swaggerEnabled = Environment.GetEnvironmentVariable("ENABLE_SWAGGER");
+
+if (app.Environment.IsDevelopment() || swaggerEnabled == "true")
 {
     app.UseSwagger();
     app.UseSwaggerUI();
@@ -139,11 +142,6 @@ app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod()
                             .AllowCredentials());
 app.UseRouting();
 app.UseRateLimiter();
-//app.UseMiddleware<RateLimitRejectedMiddleware>();
-//app.UseSerilogRequestLogging(options =>
-//{
-//    options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
-//});
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseWebSockets();
