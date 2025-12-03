@@ -52,6 +52,11 @@ services:
          - sql_data_chat:/var/opt/mssql
       networks:
          - elastic
+      healthcheck:
+         test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $SQL_SA_PASSWORD -Q 'SELECT 1'"]
+         interval: 10s
+         retries: 10
+         start_period: 10s
    chatgroup-server:
       container_name: web-server
       image: chatgroup-server:version-1
@@ -61,10 +66,18 @@ services:
       ports:
         - 5500:80 
       depends_on:
-          - sql-server
-          - elasticsearch
-          - rabbitmq
-          - redis
+         #  - sql-server
+         #  - elasticsearch
+         #  - rabbitmq
+         #  - redis
+         sql-server:
+            condition: service_healthy
+         elasticsearch:
+            condition: service_healthy
+         rabbitmq:
+            condition: service_started
+         redis:
+            condition: service_started
       networks:
           - elastic
       environment:
