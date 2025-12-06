@@ -19,11 +19,10 @@ RUN apt-get update && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /app/publish .
-COPY firebase-adminsdk.json /app/firebase-adminsdk.json
+COPY chatgroup-server/firebase-adminsdk.json /app/firebase-adminsdk.json
 
 # Add wait script
 COPY wait-for-mssql.sh /app/wait-for-mssql.sh
-
 # Convert CRLF → LF AND add execution permission
 RUN sed -i 's/\r$//' /app/wait-for-mssql.sh \
     && sed -i '1s/^\xEF\xBB\xBF//' /app/wait-for-mssql.sh \
