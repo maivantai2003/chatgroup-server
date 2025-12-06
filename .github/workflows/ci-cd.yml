@@ -3,8 +3,8 @@ name: chatgroup-server
 on:
   push:
     branches: ["vantai"]
-  # pull_request:
-  #   branches: ["vantai"]
+  pull_request:
+    branches: ["vantai"]
 
 jobs:
   build:
