@@ -1,96 +1,242 @@
 version: '3.9'
+
 services:
-   elasticsearch:
-      container_name: els
-      image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
-      ports:
-         - 9200:9200
-      volumes:
-         - elasticsearch-data:/usr/share/elasticsearch/data
-      environment:
-           - xpack.security.enabled=false
-           - discovery.type=single-node
-           - ES_JAVA_OPTS=-Xms512m -Xmx512m
-      networks:
-         - elastic
-   kibana:
-      container_name: kibana
-      image: docker.elastic.co/kibana/kibana:8.15.0
-      ports:
-        - 5601:5601
-      depends_on:
-        - elasticsearch
-      environment:
-        - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      networks:
-        - elastic
-   rabbitmq:
-      container_name: rabbitmq
-      image: rabbitmq:3-management
-      ports:
-        - 5672:5672
-        - 15672:15672
-      networks:
-        - elastic
-   redis:
-      container_name: redis
-      image: redis:latest
-      ports:
-         - 6379:6379
-      networks:
-         - elastic
-   sql-server:
-      container_name: sql-serverdb
-      image: mcr.microsoft.com/mssql/server:2022-latest
-      ports:
-         - 1433:1433
-      environment:
-         - ACCEPT_EULA=Y
-         - MSSQL_SA_PASSWORD=${SQL_SA_PASSWORD}
-         - MSSQL_PID=Developer
-      volumes:
-         - sql_data_chat:/var/opt/mssql
-      networks:
-         - elastic
-      healthcheck:
-         test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P $SQL_SA_PASSWORD -Q 'SELECT 1'"]
-         interval: 10s
-         retries: 10
-         start_period: 10s
-   chatgroup-server:
-      container_name: web-server
-      image: chatgroup-server:version-1
-      build:
-        context: ./chatgroup-server
-        dockerfile: Dockerfile
-      ports:
-        - 5500:80 
-      depends_on:
-         #  - sql-server
-         #  - elasticsearch
-         #  - rabbitmq
-         #  - redis
-         sql-server:
-            condition: service_healthy
-         elasticsearch:
-            condition: service_healthy
-         rabbitmq:
-            condition: service_started
-         redis:
-            condition: service_started
-      networks:
-          - elastic
-      environment:
-          - ASPNETCORE_ENVIRONMENT=Production
-          - ELASTICSEARCH_URL=http://elasticsearch:9200
-          - RABBITMQ__HostName=rabbitmq
-          - REDIS_HOST=redis
-          - ConnectionStrings__DefaultConnection=Server=sql-server,1433;Database=ailo_app;User Id=sa;Password=${SQL_SA_PASSWORD};TrustServerCertificate=True;
-          - ENABLE_SWAGGER=true
-          - HEALTHCHECK_HOST=web-server
+  elasticsearch:
+    container_name: els
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
+    ports:
+      - 9200:9200
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    environment:
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - elastic
+
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:8.15.0
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    networks:
+      - elastic
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - elastic
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    ports:
+      - 6379:6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - elastic
+
+  sql-server:
+    container_name: sql-serverdb
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - 1433:1433
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${SQL_SA_PASSWORD}
+      - MSSQL_PID=Developer
+    volumes:
+      - sql_data_chat:/var/opt/mssql
+    # healthcheck:
+    #   test: ["CMD-SHELL", "echo > /dev/tcp/localhost/1433"]
+    #   interval: 10s
+    #   retries: 10
+    #   start_period: 30s
+    #   timeout: 10s
+    networks:
+      - elastic
+
+  chatgroup-server:
+    container_name: web-server
+    build:
+      context: ./chatgroup-server
+      dockerfile: Dockerfile
+    #image: chatgroup-server:version-1
+    ports:
+      - 5500:80
+    depends_on:
+      sql-server:
+        condition: service_started
+      elasticsearch:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - RABBITMQ__Host=rabbitmq
+      - RABBITMQ__User=admin
+      - RABBITMQ__Password=admin
+      - REDIS_HOST=redis
+      - ConnectionStrings__DefaultConnection=Server=sql-server,1433;Database=ailo_app;User Id=sa;Password=${SQL_SA_PASSWORD};TrustServerCertificate=True;
+      - ENABLE_SWAGGER=true
+      - HEALTHCHECK_HOST=web-server
+    networks:
+      - elastic
+
 networks:
-   elastic:
-       driver: bridge
+  elastic:
+    driver: bridge
+
 volumes:
-   elasticsearch-data:
-   sql_data_chat:
+  elasticsearch-data:
+  sql_data_chat:
+
+# version: '3.9'
+# services:
+#    elasticsearch:
+#       container_name: els
+#       image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
+#       ports:
+#          - 9200:9200
+#       volumes:
+#          - elasticsearch-data:/usr/share/elasticsearch/data
+#       environment:
+#            - xpack.security.enabled=false
+#            - xpack.security.http.ssl.enabled=false
+#            - xpack.security.transport.ssl.enabled=false
+#            - discovery.type=single-node
+#            - ES_JAVA_OPTS=-Xms512m -Xmx512m
+#       healthcheck:
+#         test: ["CMD-SHELL", "wget -q --spider http://localhost:9200/_cluster/health || exit 1"]
+#         interval: 10s
+#         timeout: 5s
+#         retries: 10
+#       networks:
+#          - elastic
+#    kibana:
+#       container_name: kibana
+#       image: docker.elastic.co/kibana/kibana:8.15.0
+#       ports:
+#         - 5601:5601
+#       depends_on:
+#         - elasticsearch
+#       environment:
+#         - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+#       networks:
+#         - elastic
+#    rabbitmq:
+#       container_name: rabbitmq
+#       image: rabbitmq:3-management
+#       ports:
+#         - 5672:5672
+#         - 15672:15672
+#       healthcheck:
+#         test: ["CMD", "rabbitmq-diagnostics", "ping"]
+#         interval: 10s
+#         timeout: 5s
+#         retries: 10
+#       networks:
+#         - elastic
+#    redis:
+#       container_name: redis
+#       image: redis:latest
+#       ports:
+#          - 6379:6379
+#       healthcheck:
+#         test: ["CMD", "redis-cli", "ping"]
+#         interval: 5s
+#         timeout: 3s
+#         retries: 5
+#       networks:
+#          - elastic
+#    sql-server:
+#       container_name: sql-serverdb
+#       image: mcr.microsoft.com/mssql/server:2022-latest
+#       ports:
+#          - 1433:1433
+#       environment:
+#          - TZ=Asia/Ho_Chi_Minh
+#          - ACCEPT_EULA=Y
+#          - MSSQL_SA_PASSWORD=${SQL_SA_PASSWORD}
+#          - MSSQL_PID=Developer
+#       volumes:
+#          - sql_data_chat:/var/opt/mssql
+#       networks:
+#          - elastic
+#       healthcheck:
+#          test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${SQL_SA_PASSWORD} -Q 'SELECT 1'"]
+#          interval: 10s
+#          retries: 10
+#          start_period: 30s
+#          timeout: 10s
+#    chatgroup-server:
+#       container_name: web-server
+#       image: chatgroup-server:version-1
+#       build:
+#         context: ./chatgroup-server
+#         dockerfile: Dockerfile
+#       ports:
+#         - 5500:80 
+#       depends_on:
+#           - sql-server
+#           - elasticsearch
+#           - rabbitmq
+#           - redis
+#         sql-server:
+#           condition: service_healthy
+#         elasticsearch:
+#           condition: service_healthy
+#         rabbitmq:
+#           condition: service_healthy
+#         redis:
+#           condition: service_healthy
+#       networks:
+#           - elastic
+#       environment:
+#           - ASPNETCORE_ENVIRONMENT=Production
+#           - ELASTICSEARCH_URL=http://elasticsearch:9200
+#           - RABBITMQ__HostName=rabbitmq
+#           - REDIS_HOST=redis
+#           - ConnectionStrings__DefaultConnection=Server=sql-server,1433;Database=ailo_app;User Id=sa;Password=${SQL_SA_PASSWORD};TrustServerCertificate=True;
+#           - ENABLE_SWAGGER=true
+#           - HEALTHCHECK_HOST=web-server
+#           - RABBITMQ__User=admin
+#           - RABBITMQ__Password=admin
+# networks:
+#    elastic:
+#        driver: bridge
+# volumes:
+#    elasticsearch-data:
+#    sql_data_chat:

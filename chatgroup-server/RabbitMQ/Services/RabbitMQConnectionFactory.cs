@@ -30,7 +30,10 @@ namespace chatgroup_server.RabbitMQ.Services
 
                 var factory = new ConnectionFactory()
                 {
-                    HostName = config["RABBITMQ:HostName"] ?? "localhost",
+                    HostName = config["RABBITMQ:Host"] ?? "localhost",
+                    UserName = config["RabbitMQ:User"] ?? "admin",
+                    Password = config["RabbitMQ:Password"] ?? "admin",
+                    Port = 5672
                     //DispatchConsumersAsync = true 
                 };
 
