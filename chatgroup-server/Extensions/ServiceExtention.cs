@@ -96,6 +96,7 @@ namespace chatgroup_server.Extensions
             services.AddSingleton<IOtpService, OtpService>();
             //Redis healthCheck
             //Firebase
+            var firebaseJson = Environment.GetEnvironmentVariable("FIREBASE_ADMIN_SDK");
             FirebaseApp firebaseApp = FirebaseApp.Create(new AppOptions()
             {
                 Credential = GoogleCredential.FromFile("firebase-adminsdk.json")
