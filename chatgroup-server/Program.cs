@@ -160,11 +160,26 @@ app.Run();
 void configureLogging()
 {
     var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-    var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json",optional:false,reloadOnChange:true)
-        .AddJsonFile($"appsettings.{environment}.json",optional:true).Build();
-    Log.Logger = new LoggerConfiguration().Enrich.FromLogContext().Enrich.WithExceptionDetails()
-        .WriteTo.Debug().WriteTo.Console().WriteTo.Elasticsearch(ConfigurationElasticSink(configuration,environment))
-        .Enrich.WithProperty("Environment",environment).ReadFrom.Configuration(configuration)
+    //var configuration = new ConfigurationBuilder().AddEnvironmentVariables().AddJsonFile("appsettings.json",optional:true,reloadOnChange:true)
+    //    .AddJsonFile($"appsettings.{environment}.json",optional:true).Build();
+    //Log.Logger = new LoggerConfiguration().Enrich.FromLogContext().Enrich.WithExceptionDetails()
+    //    .WriteTo.Debug().WriteTo.Console().WriteTo.Elasticsearch(ConfigurationElasticSink(configuration,environment))
+    //    .Enrich.WithProperty("Environment",environment).ReadFrom.Configuration(configuration)
+    //    .CreateLogger();
+    var configuration = new ConfigurationBuilder()
+        .AddEnvironmentVariables() // <- Quan trọng
+        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+        .AddJsonFile($"appsettings.{environment}.json", optional: true)
+        .Build();
+
+    Log.Logger = new LoggerConfiguration()
+        .Enrich.FromLogContext()
+        .Enrich.WithExceptionDetails()
+        .WriteTo.Debug()
+        .WriteTo.Console()
+        .WriteTo.Elasticsearch(ConfigurationElasticSink(configuration, environment))
+        .Enrich.WithProperty("Environment", environment)
+        .ReadFrom.Configuration(configuration)
         .CreateLogger();
 }
 ElasticsearchSinkOptions ConfigurationElasticSink(IConfigurationRoot configuration,string environment)
