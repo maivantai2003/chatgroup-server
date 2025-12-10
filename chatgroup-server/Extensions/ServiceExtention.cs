@@ -15,6 +15,7 @@ using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
+using System.Text;
 
 namespace chatgroup_server.Extensions
 {
@@ -99,9 +100,13 @@ namespace chatgroup_server.Extensions
             //Firebase
             GoogleCredential credential;
             var firebaseJson = Environment.GetEnvironmentVariable("FIREBASE_ADMIN_SDK");
+            Console.WriteLine("Base64 length: " + firebaseJson.Length);
             if (!string.IsNullOrWhiteSpace(firebaseJson))
             {
-                credential = GoogleCredential.FromJson(firebaseJson);
+                // Decode Base64 → JSON
+                var json = Encoding.UTF8.GetString(Convert.FromBase64String(firebaseJson));
+                // Parse JSON Credential
+                credential = GoogleCredential.FromJson(json);
             }
             else
             {
