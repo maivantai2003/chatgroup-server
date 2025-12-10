@@ -8,7 +8,7 @@ appsettings.json
 appsettings.*.json
 chatgroup-server/appsettings.json
 chatgroup-server/appsettings.*.json
-chatgroup-server/Migrations
+#chatgroup-server/Migrations
 firebase-adminsdk.json
 chatgroup-server/firebase-adminsdk.json
 .env
