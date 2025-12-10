@@ -38,10 +38,10 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
-      - name: Create firebase-adminsdk.json
-        run: |
-          echo "${{ secrets.FIREBASE_SDK_JSON }}" > chatgroup-server/firebase-adminsdk.json
-          ls -la chatgroup-server
+      # - name: Create firebase-adminsdk.json
+      #   run: |
+      #     echo "${{ secrets.FIREBASE_SDK_JSON }}" > chatgroup-server/firebase-adminsdk.json
+      #     ls -la chatgroup-server
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:

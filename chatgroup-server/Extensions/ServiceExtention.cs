@@ -21,6 +21,7 @@ namespace chatgroup_server.Extensions
     public static class ServiceExtention
     {
         public static IServiceCollection AddApplication(this IServiceCollection services) {
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             services.AddSingleton<IManagerConection,ManagerConection>();
             services.AddSingleton<IRedisService,RedisService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -96,11 +97,22 @@ namespace chatgroup_server.Extensions
             services.AddSingleton<IOtpService, OtpService>();
             //Redis healthCheck
             //Firebase
+            GoogleCredential credential;
             var firebaseJson = Environment.GetEnvironmentVariable("FIREBASE_ADMIN_SDK");
-            FirebaseApp firebaseApp = FirebaseApp.Create(new AppOptions()
+            if (!string.IsNullOrWhiteSpace(firebaseJson))
             {
-                Credential = GoogleCredential.FromFile("firebase-adminsdk.json")
+                credential = GoogleCredential.FromJson(firebaseJson);
+            }
+            else
+            {
+                credential = GoogleCredential.FromFile("firebase-adminsdk.json");
+            }
+
+            FirebaseApp firebaseApp = FirebaseApp.Create(new AppOptions
+            {
+                Credential = credential
             });
+
             services.AddSingleton(FirebaseMessaging.GetMessaging(firebaseApp));
             services.AddSingleton<IFirebaseService, FirebaseService>();
             //Quartz CleanupToken
