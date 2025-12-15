@@ -15,13 +15,23 @@ namespace chatgroup_server.Controllers
         public UserController(IUserService userService) { 
             _userService = userService;
         }
+        [HttpGet("check-mail")]
+        public async Task<IActionResult> CheckGmailUser(string email)
+        {
+            var response = await _userService.CheckGmailUser(email);
+            if (!response.Success)
+            {
+                return BadRequest(response.Errors);
+            }
+            return Ok(response.Data);
+        }
         [HttpGet("[action]")]
         public async Task<IActionResult> CheckPhoneNumber(string? phoneNumber)
         {
             var response = await _userService.CheckPhoneNumber(phoneNumber);
             if (!response.Success)
             {
-                return Ok(response.Errors);
+                return BadRequest(response.Errors);
             }
             return Ok(response.Data);
         }

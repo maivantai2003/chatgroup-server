@@ -31,6 +31,7 @@ namespace chatgroup_server.Services
                     Browser = userDeviceAddDto.Browser,
                     OS = userDeviceAddDto.OS,
                     DeviceName = userDeviceAddDto.DeviceName,
+                    DeviceId = userDeviceAddDto.DeviceId,
                     //Address = userDeviceAddDto.Address,
                     IpAddress = ipAddress,
                     LastLoginAt = DateTime.UtcNow,
@@ -45,6 +46,22 @@ namespace chatgroup_server.Services
             {
                 await _unitOfWork.RollbackAsync();
                 return ApiResponse<bool>.ErrorResponse("Thêm Không Thành Công", new List<string>()
+                {
+                    ex.Message
+                });
+            }
+        }
+
+        public async Task<ApiResponse<UserDevice?>> GetUserDevice(int UserId, string DeviceId)
+        {
+            try
+            {
+                var response=await _userDeviceService.GetUserDevice(UserId, DeviceId);
+                return ApiResponse<UserDevice?>.SuccessResponse("Lấy Thành Công", response);
+            }
+            catch (Exception ex)
+            {
+                return ApiResponse<UserDevice?>.ErrorResponse("Lấy Không Thành Công", new List<string>()
                 {
                     ex.Message
                 });

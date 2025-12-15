@@ -8,6 +8,7 @@ namespace chatgroup_server.Models
         [Key]
         public int UserDeviceId { get; set; }
         public int UserId { get; set; }
+        public string? DeviceId { get; set; }
         public string? DeviceToken { get; set; }
         public string? DeviceType { get; set; }
         public bool IsOnline { get; set; } = false;

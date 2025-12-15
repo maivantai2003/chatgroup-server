@@ -38,8 +38,15 @@ var healthCheckHost = Environment.GetEnvironmentVariable("HEALTHCHECK_HOST") ?? 
 builder.Services.AddHealthChecksUI(options =>
 {
     options.SetEvaluationTimeInSeconds(30);
-    //options.AddHealthCheckEndpoint("ChapApp Health", "/health");
-    options.AddHealthCheckEndpoint("ChapApp Health", $"http://{healthCheckHost}:80/health");
+    if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!= "Production")
+    {
+        options.AddHealthCheckEndpoint("ChapApp Health", "/health");
+    }
+    else
+    {
+        //options.AddHealthCheckEndpoint("ChapApp Health", "/health");
+        options.AddHealthCheckEndpoint("ChapApp Health", $"http://{healthCheckHost}:80/health");
+    }
 }).AddInMemoryStorage();
 builder.Services.AddSwaggerGen(opt =>
 {
@@ -124,11 +131,6 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
 var swaggerEnabled = Environment.GetEnvironmentVariable("ENABLE_SWAGGER");
 
 if (app.Environment.IsDevelopment() || swaggerEnabled == "true")
@@ -167,7 +169,7 @@ void configureLogging()
     //    .Enrich.WithProperty("Environment",environment).ReadFrom.Configuration(configuration)
     //    .CreateLogger();
     var configuration = new ConfigurationBuilder()
-        .AddEnvironmentVariables() // <- Quan trọng
+        .AddEnvironmentVariables()
         .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
         .AddJsonFile($"appsettings.{environment}.json", optional: true)
         .Build();

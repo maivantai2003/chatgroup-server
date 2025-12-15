@@ -100,7 +100,6 @@ namespace chatgroup_server.Extensions
             //Firebase
             GoogleCredential credential;
             var firebaseJson = Environment.GetEnvironmentVariable("FIREBASE_ADMIN_SDK");
-            Console.WriteLine("Base64 length: " + firebaseJson.Length);
             if (!string.IsNullOrWhiteSpace(firebaseJson))
             {
                 // Decode Base64 → JSON
@@ -141,7 +140,7 @@ namespace chatgroup_server.Extensions
                     .ForJob(birthdayJobKey)
                     .WithIdentity("BirthdayJob-trigger")
                     .StartNow()
-                    .WithCronSchedule("0 0 8 ? * *") // chạy lúc 8h sáng mỗi ngày
+                    .WithCronSchedule("0 0 8 ? * *")
                 );
                 //q.AddTrigger(opts => opts
                 //.ForJob(birthdayJobKey)

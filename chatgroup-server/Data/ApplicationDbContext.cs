@@ -90,6 +90,8 @@ namespace chatgroup_server.Data
             modelBuilder.Entity<User>().HasIndex(um=>um.Birthday).HasDatabaseName("IX_User_BirthDay");
             //
             modelBuilder.Entity<User>().HasIndex(u => u.PhoneNumber).IsUnique();
+            //
+            modelBuilder.Entity<UserDevice>().HasIndex(ud => new { ud.UserId, ud.DeviceId }).IsUnique();
             //modelBuilder.Entity<User>().HasIndex(u => u.Gmail).IsUnique();
             base.OnModelCreating(modelBuilder);
             

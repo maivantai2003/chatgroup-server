@@ -11,6 +11,7 @@ namespace chatgroup_server.Interfaces.IRepositories
         Task<bool> UpdateStatus(int userId, UserUpdateStatusDto userUpdateStatusDto);
         Task<UserInfor?> GetUserById(int userId);
         Task<IEnumerable<UserDto>> GetAllUsersAsync(int userId);
+        Task<bool> CheckGmailUser(string gmail);
         Task<bool> CheckPhoneNumber(string? phoneNumber);
         Task AddUserAsync(User user);
         void UpdateUser(User user);

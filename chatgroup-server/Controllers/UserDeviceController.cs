@@ -25,5 +25,15 @@ namespace chatgroup_server.Controllers
             }
             return BadRequest(response.Errors);
         }
+        [HttpGet]
+        public async Task<IActionResult> GetUserDevice(int userId, string deviceId)
+        {
+            var response = await _userDeviceService.GetUserDevice(userId, deviceId);
+            if (response.Success)
+            {
+                return Ok(response.Data==null?null:response.Data);
+            }
+            return BadRequest(response.Errors);
+        }
     }
 }

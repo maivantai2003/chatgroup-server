@@ -43,6 +43,12 @@ namespace chatgroup_server.Services
             }
         }
 
+        public async Task<ApiResponse<bool>> CheckGmailUser(string gmail)
+        {
+            var result=await _userRepository.CheckGmailUser(gmail);
+            return ApiResponse<bool>.SuccessResponse("Gmail "+(result?"đã":"chưa")+"tồn tại",result);
+        }
+
         public async Task<ApiResponse<bool>> CheckPhoneNumber(string? phoneNumber)
         {
             try

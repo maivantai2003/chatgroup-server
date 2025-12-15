@@ -3,6 +3,7 @@
     public class UserDeviceAddDto
     {
         public int UserId { get; set; }
+        public string? DeviceId { get; set; }
         public string? DeviceToken { get; set; }
         public string? DeviceType { get; set; }
         public string? Browser { get; set; }

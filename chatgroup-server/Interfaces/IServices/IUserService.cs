@@ -13,6 +13,7 @@ namespace chatgroup_server.Interfaces.IServices
         Task<ApiResponse<bool>> UserUpdateStatus(int userId,UserUpdateStatusDto userUpdateStatusDto);
         Task<ApiResponse<User>> AddUserAsync(User user);
         Task<ApiResponse<User>> UpdateUserAsync(User user);
+        Task<ApiResponse<bool>> CheckGmailUser(string gmail);
         Task<ApiResponse<string>> ForgotPassword(ForgotPasswordRequest request);
         Task<ApiResponse<string>> ResetPassword(ResetPasswordRequest request);
         Task<bool> DeleteUserAsync(int userId);

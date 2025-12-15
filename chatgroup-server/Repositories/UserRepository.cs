@@ -99,5 +99,11 @@ namespace chatgroup_server.Repositories
                 .ExecuteUpdateAsync(p => p.SetProperty(x=>x.IsOnline,userUpdateStatusDto.IsOnline).SetProperty(x=>x.LastLogin,userUpdateStatusDto.LastLogin).SetProperty(x=>x.FirstLogin,userUpdateStatusDto.FirstLogin));
             return result > 0;
         }
+
+        public async Task<bool> CheckGmailUser(string gmail)
+        {
+            var result = await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Gmail == gmail);
+            return result != null ? true : false;
+        }
     }
 }

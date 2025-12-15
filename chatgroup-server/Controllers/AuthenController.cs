@@ -51,6 +51,7 @@ namespace chatgroup_server.Controllers
                 Birthday = userRegister.Birthday,
                 Sex = userRegister.Sex, 
                 Password = PasswordHelper.Hash(userRegister.Password),   
+                Gmail= userRegister.Gmail
             };
             var response=await _userService.AddUserAsync(user);
             if (!response.Success)

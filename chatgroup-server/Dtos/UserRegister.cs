@@ -10,5 +10,6 @@ namespace chatgroup_server.Dtos
         public DateTime Birthday { get; set; } = new DateTime(1990, 1, 1);
         public string? Avatar { get; set; }
         public string? Password {  get; set; }
+        public string? Gmail { get; set; }  
     }
 }
