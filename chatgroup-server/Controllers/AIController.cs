@@ -12,13 +12,9 @@ namespace chatgroup_server.Controllers
     public class AIController : ControllerBase
     {
         private readonly IOpenAIService _openAIService;
-        private readonly IEmailProducer _emailProducer;
-        private readonly IOtpService _otpService;
-        public AIController(IOpenAIService openAIService,IEmailProducer emailProducer, IOtpService otpService)
+        public AIController(IOpenAIService openAIService)
         {
-            _emailProducer = emailProducer;
             _openAIService = openAIService;
-            _otpService = otpService;
         }
         [HttpPost]
         public async Task<IActionResult> QuestionChat(string question)

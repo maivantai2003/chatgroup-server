@@ -73,17 +73,17 @@ namespace chatgroup_server.Extensions
             //SendGmail
             services.AddScoped<ISendGmailService, SendGmailService>();
             //RabbitMQ
-            services.AddSingleton<IRabbitMQConnection, RabbitMQConnection>();
-            services.AddSingleton<IRabbitMQChannelFactory, RabbitMQChannelFactory>();
+            //services.AddSingleton<IRabbitMQConnection, RabbitMQConnection>();
+            //services.AddSingleton<IRabbitMQChannelFactory, RabbitMQChannelFactory>();
             //RabbitMQ-Email
-            services.AddSingleton<IEmailProducer, EmailProducer>();
-            services.AddHostedService<EmailConsumer>();
+            //services.AddSingleton<IEmailProducer, EmailProducer>();
+            //services.AddHostedService<EmailConsumer>();
             //RabbitMQ-Notification
-            services.AddSingleton<INotificationProducer, NotificationProducer>();
-            services.AddHostedService<NotificationConsumer>();
+            //services.AddSingleton<INotificationProducer, NotificationProducer>();
+            //services.AddHostedService<NotificationConsumer>();
             //RabbitMQ-BirthDay
-            services.AddSingleton<IBirthDayProducer,BirthDayProducer>();
-            services.AddHostedService<BirthDayConsumer>();
+            //services.AddSingleton<IBirthDayProducer,BirthDayProducer>();
+            //services.AddHostedService<BirthDayConsumer>();
             //Recaptcha
             services.AddHttpClient<IRecaptchaService, RecaptchaService>();
             //NewPaper

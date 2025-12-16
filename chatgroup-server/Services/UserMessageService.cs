@@ -4,8 +4,8 @@ using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
 using chatgroup_server.Common;
 using chatgroup_server.Dtos;
-using chatgroup_server.RabbitMQ.Producer;
-using chatgroup_server.RabbitMQ.Interfaces;
+using MassTransit;
+using chatgroup_server.Messaging.Contracts;
 
 namespace chatgroup_server.Services
 {
@@ -13,9 +13,9 @@ namespace chatgroup_server.Services
     {
         private readonly IUserMessageRepository _userMessageRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly INotificationProducer _notificationProducer;
+        private readonly IPublishEndpoint _notificationProducer;
 
-        public UserMessageService(IUserMessageRepository userMessageRepository, IUnitOfWork unitOfWork,INotificationProducer notificationProducer)
+        public UserMessageService(IUserMessageRepository userMessageRepository, IUnitOfWork unitOfWork, IPublishEndpoint notificationProducer)
         {
             _userMessageRepository = userMessageRepository;
             _unitOfWork = unitOfWork;
@@ -41,7 +41,7 @@ namespace chatgroup_server.Services
                 await _unitOfWork.CommitAsync();
                 var result=await _userMessageRepository.GetUserMessageById(userMessage.UserMessageId);
                 
-                await _notificationProducer.SendNotificationAsync(new RabbitMQ.Models.NotificationMessageModel()
+                await _notificationProducer.Publish(new NotificationMessage()
                 {
                     UserId=userMessage.UserMessageId,
                     Body=userMessage.Content,

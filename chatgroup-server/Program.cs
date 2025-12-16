@@ -2,6 +2,7 @@
 using chatgroup_server.Extensions;
 using chatgroup_server.Helpers;
 using chatgroup_server.Hubs;
+using chatgroup_server.Messaging.Configurations;
 using chatgroup_server.Middlewares;
 using chatgroup_server.RabbitMQ.Consumer;
 using HealthChecks.UI.Client;
@@ -80,6 +81,7 @@ builder.Services.AddSwaggerGen(opt =>
     });
 });
 configureLogging();
+builder.Services.AddMessaging(builder.Configuration);
 builder.Host.UseSerilog();
 builder.Services.AddRateLimiter(options =>
 {
