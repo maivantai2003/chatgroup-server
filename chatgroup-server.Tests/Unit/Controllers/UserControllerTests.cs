@@ -49,7 +49,7 @@ namespace chatgroup_server.Tests.Unit.Controllers
             var result = await _userController.CheckPhoneNumber(phoneNumber) as ObjectResult;
             //Assert
             Assert.NotNull(result);
-            Assert.Equal(200, result.StatusCode);
+            Assert.Equal(400, result.StatusCode);
             var value = Assert.IsType<List<string>>(result.Value);
             Assert.Equal(errors, value);
         }
