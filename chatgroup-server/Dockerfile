@@ -19,7 +19,6 @@ RUN apt-get update && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /app/publish .
-#COPY firebase-adminsdk.json /app/firebase-adminsdk.json
 
 # Add wait script
 COPY wait-for-mssql.sh /app/wait-for-mssql.sh

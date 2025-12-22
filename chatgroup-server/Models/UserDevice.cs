@@ -12,6 +12,8 @@ namespace chatgroup_server.Models
         public string? DeviceToken { get; set; }
         public string? DeviceType { get; set; }
         public bool IsOnline { get; set; } = false;
+        public bool IsVerified { get; set; } = false;
+        public DateTime VerifiedAt { get; set; }
         public DateTime? LastLoginAt { get; set; }
         public DateTime? LastActiveAt { get; set; }
         public string? IpAddress { get; set; }

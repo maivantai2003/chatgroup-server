@@ -24,6 +24,7 @@ namespace chatgroup_server.Data
         public DbSet<Conversation> Conversations { get; set; }
         public DbSet<CloudMessage> CloudMessages { get; set; }
         public DbSet<CloudMessageFile> CloudMessageFiles { get; set; }  
+        public DbSet<OtpVerification> OtpVerifications { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Friends>().HasOne(f => f.User).WithMany(u => u.Friends).HasForeignKey(f=>f.UserId).OnDelete(DeleteBehavior.NoAction);
