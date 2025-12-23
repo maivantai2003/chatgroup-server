@@ -5,9 +5,9 @@ using MassTransit;
 
 namespace chatgroup_server.Messaging.Consumers
 {
-    public class NotificationConsumer(IFirebaseService _firebase,IUserDeviceService _device):IConsumer<NotificationMessage>
+    public class ChatNotificationConsumer(IFirebaseService _firebase,IUserDeviceService _device):IConsumer<ChatNotificationMessage>
     {
-        public async Task Consume(ConsumeContext<NotificationMessage> context)
+        public async Task Consume(ConsumeContext<ChatNotificationMessage> context)
         {
             var msg = context.Message;
             //var tokens = await _device.GetFcmTokensByUserIdAsync(msg.UserId);
@@ -16,14 +16,14 @@ namespace chatgroup_server.Messaging.Consumers
             {
                 await _firebase.SendNotificationAsync(token, msg.Title ?? "Thông báo", msg.Body ?? "");
             }
-            foreach (var token in fcmTokens)
-            {
-                await _firebase.SendNotificationAsync(
-                    token,
-                    msg.Title ?? "Thông báo",
-                    msg.Body ?? ""
-                );
-            }
+            //foreach (var token in fcmTokens)
+            //{
+            //    await _firebase.SendNotificationAsync(
+            //        token,
+            //        msg.Title ?? "Thông báo",
+            //        msg.Body ?? ""
+            //    );
+            //}
         }
     }
 }

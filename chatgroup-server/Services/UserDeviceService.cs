@@ -52,6 +52,16 @@ namespace chatgroup_server.Services
             }
         }
 
+        public async Task<List<string>> GetFcmTokensByUserIdAsync(int userId)
+        {
+            return await _userDeviceService.GetFcmTokensByUserIdAsync(userId);
+        }
+
+        public async Task<List<string>> GetFcmTokensByUserIdsAsync(List<int> userIds)
+        {
+            return await _userDeviceService.GetFcmTokensByUserIdsAsync(userIds);
+        }
+
         public async Task<ApiResponse<UserDevice?>> GetUserDevice(int UserId, string DeviceId)
         {
             try
@@ -62,6 +72,26 @@ namespace chatgroup_server.Services
             catch (Exception ex)
             {
                 return ApiResponse<UserDevice?>.ErrorResponse("Lấy Không Thành Công", new List<string>()
+                {
+                    ex.Message
+                });
+            }
+        }
+
+        public async Task<ApiResponse<bool>> UpdateUserDeviceAsync(UpdateUserDeviceDto userDeviceUpdateDto, string ipAddress)
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                var response =await _userDeviceService.UpdateUserDevice(userDeviceUpdateDto, ipAddress);
+                await _unitOfWork.CommitAsync();
+                return ApiResponse<bool>.SuccessResponse("Cập Nhật Thành Công", true);
+
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                return ApiResponse<bool>.ErrorResponse("Cập Nhật Không Thành Công", new List<string>()
                 {
                     ex.Message
                 });

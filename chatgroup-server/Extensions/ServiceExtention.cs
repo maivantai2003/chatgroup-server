@@ -2,18 +2,13 @@
 using chatgroup_server.Interfaces;
 using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Interfaces.IServices;
-using chatgroup_server.Models;
+
 using chatgroup_server.Quartzs;
-using chatgroup_server.RabbitMQ.Consumer;
-using chatgroup_server.RabbitMQ.Interfaces;
-using chatgroup_server.RabbitMQ.Producer;
-using chatgroup_server.RabbitMQ.Services;
 using chatgroup_server.Repositories;
 using chatgroup_server.Services;
 using FirebaseAdmin;
 using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
-using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 using System.Text;
 
@@ -68,6 +63,9 @@ namespace chatgroup_server.Extensions
             //GroupMessageFile
             services.AddScoped<IGroupMessageFileService, GroupMessageFileService>();
             services.AddScoped<IGroupMessageFileRepository, GroupMessageFileRepository>();
+            //
+            services.AddScoped<IDeviceVerificationService, DeviceVerificationService>();
+            //
             //OpenAI
             services.AddScoped<IOpenAIService, OpenAIService>();
             //SendGmail
@@ -105,17 +103,19 @@ namespace chatgroup_server.Extensions
                 // Decode Base64 → JSON
                 var json = Encoding.UTF8.GetString(Convert.FromBase64String(firebaseJson));
                 // Parse JSON Credential
-                credential = GoogleCredential.FromJson(json);
+                credential = GoogleCredential.FromJson(json).CreateScoped("https://www.googleapis.com/auth/firebase.messaging"); ;
             }
             else
             {
-                credential = GoogleCredential.FromFile("firebase-adminsdk.json");
+                credential = GoogleCredential.FromFile("firebase-adminsdk.json").CreateScoped("https://www.googleapis.com/auth/firebase.messaging");
             }
 
-            FirebaseApp firebaseApp = FirebaseApp.Create(new AppOptions
-            {
-                Credential = credential
-            });
+            var firebaseApp = FirebaseApp.DefaultInstance ?? FirebaseApp.Create(
+                new AppOptions
+                {
+                    Credential = credential
+                }
+            );
 
             services.AddSingleton(FirebaseMessaging.GetMessaging(firebaseApp));
             services.AddSingleton<IFirebaseService, FirebaseService>();

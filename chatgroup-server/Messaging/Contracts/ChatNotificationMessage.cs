@@ -1,6 +1,6 @@
 ﻿namespace chatgroup_server.Messaging.Contracts
 {
-    public class NotificationMessage
+    public class ChatNotificationMessage
     {
         public int UserId { get; set; }
         public string? Title { get; set; }

@@ -31,7 +31,18 @@ namespace chatgroup_server.Controllers
             var response = await _userDeviceService.GetUserDevice(userId, deviceId);
             if (response.Success)
             {
-                return Ok(response.Data==null?null:response.Data);
+                return Ok(response.Data == null ? null : response.Data);
+            }
+            return BadRequest(response.Errors);
+        }
+        [HttpPut]
+        public async Task<IActionResult> UpdateUserDevice(UpdateUserDeviceDto userDeviceUpdateDto)
+        {
+            string ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+            var response = await _userDeviceService.UpdateUserDeviceAsync(userDeviceUpdateDto, ipAddress);
+            if (response.Success)
+            {
+                return Ok(response.Data);
             }
             return BadRequest(response.Errors);
         }

@@ -4,6 +4,9 @@
     {
         public string accessToken { get; set; }
         public string refreshToken { get; set; }
+        public string? Status { get; set; } = null!;
+        public string? VerifyToken { get; set; } = null!;
+        public bool RequireDeviceVerification { get; set; }
         public bool IsSuccess { get; set; }
         public string Reason { get; set; }
         public string? DeviceName { get; set; }

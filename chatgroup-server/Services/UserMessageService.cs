@@ -41,7 +41,7 @@ namespace chatgroup_server.Services
                 await _unitOfWork.CommitAsync();
                 var result=await _userMessageRepository.GetUserMessageById(userMessage.UserMessageId);
                 
-                await _notificationProducer.Publish(new NotificationMessage()
+                await _notificationProducer.Publish(new ChatNotificationMessage()
                 {
                     UserId=userMessage.UserMessageId,
                     Body=userMessage.Content,

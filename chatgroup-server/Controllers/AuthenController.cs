@@ -1,11 +1,10 @@
 ﻿using chatgroup_server.Common;
-using chatgroup_server.Interfaces.IServices;
-using chatgroup_server.Services;
 using chatgroup_server.Dtos;
-using chatgroup_server.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using chatgroup_server.Exceptions;
 using chatgroup_server.Helpers;
+using chatgroup_server.Interfaces.IServices;
+using chatgroup_server.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace chatgroup_server.Controllers
 {
@@ -18,15 +17,18 @@ namespace chatgroup_server.Controllers
         private readonly IRedisService _redisService;
         private readonly IRecaptchaService _recaptchaService;
         private readonly IUserContextService _userContextService;
-        public AuthenController(IJwtService jwtService,IRedisService redisService,IUserService userService,IRecaptchaService recaptchaService,IUserContextService userContextService) { 
+        private readonly IDeviceVerificationService _deviceVerificationService;
+        public AuthenController(IJwtService jwtService, IRedisService redisService, IUserService userService, IRecaptchaService recaptchaService, IUserContextService userContextService, IDeviceVerificationService deviceVerificationService)
+        {
             _jwtService = jwtService;
-            _redisService = redisService;   
+            _redisService = redisService;
             _userService = userService;
             _recaptchaService = recaptchaService;
             _userContextService = userContextService;
+            _deviceVerificationService = deviceVerificationService;
         }
         [HttpPost("[action]")]
-        public async Task<IActionResult> AuthToken([FromBody] AuthResquest authRequest)
+        public async Task<IActionResult> Login([FromBody] AuthResquest authRequest)
         {
             if (!ModelState.IsValid)
             {
@@ -41,23 +43,24 @@ namespace chatgroup_server.Controllers
             return Ok(authResponse);
         }
         [HttpPost("[action]")]
-        public async Task<IActionResult> Register([FromBody]UserRegister userRegister)
+        public async Task<IActionResult> Register([FromBody] UserRegister userRegister)
         {
             var user = new User
             {
                 UserName = userRegister.UserName,
-                PhoneNumber = userRegister.PhoneNumber, 
-                Avatar = userRegister.Avatar,   
+                PhoneNumber = userRegister.PhoneNumber,
+                Avatar = userRegister.Avatar,
                 Birthday = userRegister.Birthday,
-                Sex = userRegister.Sex, 
-                Password = PasswordHelper.Hash(userRegister.Password),   
-                Gmail= userRegister.Gmail
+                Sex = userRegister.Sex,
+                Password = PasswordHelper.Hash(userRegister.Password),
+                Gmail = userRegister.Gmail
             };
-            var response=await _userService.AddUserAsync(user);
+            var response = await _userService.AddUserAsync(user);
             if (!response.Success)
             {
                 return Ok(response.Errors);
-            }else if (response == null)
+            }
+            else if (response == null)
             {
                 return Ok(new
                 {
@@ -65,6 +68,20 @@ namespace chatgroup_server.Controllers
                 });
             }
             return Ok(response.Data);
+        }
+        [HttpPost("verify-device")]
+        public async Task<IActionResult> VerifyDevice([FromBody] VerifyOtpDto dto)
+        {
+            try
+            {
+                var ip = HttpContext.Connection.RemoteIpAddress!.ToString();
+                var result = await _deviceVerificationService.VerifyDeviceAsync(dto, ip);
+                return Ok(result);
+            }
+            catch (BusinessException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
         [HttpPost("[action]")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request)
@@ -91,7 +108,7 @@ namespace chatgroup_server.Controllers
                 return BadRequest("Captcha không hợp lệ");
             }
             var response = await _userService.ForgotPassword(request);
-            if(!response.Success)
+            if (!response.Success)
             {
                 return BadRequest(response.Errors);
             }
@@ -119,7 +136,7 @@ namespace chatgroup_server.Controllers
             {
                 return Unauthorized();
             }
-            Console.WriteLine("userId: "+_userContextService.GetCurrentUserId());
+            Console.WriteLine("userId: " + _userContextService.GetCurrentUserId());
             return Ok(authResponse);
         }
     }
