@@ -159,6 +159,7 @@ app.MapHealthChecksUI(options =>
     options.UIPath = "/health-ui";
 });
 app.MapHub<myHub>("/app-hub");
+app.MapGet("/", () => "ChatGroup API running 🚀");
 app.MapControllers();
 app.Run();
 void configureLogging()
