@@ -2,12 +2,6 @@
 using chatgroup_server.Data;
 using chatgroup_server.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace chatgroup_server.Tests.Helpers
 {
     public class TestBase
@@ -29,6 +23,18 @@ namespace chatgroup_server.Tests.Helpers
                 .RuleFor(u => u.Gmail, f => f.Internet.Email())
                 .RuleFor(u => u.Status, f => status);
 
+            return faker.Generate();
+        }
+        protected UserDevice GenerateFakeUserDevice(int userId)
+        {
+            var faker = new Faker<UserDevice>()
+                .RuleFor(ud => ud.UserDeviceId, f => f.IndexFaker + 1)
+                .RuleFor(ud => ud.UserId, f => userId)
+                .RuleFor(ud => ud.DeviceId, f => f.Random.Guid().ToString())
+                .RuleFor(ud => ud.DeviceType, f => f.PickRandom(new[] { "iOS", "Android", "Web", "Desktop" }))
+                .RuleFor(ud => ud.DeviceToken, f => f.Random.AlphaNumeric(20))
+                .RuleFor(ud => ud.IsOnline, f => f.Random.Bool())
+                .RuleFor(ud => ud.LastActiveAt, f => f.Date.Recent());
             return faker.Generate();
         }
     }

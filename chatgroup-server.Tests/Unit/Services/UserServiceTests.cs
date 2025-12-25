@@ -6,11 +6,6 @@ using chatgroup_server.Models;
 using chatgroup_server.Services;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace chatgroup_server.Tests.Unit.Services
 {

@@ -2,7 +2,6 @@
 using chatgroup_server.Dtos;
 using chatgroup_server.Interfaces.IRepositories;
 using chatgroup_server.Models;
-using Humanizer;
 using Microsoft.EntityFrameworkCore;
 
 namespace chatgroup_server.Repositories
