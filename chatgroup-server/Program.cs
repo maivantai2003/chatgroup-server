@@ -1,16 +1,11 @@
 ﻿using chatgroup_server.Data;
 using chatgroup_server.Extensions;
-using chatgroup_server.Helpers;
 using chatgroup_server.Hubs;
 using chatgroup_server.Messaging.Configurations;
-using chatgroup_server.Middlewares;
-using chatgroup_server.RabbitMQ.Consumer;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
-using RabbitMQ.Client;
 using Serilog;
 using Serilog.Exceptions;
 using Serilog.Sinks.Elasticsearch;
@@ -82,6 +77,7 @@ builder.Services.AddSwaggerGen(opt =>
 });
 configureLogging();
 builder.Services.AddMessaging(builder.Configuration);
+builder.Services.AddAuthRateLimiter();
 builder.Host.UseSerilog();
 builder.Services.AddRateLimiter(options =>
 {
@@ -107,21 +103,16 @@ builder.Services.AddRateLimiter(options =>
     {
         context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
         context.HttpContext.Response.ContentType = "application/json";
-
         var userId = context.HttpContext.User?.FindFirst("sub")?.Value
                      ?? context.HttpContext.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         var ip = context.HttpContext.Connection.RemoteIpAddress?.ToString();
-
-        // Logging
         var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
         logger.LogWarning("[RateLimit] User: {UserId} IP: {IP}", userId ?? "guest", ip);
         Console.WriteLine($"[RateLimit] User: {userId ?? "guest"} IP: {ip}");
-
         var result = new
         {
             error = "Bạn đã gửi quá nhiều request, vui lòng thử lại sau."
         };
-
         await context.HttpContext.Response.WriteAsync(JsonSerializer.Serialize(result), cancellationToken);
     };
 });
@@ -140,14 +131,17 @@ if (app.Environment.IsDevelopment() || swaggerEnabled == "true")
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+//
+app.UseForwardedHeaders();
+//
 app.UseHttpsRedirection();
 app.UseCors(policy => policy.AllowAnyHeader().AllowAnyMethod()
                             .SetIsOriginAllowed(origin => true)
                             .AllowCredentials());
 app.UseRouting();
-app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
 app.UseWebSockets();
 app.MapHealthChecks("/health", new HealthCheckOptions
 {

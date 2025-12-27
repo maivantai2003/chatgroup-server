@@ -5,6 +5,7 @@ using chatgroup_server.Helpers;
 using chatgroup_server.Interfaces.IServices;
 using chatgroup_server.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace chatgroup_server.Controllers
 {
@@ -27,6 +28,7 @@ namespace chatgroup_server.Controllers
             _userContextService = userContextService;
             _deviceVerificationService = deviceVerificationService;
         }
+        [EnableRateLimiting("auth-login")]
         [HttpPost("[action]")]
         public async Task<IActionResult> Login([FromBody] AuthResquest authRequest)
         {
